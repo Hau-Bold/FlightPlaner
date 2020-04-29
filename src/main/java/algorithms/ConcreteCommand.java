@@ -7,9 +7,9 @@ import client.InfiniteProgress;
 import client.Routeplaner;
 import gps_coordinates.GpsCoordinate;
 
-public class ConcreteCommand implements Command {
+public class ConcreteCommand implements ICommand {
 
-	private AbstractOptimization abstractOptimization;
+	private IOptimization abstractOptimization;
 	
 	private GpsCoordinate startGps;
 	private List<GpsCoordinate> targets;
@@ -26,7 +26,7 @@ public class ConcreteCommand implements Command {
 	 * @param locY 
 	 * @param locX 
 	 */
-	public ConcreteCommand(Routeplaner routeplaner, AbstractOptimization abstractOptimization, GpsCoordinate startGps, ArrayList<GpsCoordinate> targets, int locX, int locY) {
+	public ConcreteCommand(Routeplaner routeplaner, IOptimization abstractOptimization, GpsCoordinate startGps, ArrayList<GpsCoordinate> targets, int locX, int locY) {
 		this.routeplaner=routeplaner;
 		this.abstractOptimization = abstractOptimization;
 		this.startGps = startGps;

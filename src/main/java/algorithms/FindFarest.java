@@ -10,13 +10,13 @@ import java.util.List;
 import Routenplaner.Utils;
 import Routenplaner.SpecialPoint;
 
-public class FindFarest implements AbstractOptimization {
+public class FindFarest implements IOptimization {
 
 	private ArrayList<GpsCoordinate> response;
 	private ArrayList<Double> distanceList;
 
 	@Override
-	public List<GpsCoordinate> computeRoute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
+	public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
 		
 		List<GpsCoordinate> tmpReceiving = new ArrayList<GpsCoordinate>(receiving);
 		 GpsCoordinate startGpsTmp=startGps;

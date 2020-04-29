@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 
-import PrintPreviewDemo.PrintPreviewDemo;
 import QueryHelper.QueryHelper.QueryHelper;
 import Routenplaner.AddressVector;
 import Routenplaner.Constants;
@@ -32,7 +31,6 @@ public class OverViewContextMenu extends CommonContextMenu implements ActionList
 	private IconMenuItem removeFlight;
 	private IconMenuItem renameFlight;
 	private IconMenuItem selectFlight;
-	private IconMenuItem printPreview;
 	private OverView overView;
 	private Routeplaner routeplaner;
 
@@ -51,10 +49,8 @@ public class OverViewContextMenu extends CommonContextMenu implements ActionList
 		renameFlight.addActionListener(this);
 		selectFlight = new IconMenuItem("Images/showIcon.png", Constants.SELECTFLIGHT);
 		selectFlight.addActionListener(this);
-		printPreview = new IconMenuItem("Images/showIcon.png", Constants.PRINTPREVIEW);
-		printPreview.addActionListener(this);
 
-		super.addIconMenuItem(removeFlight, renameFlight, selectFlight, printPreview);
+		super.addIconMenuItem(removeFlight, renameFlight, selectFlight);
 		super.activate();
 	}
 
@@ -84,7 +80,7 @@ public class OverViewContextMenu extends CommonContextMenu implements ActionList
 						modelTargets.clear();
 					}
 					flight.forEach(gps -> modelTargets.addDataRow(new AddressVector(String.valueOf(gps.getId()),
-							gps.getStreet(), gps.getCity(), gps.getCountry(), String.valueOf(gps.getLongitude()),
+							gps.getMyStreet(), gps.getCity(), gps.getCountry(), String.valueOf(gps.getLongitude()),
 							String.valueOf(gps.getLatitude()))));
 					modelTargets.revalidate();
 					JLabel statusBar = routeplaner.getStatusBar();
@@ -123,12 +119,6 @@ public class OverViewContextMenu extends CommonContextMenu implements ActionList
 				}
 			}
 			this.dispose();
-		} else if (o.equals(printPreview)) {
-
-			PrintPreviewDemo p = new PrintPreviewDemo(overView.getTable());
-			p.showFrame();
 		}
-
 	}
-
 }

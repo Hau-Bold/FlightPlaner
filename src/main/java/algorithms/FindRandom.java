@@ -9,12 +9,12 @@ import java.util.Random;
 
 import Routenplaner.Utils;
 
-public class FindRandom implements AbstractOptimization {
+public class FindRandom implements IOptimization {
 
 	private ArrayList<GpsCoordinate> output;
 
 	@Override
-	public List<GpsCoordinate> computeRoute(GpsCoordinate startGps,List<GpsCoordinate> targets) {
+	public List<GpsCoordinate> compute(GpsCoordinate startGps,List<GpsCoordinate> targets) {
 		if (startGps != null) {
 			if (targets.size() == 1) {
 				output = new ArrayList<GpsCoordinate>(targets);

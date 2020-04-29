@@ -3,16 +3,16 @@ package toolbar;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+
+import org.json.JSONException;
 
 import client.Routeplaner;
 
@@ -52,8 +52,8 @@ public class ConfirmingAddress extends JFrame implements ActionListener {
 		toolbarAdress = new JToolBar();
 		toolbarAdress.setPreferredSize(new Dimension(width, height));
 		toolbarAdress.add(confirmAddress);
-		
-		panelToolbar.add(toolbarAdress,BorderLayout.CENTER);
+
+		panelToolbar.add(toolbarAdress, BorderLayout.CENTER);
 		this.getContentPane().add(panelToolbar);
 
 		// toolbarAdress.add(btnConfirmAddress);
@@ -69,13 +69,17 @@ public class ConfirmingAddress extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		
-		Object o= event.getSource();
-		if(o.equals(confirmAddress))
-		{
-		   routenplaner.reactOnConfirmAdress();
+
+		Object o = event.getSource();
+		if (o.equals(confirmAddress)) {
+			try {
+				routenplaner.reactOnConfirmAdress();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		
+
 	}
 
 }

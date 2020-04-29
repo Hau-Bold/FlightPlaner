@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -18,7 +17,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListSelectionModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -36,17 +34,18 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.jdom.JDOMException;
+import org.json.JSONException;
+import org.json.simple.parser.ParseException;
 
 import com.jgoodies.common.internal.Messages;
 
 import QueryHelper.QueryHelper.QueryHelper;
-import Routenplaner.AddressVector;
 import Routenplaner.AddressDialog;
+import Routenplaner.AddressVector;
 import Routenplaner.Constants;
 import Routenplaner.Fonts;
 import Routenplaner.FrameMap;
 import Routenplaner.IconButton;
-import Routenplaner.MailDialogue;
 import Routenplaner.Utils;
 import algorithms.ConcreteCommand;
 import algorithms.FindFarest;
@@ -68,7 +67,6 @@ import listeners.TableTargetsMouseListener;
 import overview.Flight;
 import overview.OverView;
 import overview.OverViewLogic;
-import pdf.PdfWrite;
 import render.CityRenderer;
 import render.TargetRenderer;
 import tablemodel.CommonModel;
@@ -78,10 +76,6 @@ import toolbar.RoutePlanerLocationListener;
 
 public class Routeplaner extends JFrame implements ActionListener, DocumentListener {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6471958532391000723L;
 	private final int X = 10;
 	private final int Y = 10;
 	private final int WIDTH = 500;
@@ -147,7 +141,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 	 * the compute actions
 	 */
 
-	private JButton btnShowMap, btnSendMail, btnMyLocation;
+	private JButton btnShowMap, btnMyLocation;
 	private JPanel panelComputedRoute, panelComputedRouteNorth;
 	private JToolBar toolbarMap;
 
@@ -156,7 +150,6 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 	 */
 	private List<GpsCoordinate> computedRoute;
 
-	private JButton rbtnExport;
 	private IconButton btnSubmitFlightNumber, btnSubmitFlightToSelect, btnSave, btnAccessData, btnSubmitFlightToDrop;
 	public static String flightNumber;
 
@@ -478,35 +471,14 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		btnShowMap.addActionListener(this);
 		toolbarMap.add(btnShowMap);
 
-		ImageIcon icon = new ImageIcon(getClass().getResource("../Images/mail.jpg").getPath());
-		icon.setImage(icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH));
-		btnSendMail = new JButton(icon);
-		btnSendMail.setPreferredSize(new Dimension(80, 20));
-		btnSendMail.addActionListener(this);
-		toolbarMap.add(btnSendMail);
-
-		rbtnExport = new JButton();
-		rbtnExport.setText("export");
-		rbtnExport.addActionListener(this);
-		toolbarMap.add(rbtnExport);
-
 	}
 
-	public static void main(String[] args) {
-		Routeplaner routenplaner = Routeplaner.getInstance();
-		routenplaner.showFrame();
-	}
-
-	private static Routeplaner getInstance() {
+	static Routeplaner getInstance() {
 		if (Routeplaner.routeplaner == null) {
 			routeplaner = new Routeplaner();
 			return routeplaner;
 		}
 		return null;
-	}
-
-	private void showFrame() {
-		this.setVisible(true);
 	}
 
 	@SuppressWarnings("static-access")
@@ -683,16 +655,6 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 			FrameMap.getInstance(computedRoute);
 		}
 
-		else if (o.equals(btnSendMail)) {
-			MailDialogue mailDialogue = new MailDialogue();
-			mailDialogue.showFrame();
-		}
-		// radio f�r export
-		else if (o.equals(rbtnExport)) {
-			if (computedRoute != null) {
-				new PdfWrite(computedRoute);
-			}
-		}
 	}
 
 	@Override
@@ -827,55 +789,64 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		}
 	}
 
-	public void reactOnConfirmAdress() {
+	public void reactOnConfirmAdress() throws JSONException {
 		int counter = master.size();
 		counter++;
 
-		if (txtCity.getText() != "") {
-			GpsCoordinate gps = null;
-
-			StringBuilder builder = new StringBuilder();
-			builder.append(txtStreet.getText());
-			builder.append(txtCity.getText());
-			builder.append(txtCountry.getText());
-
-			/** to request the coordinates */
+		if (txtCity.getText() != "")
 			try {
-				gps = GPS.requestGPS(Utils.replaceUnusableChars(builder.toString()));
-			} catch (MalformedURLException e2) {
-				e2.printStackTrace();
-			} catch (JDOMException e1) {
-				e1.printStackTrace();
-			}
+				{
+					GpsCoordinate gps = null;
 
-			if (gps != null) {
-				/** saving the address */
-				gps.setId(counter);
-				gps.setStreet(txtStreet.getText());
-				gps.setCity(txtCity.getText());
-				gps.setCountry(txtCountry.getText());
+					StringBuilder builder = new StringBuilder();
+					builder.append(txtStreet.getText());
+					builder.append(txtCity.getText());
+					builder.append(txtCountry.getText());
 
-				if (!master.contains(gps)) {
-
-					master.add(gps);
-					modelTargets.addDataRow(new AddressVector(String.valueOf(counter), txtStreet.getText(),
-							txtCity.getText(), txtCountry.getText(), String.valueOf(gps.getLongitude()),
-							String.valueOf(gps.getLatitude())));
-					modelTargets.revalidate();
-
-					if (isConnected() && (flightNumber != null)) {
-						try {
-							database.insertIntoFlight(flightNumber, gps);
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
+					/** to request the coordinates */
+					try {
+						gps = GPS.requestGPS(Utils.replaceUnusableChars(builder.toString()));
+					} catch (MalformedURLException e2) {
+						e2.printStackTrace();
+					} catch (JDOMException e1) {
+						e1.printStackTrace();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 
+					if (gps != null) {
+						/** saving the address */
+						gps.setId(counter);
+						gps.setStreet(txtStreet.getText());
+						gps.setCity(txtCity.getText());
+						gps.setCountry(txtCountry.getText());
+
+						if (!master.contains(gps)) {
+
+							master.add(gps);
+							modelTargets.addDataRow(new AddressVector(String.valueOf(counter), txtStreet.getText(),
+									txtCity.getText(), txtCountry.getText(), String.valueOf(gps.getLongitude()),
+									String.valueOf(gps.getLatitude())));
+							modelTargets.revalidate();
+
+							if (isConnected() && (flightNumber != null)) {
+								try {
+									database.insertIntoFlight(flightNumber, gps);
+								} catch (SQLException e1) {
+									e1.printStackTrace();
+								}
+							}
+
+						}
+					}
+					Utils.clearTextFields(txtStreet, txtCity, txtCountry);
+					txtCity.requestFocus();
 				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			Utils.clearTextFields(txtStreet, txtCity, txtCountry);
-			txtCity.requestFocus();
-		}
 
 	}
 

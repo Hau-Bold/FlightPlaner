@@ -1,6 +1,6 @@
 package algorithms;
 
 /*using command pattern*/
-public interface Command {
+public interface ICommand {
 	void execute();
 }

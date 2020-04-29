@@ -15,6 +15,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.jdom.JDOMException;
+import org.json.JSONException;
+import org.json.simple.parser.ParseException;
 
 import client.Routeplaner;
 import gps_coordinates.GpsCoordinate;
@@ -141,6 +143,12 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 				e2.printStackTrace();
 			} catch (JDOMException e2) {
 				e2.printStackTrace();
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ParseException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 
 			if (isConnected) {

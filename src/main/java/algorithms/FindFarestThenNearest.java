@@ -10,12 +10,12 @@ import java.util.List;
 import Routenplaner.Utils;
 import Routenplaner.SpecialPoint;
 
-public class FindFarestThenNearest implements AbstractOptimization {
+public class FindFarestThenNearest implements IOptimization {
 	private ArrayList<GpsCoordinate> output;
 	private List<Double> distances;
 
 	@Override
-	public List<GpsCoordinate> computeRoute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
+	public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
 		
 		List<GpsCoordinate> tmpReceiving=new ArrayList<GpsCoordinate>(receiving);
 		GpsCoordinate startGpsTmp = startGps;

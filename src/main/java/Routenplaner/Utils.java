@@ -15,6 +15,8 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import org.jdom.JDOMException;
+import org.json.JSONException;
+import org.json.simple.parser.ParseException;
 
 import client.Routeplaner;
 import gps_coordinates.GPS;
@@ -26,9 +28,8 @@ import toolbar.ConfirmingAddress;
  * for functions
  */
 public class Utils {
-	
-	final static Double CORRECTION = 0.11029411764705882352941176470588;
 
+	final static Double CORRECTION = 0.11029411764705882352941176470588;
 
 	/**
 	 * to remove not accepted chars
@@ -124,7 +125,6 @@ public class Utils {
 		return response;
 	}
 
-
 	/**
 	 * 
 	 * @param location
@@ -135,9 +135,11 @@ public class Utils {
 	 * @throws MalformedURLException
 	 *             - in case of technical error
 	 * @throws JDOMException
+	 * @throws JSONException
+	 * @throws ParseException
 	 */
 	public static GpsCoordinate getGpsCoordinateToLocation(String location, int id)
-			throws MalformedURLException, JDOMException {
+			throws MalformedURLException, JDOMException, JSONException, ParseException {
 		String[] locationSplitted = location.split(",");
 		GpsCoordinate gps = new GpsCoordinate(GPS.requestGPS(location).getLatitude(),
 				(GPS.requestGPS(location)).getLongitude());
@@ -192,20 +194,17 @@ public class Utils {
 	}
 
 	public static GpsCoordinate millerToGps(Point point) {
-		
-		
-		double longitude = CORRECTION*point.getX() -168.2;
-		
+
+		double longitude = CORRECTION * point.getX() - 168.2;
+
 		final double H = 2136.0;
-		
-		double exponent = 0.8 * ((H/2 - point.getY()) /(H/4.1));
-		
-		double latitude = (Math.exp(exponent) - Math.tan(Math.PI / 4))*  (180.0)/ (0.4 * Math.PI);
-		return new GpsCoordinate(latitude,longitude);
+
+		double exponent = 0.8 * ((H / 2 - point.getY()) / (H / 4.1));
+
+		double latitude = (Math.exp(exponent) - Math.tan(Math.PI / 4)) * (180.0) / (0.4 * Math.PI);
+		return new GpsCoordinate(latitude, longitude);
 	}
-	
-	
-	
+
 	/**
 	 * to clear the JTextFields
 	 * 
@@ -295,7 +294,7 @@ public class Utils {
 			for (GpsCoordinate entry : receiving) {
 				datarow = new Vector<String>();
 				datarow.add(String.valueOf(entry.getId()));
-				datarow.add(entry.getStreet());
+				datarow.add(entry.getMyStreet());
 				datarow.add(entry.getCity());
 				datarow.add(entry.getCountry());
 				datarow.add(String.valueOf(entry.getLongitude()));
@@ -313,7 +312,7 @@ public class Utils {
 				gps = receiving.get(0);
 				datarow = new Vector<String>();
 				datarow.add(String.valueOf(gps.getId()));
-				datarow.add(gps.getStreet());
+				datarow.add(gps.getMyStreet());
 				datarow.add(gps.getCity());
 				datarow.add(gps.getCountry());
 				model.addDataRow(datarow);
@@ -322,7 +321,7 @@ public class Utils {
 					gps = receiving.get(i);
 					datarow = new Vector<String>();
 					datarow.add(String.valueOf(gps.getId()));
-					datarow.add(gps.getStreet());
+					datarow.add(gps.getMyStreet());
 					datarow.add(gps.getCity());
 					datarow.add(gps.getCountry());
 					datarow.add(String
@@ -365,7 +364,7 @@ public class Utils {
 			Point pt1 = targetList.get(i);
 			Point pt2 = targetList.get(i + 1);
 			g.drawLine(pt1.x, pt1.y, pt2.x, pt2.y);
-		}		
+		}
 	}
 
 	public static int convertLongToInt(long value) {

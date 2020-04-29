@@ -10,12 +10,12 @@ import java.util.List;
 import Routenplaner.Utils;
 import Routenplaner.SpecialPoint;
 
-public class FindNext implements AbstractOptimization {
+public class FindNext implements IOptimization {
 
 	private List<GpsCoordinate> output;
 
 	@Override
-	public List<GpsCoordinate> computeRoute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
+	public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
 		GpsCoordinate gpstmps = startGps;
 		List<GpsCoordinate> tmpReceiving = new ArrayList<GpsCoordinate>(receiving);
 		if (startGps != null) {

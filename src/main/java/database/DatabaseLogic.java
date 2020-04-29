@@ -20,7 +20,7 @@ public class DatabaseLogic {
 	private static DBConnection connection;
 	private final String WORKING_DIRECTORY = System.getProperty("user.home.workspace");
 	private static String DbName = "WWF";
-	
+
 	public static String getDbName() {
 		return DbName;
 	}
@@ -52,7 +52,6 @@ public class DatabaseLogic {
 			System.err.println("DATABASE: not able to disconnect");
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
@@ -65,28 +64,28 @@ public class DatabaseLogic {
 	 */
 	public void createFlight(String flightNumber) throws SQLException {
 
-		HashMap<String,String> map = new HashMap<String,String>();
+		HashMap<String, String> map = new HashMap<String, String>();
 		StringBuilder columnConstraint = new StringBuilder();
-		
+
 		columnConstraint.append(QueryHelper.INTEGER + " ");
 		columnConstraint.append(QueryHelper.PRIMARYKEY + " ");
 		columnConstraint.append(QueryHelper.AUTOINCREMENT);
-		
+
 		map.put(Constants.ID, columnConstraint.toString());
 		columnConstraint.setLength(0);
-		
+
 		columnConstraint.append(QueryHelper.STRINGDEFAULTEMPTYSTRING + " ");
-		
+
 		map.put(Constants.STREET, columnConstraint.toString());
 		map.put(Constants.CITY, columnConstraint.toString());
 		map.put(Constants.COUNTRY, columnConstraint.toString());
 		columnConstraint.setLength(0);
-		
+
 		columnConstraint.append(QueryHelper.DOUBLEDEFAULTNULL + " ");
-		
+
 		map.put(Constants.LONGITUDE, columnConstraint.toString());
 		map.put(Constants.LATITUDE, columnConstraint.toString());
-		
+
 		QueryHelper.createTable(flightNumber, map, true, connection.getConnection());
 	}
 
@@ -105,7 +104,6 @@ public class DatabaseLogic {
 		}
 	}
 
-	
 	/**
 	 * yields a flight from the database as lis
 	 * 
@@ -155,7 +153,7 @@ public class DatabaseLogic {
 	 */
 	public void insertIntoFlight(String flightNumber, GpsCoordinate gps) throws SQLException {
 		PreparedStatement preparedStatement = null;
-		String street = gps.getStreet();
+		String street = gps.getMyStreet();
 		String city = gps.getCity();
 		String country = gps.getCountry();
 		Double longitude = gps.getLongitude();

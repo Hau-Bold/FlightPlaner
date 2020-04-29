@@ -7,12 +7,12 @@ import Routenplaner.SpecialPoint;
 import Routenplaner.Utils;
 import gps_coordinates.GpsCoordinate;
 
-public class FindOptimized implements AbstractOptimization {
+public class FindOptimized implements IOptimization {
 	private ArrayList<GpsCoordinate> response;
 	GpsCoordinate startGps = null;
 
 	@Override
-	public List<GpsCoordinate> computeRoute(GpsCoordinate startGps, List<GpsCoordinate> targets) {
+	public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> targets) {
 		if (startGps != null) {
 			if (targets.size() == 1) {
 				response = new ArrayList<GpsCoordinate>(targets);

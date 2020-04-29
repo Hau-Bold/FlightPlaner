@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
-import algorithms.AbstractOptimization;
+import algorithms.IOptimization;
 import gps_coordinates.GpsCoordinate;
 
 public class InfiniteProgress extends SwingWorker<Void, Void> {
@@ -12,10 +12,10 @@ public class InfiniteProgress extends SwingWorker<Void, Void> {
 	private int locY;
 	private GpsCoordinate startGps;
 	private List<GpsCoordinate> targets;
-	private AbstractOptimization abstractOptimization;
+	private IOptimization abstractOptimization;
 	private Routeplaner routeplaner;
 
-	public InfiniteProgress(Routeplaner routeplaner, AbstractOptimization abstractOptimization, GpsCoordinate startGps, List<GpsCoordinate> targets, int locX, int locY) {
+	public InfiniteProgress(Routeplaner routeplaner, IOptimization abstractOptimization, GpsCoordinate startGps, List<GpsCoordinate> targets, int locX, int locY) {
 		this.routeplaner=routeplaner;
 		this.abstractOptimization=abstractOptimization;
 		this.startGps = startGps;
@@ -28,7 +28,7 @@ public class InfiniteProgress extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
 		ProgressBar Progress = new ProgressBar(locX, locY);
 		Progress.getProgressBar().setIndeterminate(true);
-		routeplaner.check(abstractOptimization.computeRoute(startGps, targets));
+		routeplaner.check(abstractOptimization.compute(startGps, targets));
 		Progress.dispose();
 		
 		return null;

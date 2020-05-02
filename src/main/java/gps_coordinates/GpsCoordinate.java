@@ -32,7 +32,7 @@ public class GpsCoordinate {
 		myId = id;
 	}
 
-	public String getMyStreet() {
+	public String getStreet() {
 		return myStreet;
 	}
 

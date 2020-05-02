@@ -29,8 +29,6 @@ import toolbar.ConfirmingAddress;
  */
 public class Utils {
 
-	final static Double CORRECTION = 0.11029411764705882352941176470588;
-
 	/**
 	 * to remove not accepted chars
 	 * 
@@ -185,7 +183,7 @@ public class Utils {
 	 * @return
 	 */
 	public static Point gpsToMiller(GpsCoordinate gps) {
-		double xMiller = (gps.getLongitude() + 168.2) / CORRECTION;
+		double xMiller = (gps.getLongitude() + 168.2) / Constants.CORRECTION;
 		final double H = 2136.0;
 		double yMiller = Math.toRadians(gps.getLatitude());
 		yMiller = 1.25 * Math.log(Math.tan((0.25 * Math.PI) + (0.4 * yMiller)));
@@ -195,7 +193,7 @@ public class Utils {
 
 	public static GpsCoordinate millerToGps(Point point) {
 
-		double longitude = CORRECTION * point.getX() - 168.2;
+		double longitude = Constants.CORRECTION * point.getX() - 168.2;
 
 		final double H = 2136.0;
 
@@ -294,7 +292,7 @@ public class Utils {
 			for (GpsCoordinate entry : receiving) {
 				datarow = new Vector<String>();
 				datarow.add(String.valueOf(entry.getId()));
-				datarow.add(entry.getMyStreet());
+				datarow.add(entry.getStreet());
 				datarow.add(entry.getCity());
 				datarow.add(entry.getCountry());
 				datarow.add(String.valueOf(entry.getLongitude()));
@@ -312,7 +310,7 @@ public class Utils {
 				gps = receiving.get(0);
 				datarow = new Vector<String>();
 				datarow.add(String.valueOf(gps.getId()));
-				datarow.add(gps.getMyStreet());
+				datarow.add(gps.getStreet());
 				datarow.add(gps.getCity());
 				datarow.add(gps.getCountry());
 				model.addDataRow(datarow);
@@ -321,7 +319,7 @@ public class Utils {
 					gps = receiving.get(i);
 					datarow = new Vector<String>();
 					datarow.add(String.valueOf(gps.getId()));
-					datarow.add(gps.getMyStreet());
+					datarow.add(gps.getStreet());
 					datarow.add(gps.getCity());
 					datarow.add(gps.getCountry());
 					datarow.add(String

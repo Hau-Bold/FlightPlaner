@@ -2,21 +2,14 @@ package client;
 
 import java.awt.Component;
 
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.JList;
-import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
-import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import Routenplaner.Colors;
 
+@SuppressWarnings("serial")
 public class ComboBoxRenderer extends BasicComboBoxRenderer {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7824668586097836987L;
 
 	private ListSelectionModel disabledItems;
 
@@ -40,8 +33,8 @@ public class ComboBoxRenderer extends BasicComboBoxRenderer {
 			}
 		} else {
 			if (disabledItems.isSelectedIndex(index)) {
-					component.setBackground(Colors.colorRenderGray);
-					component.setForeground(super.getForeground());
+				component.setBackground(Colors.colorRenderGray);
+				component.setForeground(super.getForeground());
 			}
 		}
 		return component;

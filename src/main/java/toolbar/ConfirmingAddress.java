@@ -16,12 +16,9 @@ import org.json.JSONException;
 
 import client.Routeplaner;
 
+@SuppressWarnings("serial")
 public class ConfirmingAddress extends JFrame implements ActionListener {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2023548002819243318L;
 	private JToolBar toolbarAdress;
 	private JPanel panelToolbar;
 	private Routeplaner routenplaner;
@@ -30,7 +27,6 @@ public class ConfirmingAddress extends JFrame implements ActionListener {
 	public ConfirmingAddress(int x, int y, int width, int height, Routeplaner routenplaner) {
 		initComponent(x, y, width, height);
 		this.routenplaner = routenplaner;
-
 	}
 
 	private void initComponent(int x, int y, int width, int height) {
@@ -79,7 +75,5 @@ public class ConfirmingAddress extends JFrame implements ActionListener {
 				e.printStackTrace();
 			}
 		}
-
 	}
-
 }

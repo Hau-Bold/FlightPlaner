@@ -32,8 +32,6 @@ public class AnimatePlane implements Runnable {
 
 	@Override
 	public void run() {
-		DisplayDistance x = new DisplayDistance();
-		x.showDisplayDistance();
 
 		for (int counter = 0; counter < targetsForFlight.size() - 1; counter++) {
 
@@ -109,13 +107,9 @@ public class AnimatePlane implements Runnable {
 				elapsedTime2 = (long) ((elapsedTime2) / 1000.0);
 
 				// int f =Utils.convertLongToInt(Math.round(distance));
-				x.drawDistanceAndSpeed(distance, oldLocation, newLocation, elapsedTime2);
-
 			}
 			plane.setLocation(xCoorPlane, yCoorPlane);
-			x.rewrite();
 		}
-		x.dispose();
 	}
 
 	/**

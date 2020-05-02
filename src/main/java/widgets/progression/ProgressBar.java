@@ -1,4 +1,4 @@
-package client;
+package widgets.progression;
 
 import java.awt.BorderLayout;
 
@@ -8,15 +8,10 @@ import javax.swing.JProgressBar;
 
 import Routenplaner.Constants;
 
-public class ProgressBar extends JDialog  {
+@SuppressWarnings("serial")
+public class ProgressBar extends JDialog {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4653956083050681816L;
 	private JProgressBar progressBar;
-	
-
 	private int x;
 	private int y;
 	private JPanel panel;
@@ -42,8 +37,7 @@ public class ProgressBar extends JDialog  {
 
 		this.setVisible(true);
 	}
-	
-	
+
 	public JProgressBar getProgressBar() {
 		return progressBar;
 	}
@@ -51,5 +45,5 @@ public class ProgressBar extends JDialog  {
 	public void setProgressBar(JProgressBar progressBar) {
 		this.progressBar = progressBar;
 	}
-	
+
 }

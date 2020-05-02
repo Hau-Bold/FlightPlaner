@@ -20,6 +20,7 @@ import gps_coordinates.GpsCoordinate;
 import overview.OverView;
 import overview.OverViewLogic;
 import tablemodel.CommonModel;
+import widgets.IconMenuItem;
 
 public class OverViewContextMenu extends CommonContextMenu implements ActionListener {
 
@@ -80,7 +81,7 @@ public class OverViewContextMenu extends CommonContextMenu implements ActionList
 						modelTargets.clear();
 					}
 					flight.forEach(gps -> modelTargets.addDataRow(new AddressVector(String.valueOf(gps.getId()),
-							gps.getMyStreet(), gps.getCity(), gps.getCountry(), String.valueOf(gps.getLongitude()),
+							gps.getStreet(), gps.getCity(), gps.getCountry(), String.valueOf(gps.getLongitude()),
 							String.valueOf(gps.getLatitude()))));
 					modelTargets.revalidate();
 					JLabel statusBar = routeplaner.getStatusBar();

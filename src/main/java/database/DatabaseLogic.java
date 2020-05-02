@@ -153,7 +153,7 @@ public class DatabaseLogic {
 	 */
 	public void insertIntoFlight(String flightNumber, GpsCoordinate gps) throws SQLException {
 		PreparedStatement preparedStatement = null;
-		String street = gps.getMyStreet();
+		String street = gps.getStreet();
 		String city = gps.getCity();
 		String country = gps.getCountry();
 		Double longitude = gps.getLongitude();

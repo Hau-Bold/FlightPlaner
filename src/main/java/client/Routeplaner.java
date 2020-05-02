@@ -76,6 +76,7 @@ import toolbar.RoutePlanerLocationListener;
 
 public class Routeplaner extends JFrame implements ActionListener, DocumentListener {
 
+	// TODO privide setter for optimization and remove Interface from command....
 	private final int X = 10;
 	private final int Y = 10;
 	private final int WIDTH = 500;

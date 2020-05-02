@@ -1,7 +1,8 @@
 package Routenplaner;
 
-public final class Constants
-{
+public final class Constants {
+	final static Double CORRECTION = 0.11029411764705882352941176470588;
+
 	public static final String CITY = "CITY";
 	public static final String CONNECT = "Connect";
 	public static final String COUNTRY = "COUNTRY";
@@ -15,7 +16,7 @@ public final class Constants
 	public static final String FLIGHTNUMBER = "Flightnumber";
 	public static final String FLIGHTS = "FLIGHTS";
 	public static final String ID = "ID";
-	public static final String INSERTTARGET ="Insert Target";
+	public static final String INSERTTARGET = "Insert Target";
 	public static final String LATITUDE = "Latitude";
 	public static final String LONGITUDE = "Longitude";
 	public static final String MAP = "Map";

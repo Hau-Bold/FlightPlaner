@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
-import algorithms.IOptimization;
 import client.Routeplaner;
 import gps_coordinates.GpsCoordinate;
 
@@ -13,13 +12,9 @@ public class InfiniteProgress extends SwingWorker<Void, Void> {
 	private int myCurrentYCoordinate;
 	private GpsCoordinate startGps;
 	private List<GpsCoordinate> targets;
-	private IOptimization myOptimization;
-	private Routeplaner routeplaner;
 
-	public InfiniteProgress(Routeplaner routeplaner, IOptimization optimization, GpsCoordinate startGps,
-			List<GpsCoordinate> targets, int currentXCoordinate, int currentYCoordinate) {
-		this.routeplaner = routeplaner;
-		myOptimization = optimization;
+	public InfiniteProgress(GpsCoordinate startGps, List<GpsCoordinate> targets, int currentXCoordinate,
+			int currentYCoordinate) {
 		this.startGps = startGps;
 		this.targets = targets;
 		myCurrentXCoordinate = currentXCoordinate;
@@ -30,7 +25,7 @@ public class InfiniteProgress extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
 		ProgressBar Progress = new ProgressBar(myCurrentXCoordinate, myCurrentYCoordinate);
 		Progress.getProgressBar().setIndeterminate(true);
-		routeplaner.check(myOptimization.compute(startGps, targets));// TODO only routeplaner should know optimization?
+		Routeplaner.getInstance().check(startGps, targets);
 		Progress.dispose();
 
 		return null;

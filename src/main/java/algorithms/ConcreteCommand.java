@@ -3,20 +3,15 @@ package algorithms;
 import java.util.ArrayList;
 import java.util.List;
 
-import client.Routeplaner;
 import gps_coordinates.GpsCoordinate;
 import widgets.progression.InfiniteProgress;
 
-public class ConcreteCommand implements ICommand {
-
-	private IOptimization abstractOptimization;
+public final class ConcreteCommand implements ICommand {
 
 	private GpsCoordinate startGps;
 	private List<GpsCoordinate> targets;
 	private int locX;
 	private int locY;
-
-	private Routeplaner routeplaner;
 
 	/**
 	 * 
@@ -30,10 +25,7 @@ public class ConcreteCommand implements ICommand {
 	 * @param locY
 	 * @param locX
 	 */
-	public ConcreteCommand(Routeplaner routeplaner, IOptimization abstractOptimization, GpsCoordinate startGps,
-			ArrayList<GpsCoordinate> targets, int locX, int locY) {
-		this.routeplaner = routeplaner;
-		this.abstractOptimization = abstractOptimization;
+	public ConcreteCommand(GpsCoordinate startGps, ArrayList<GpsCoordinate> targets, int locX, int locY) {
 		this.startGps = startGps;
 		this.targets = targets;
 		this.locX = locX;
@@ -42,7 +34,7 @@ public class ConcreteCommand implements ICommand {
 
 	@Override
 	public void execute() {
-		new InfiniteProgress(routeplaner, abstractOptimization, startGps, targets, locX, locY).execute();
+		new InfiniteProgress(startGps, targets, locX, locY).execute();
 	}
 
 }

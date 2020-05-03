@@ -282,8 +282,8 @@ public class Utils {
 
 	}
 
-	public static boolean isStringValid(String string) {
-		return (string != null) && (string != "");
+	public static boolean nullOrEmpty(String string) {
+		return (string == null) || (string == "");
 	}
 
 	public static void fillModel(List<GpsCoordinate> receiving, CommonModel model, boolean isComputedModel) {

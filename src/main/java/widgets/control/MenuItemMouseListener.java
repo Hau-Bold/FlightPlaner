@@ -1,6 +1,6 @@
-package widgets;
+package widgets.control;
 
-import contextmenu.AbstractMenuItemMouseListener;
+import widgets.IconMenuItem;
 
 public class MenuItemMouseListener extends AbstractMenuItemMouseListener {
 

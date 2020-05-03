@@ -1,29 +1,28 @@
-package contextmenu;
+package widgets.contextMenu;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
 import Routenplaner.Constants;
+import algorithms.FindFarest;
+import algorithms.FindFarestThenNearest;
+import algorithms.FindNearestThenFarest;
+import algorithms.FindNext;
+import algorithms.FindOptimized;
+import algorithms.FindRandom;
+import algorithms.IOptimization;
 import client.Routeplaner;
 import widgets.IconMenuItem;
 
+@SuppressWarnings("serial")
 public class TargetsContextMenu extends CommonContextMenu implements ActionListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	private Routeplaner routeplaner;
-
 	private IconMenuItem findOptimized;
 	private IconMenuItem findNext;
 	private IconMenuItem findFarest;
 	private IconMenuItem findNearestThenFarest;
 	private IconMenuItem findFarestThenNearest;
 	private IconMenuItem findRandom;
-
-	private MouseEvent event;
 
 	/**
 	 * Constructor.
@@ -33,10 +32,8 @@ public class TargetsContextMenu extends CommonContextMenu implements ActionListe
 	 * @param routeplaner
 	 *            - the routeplaner
 	 */
-	public TargetsContextMenu(MouseEvent event, Routeplaner routeplaner) {
-		super(event, routeplaner.getX(), routeplaner.getY());
-		this.routeplaner = routeplaner;
-		this.event = event;
+	public TargetsContextMenu(MouseEvent event) {
+		super(event);
 		initComponent();
 		showMenu();
 	}
@@ -60,8 +57,7 @@ public class TargetsContextMenu extends CommonContextMenu implements ActionListe
 		findRandom = new IconMenuItem(Constants.RANDOM);
 		findRandom.addActionListener(this);
 
-		super.addIconMenuItem(findOptimized, findNext, findFarest, findNearestThenFarest, findFarestThenNearest,
-				findRandom);
+		super.add(findOptimized, findNext, findFarest, findNearestThenFarest, findFarestThenNearest, findRandom);
 		super.activate();
 	}
 
@@ -69,25 +65,35 @@ public class TargetsContextMenu extends CommonContextMenu implements ActionListe
 	public void actionPerformed(ActionEvent event) {
 
 		Object o = event.getSource();
-		int x = this.event.getX() + routeplaner.getX();
-		int y = this.event.getY() + routeplaner.getY();
+
+		Routeplaner routeplaner = Routeplaner.getInstance();
+
+		int x = getLocation().x;
+		int y = getLocation().y;
 		this.setVisible(false);
+
+		IOptimization optimization = null;
+
 		if (o.equals(findOptimized)) {
-			routeplaner.reactOnOptimized(x, y);
+			optimization = new FindOptimized();
 		}
 
 		else if (o.equals(findNext)) {
-			routeplaner.reactOnNext(x, y);
+			optimization = new FindNext();
 		} else if (o.equals(findFarest)) {
-			routeplaner.reactOnFarest(x, y);
+			optimization = new FindFarest();
 		} else if (o.equals(findNearestThenFarest)) {
-			routeplaner.reactOnNearestThenFarest(x, y);
+			optimization = new FindNearestThenFarest();
 		} else if (o.equals(findFarestThenNearest)) {
-			routeplaner.reactOnFarestThenNearest(x, y);
+			optimization = new FindFarestThenNearest();
 		} else if (o.equals(findRandom)) {
-			routeplaner.reactOnRandom(x, y);
+			optimization = new FindRandom();
 		}
+
+		routeplaner.setOptimization(optimization);
+		routeplaner.executeOptimization(x, y);
 		routeplaner.getTabbedPane().setSelectedIndex(2);
+
 		this.dispose();
 	}
 

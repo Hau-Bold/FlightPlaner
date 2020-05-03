@@ -16,11 +16,11 @@ import javax.swing.JTable;
 import Routenplaner.Colors;
 import Routenplaner.Constants;
 import client.Routeplaner;
-import contextmenu.OverViewContextMenu;
 import database.DatabaseLogic;
 import listeners.TableOverViewMouseListener;
 import render.TargetRenderer;
 import tablemodel.CommonModel;
+import widgets.contextMenu.OverViewContextMenu;
 
 public class OverView extends JFrame {
 
@@ -98,7 +98,7 @@ public class OverView extends JFrame {
 		model.fireTableDataChanged();
 		panelTableNorth.add(new JScrollPane(table));
 
-		table.addMouseListener(new TableOverViewMouseListener(this, overViewContextMenu, routenplaner));
+		table.addMouseListener(new TableOverViewMouseListener(this, overViewContextMenu));
 
 	}
 

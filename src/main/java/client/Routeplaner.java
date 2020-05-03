@@ -48,13 +48,7 @@ import Routenplaner.FrameMap;
 import Routenplaner.IconButton;
 import Routenplaner.Utils;
 import algorithms.ConcreteCommand;
-import algorithms.FindFarest;
-import algorithms.FindFarestThenNearest;
-import algorithms.FindNearestThenFarest;
-import algorithms.FindNext;
-import algorithms.FindOptimized;
-import algorithms.FindRandom;
-import contextmenu.TargetsContextMenu;
+import algorithms.IOptimization;
 import database.DatabaseLogic;
 import gps_coordinates.GPS;
 import gps_coordinates.GpsCoordinate;
@@ -73,16 +67,18 @@ import tablemodel.CommonModel;
 import toolbar.ConfirmingAddress;
 import toolbar.ConfirmingAdressLocationListener;
 import toolbar.RoutePlanerLocationListener;
+import widgets.contextMenu.TargetsContextMenu;
 
+@SuppressWarnings("serial")
 public class Routeplaner extends JFrame implements ActionListener, DocumentListener {
 
-	// TODO privide setter for optimization and remove Interface from command....
+	private IOptimization myOptimization;
 	private final int X = 10;
 	private final int Y = 10;
-	private final int WIDTH = 500;
-	private final int HEIGHT = 500;
+	private final int WIDTH = 500;// TODO move
+	private final int HEIGHT = 500;// TODO move
 
-	private static Routeplaner routeplaner;
+	private static Routeplaner myInstance;
 	private JTabbedPane tabbedPane;
 
 	private JPanel panelAdresse, panelTargets;
@@ -169,9 +165,14 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 	public OverView overView = null;
 	private DefaultListSelectionModel listSelectionModel;
 
-	/**
-	 * Constructor.
-	 */
+	public static Routeplaner getInstance() {
+		if (myInstance == null) {
+			myInstance = new Routeplaner();
+		}
+		return myInstance;
+	}
+
+	// ctor
 	private Routeplaner() {
 
 		// Setting the Layout
@@ -474,14 +475,6 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 
 	}
 
-	static Routeplaner getInstance() {
-		if (Routeplaner.routeplaner == null) {
-			routeplaner = new Routeplaner();
-			return routeplaner;
-		}
-		return null;
-	}
-
 	@SuppressWarnings("static-access")
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -510,7 +503,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 
 					flightBox.removeActionListener(flightBox.getActionListeners()[0]);
 					flightBox.setRenderer(new DefaultListCellRenderer());
-					flightBox.addActionListener(new FlightBoxEnabledListener(flightBox, routeplaner));
+					flightBox.addActionListener(new FlightBoxEnabledListener(flightBox, myInstance));
 
 				}
 				break;
@@ -529,7 +522,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 					flightBox.removeActionListener(flightBox.getActionListeners()[0]);
 					flightBox.setRenderer(new ComboBoxRenderer(listSelectionModel));
 					flightBox.addActionListener(
-							new FlightBoxDisabledListener(listSelectionModel, flightBox, routeplaner));
+							new FlightBoxDisabledListener(listSelectionModel, flightBox, myInstance));
 				}
 				break;
 			default:
@@ -538,7 +531,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		}
 
 		else if (o.equals(btnSave)) {
-			if (Utils.isStringValid(flightNumber)) {
+			if (!Utils.nullOrEmpty(flightNumber)) {
 				try {
 					database.createFlight(flightNumber);
 					OverViewLogic.insertFlightNumber(flightNumber, database.getConnection());
@@ -845,58 +838,22 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 					txtCity.requestFocus();
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 	}
 
-	public void reactOnOptimized(int locX, int locY) {
+	public void executeOptimization(int locX, int locY) {
 		if (startGps != null) {
-			new ConcreteCommand(this, new FindOptimized(), startGps, master, locX, locY).execute();
-
-		}
-
-	}
-
-	public void reactOnNext(int locX, int locY) {
-		if (startGps != null) {
-			new ConcreteCommand(this, new FindNext(), startGps, master, locX, locY).execute();
+			new ConcreteCommand(startGps, master, locX, locY).execute();
 		}
 	}
 
-	public void reactOnFarest(int locX, int locY) {
-		if (startGps != null) {
-			new ConcreteCommand(this, new FindFarest(), startGps, master, locX, locY).execute();
-		}
-	}
+	public void check(GpsCoordinate startGPS, List<GpsCoordinate> receiving) {
 
-	public void reactOnNearestThenFarest(int locX, int locY) {
-		if (startGps != null) {
-			new ConcreteCommand(this, new FindNearestThenFarest(), startGps, master, locX, locY).execute();
-		}
-
-	}
-
-	public void reactOnFarestThenNearest(int locX, int locY) {
-		if (startGps != null) {
-			new ConcreteCommand(this, new FindFarestThenNearest(), startGps, master, locX, locY).execute();
-		}
-
-	}
-
-	public void reactOnRandom(int locX, int locY) {
-		if (startGps != null) {
-			new ConcreteCommand(this, new FindRandom(), startGps, master, locX, locY).execute();
-		}
-
-	}
-
-	public void check(List<GpsCoordinate> receiving) {
 		modelRoute.clear();
-		Utils.fillModel(receiving, modelRoute, true);
-		cityRender.setData(receiving);
-		computedRoute = receiving;
+		computedRoute = myOptimization.compute(startGPS, receiving);
+		Utils.fillModel(computedRoute, modelRoute, true);
+		cityRender.setData(computedRoute);
 		GpsCoordinate targetGps = computedRoute.get(computedRoute.size() - 1);
 		if (isConnected) {
 			try {
@@ -1011,6 +968,10 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 
 	public void setTabbedPane(JTabbedPane tabbedPane) {
 		this.tabbedPane = tabbedPane;
+	}
+
+	public void setOptimization(IOptimization optimization) {
+		myOptimization = optimization;
 	}
 
 }

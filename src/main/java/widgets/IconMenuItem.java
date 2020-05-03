@@ -7,30 +7,27 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 
 import Routenplaner.Utils;
+import widgets.control.MenuItemMouseListener;
 
+@SuppressWarnings("serial")
 public class IconMenuItem extends JMenuItem {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private ImageIcon icon = null;
+	private ImageIcon myIcon = null;
 
 	public IconMenuItem(String pathOfIcon, String text) {
 
-		if (Utils.isStringValid(pathOfIcon)) {
-			this.icon = new ImageIcon(getClass().getResource("../" + pathOfIcon));
-			this.icon.setImage(icon.getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
-
+		if (!Utils.nullOrEmpty(pathOfIcon)) {
+			myIcon = new ImageIcon(getClass().getResource("../" + pathOfIcon));
+			myIcon.setImage(myIcon.getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));
 		}
 
-		this.setIcon(icon);
-		this.setSize(20, 150);
-		this.setText(text);
-		this.setOpaque(true);
-		this.setBackground(Color.WHITE);
+		setIcon(myIcon);
+		setSize(20, 150);
+		setText(text);
+		setOpaque(true);
+		setBackground(Color.WHITE);
 
-		this.addMouseListener(new MenuItemMouseListener(this));
+		addMouseListener(new MenuItemMouseListener(this));
 	}
 
 	public IconMenuItem(String text) {

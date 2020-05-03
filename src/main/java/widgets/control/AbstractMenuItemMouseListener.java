@@ -1,4 +1,4 @@
-package contextmenu;
+package widgets.control;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
@@ -8,40 +8,32 @@ import widgets.IconMenuItem;
 
 public class AbstractMenuItemMouseListener implements MouseListener {
 
-	private IconMenuItem iconMenuItem;
+	private IconMenuItem myIconMenuItem;
 
 	public AbstractMenuItemMouseListener(IconMenuItem iconMenuItem) {
-		this.iconMenuItem = iconMenuItem;
+		myIconMenuItem = iconMenuItem;
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		iconMenuItem.setBackground(Color.LIGHT_GRAY);
-
+		myIconMenuItem.setBackground(Color.LIGHT_GRAY);
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		iconMenuItem.setBackground(Color.WHITE);
-
+		myIconMenuItem.setBackground(Color.WHITE);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

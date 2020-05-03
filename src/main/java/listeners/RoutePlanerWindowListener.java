@@ -4,9 +4,8 @@ import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import contextmenu.CommonContextMenu;
-import contextmenu.TargetsContextMenu;
 import toolbar.ConfirmingAddress;
+import widgets.contextMenu.CommonContextMenu;
 
 /**
  * 
@@ -18,15 +17,15 @@ public class RoutePlanerWindowListener implements WindowListener {
 	private ConfirmingAddress confirmingAddress;
 	private CommonContextMenu contextMenu;
 
-	
-
 	/**
 	 * Constructor.
-	 * @param confirmingAddress - the confiming Address dialog
-	 * @param contextMenu 
+	 * 
+	 * @param confirmingAddress
+	 *            - the confiming Address dialog
+	 * @param contextMenu
 	 */
 	public RoutePlanerWindowListener(ConfirmingAddress confirmingAddress) {
-		this.confirmingAddress=confirmingAddress;
+		this.confirmingAddress = confirmingAddress;
 	}
 
 	@Override
@@ -56,15 +55,14 @@ public class RoutePlanerWindowListener implements WindowListener {
 	@Override
 	public void windowDeiconified(WindowEvent arg0) {
 		confirmingAddress.setState(Frame.NORMAL);
-		
+
 	}
 
 	@Override
 	public void windowIconified(WindowEvent arg0) {
 		confirmingAddress.setState(Frame.ICONIFIED);
-		
-		if(contextMenu != null)
-		{
+
+		if (contextMenu != null) {
 			contextMenu.dispose();
 		}
 
@@ -75,7 +73,7 @@ public class RoutePlanerWindowListener implements WindowListener {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 	public void setContextMenu(CommonContextMenu contextMenu) {
 		this.contextMenu = contextMenu;
 	}

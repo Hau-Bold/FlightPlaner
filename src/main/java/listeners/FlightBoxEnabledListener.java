@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JComboBox;
-import javax.swing.ListSelectionModel;
 
 import Routenplaner.Constants;
 import client.Routeplaner;
@@ -12,12 +11,10 @@ import client.Routeplaner;
 public class FlightBoxEnabledListener implements ActionListener {
 
 	private JComboBox<String> flightBox;
-	private Routeplaner routeplaner;
-	String currentView=null;
+	String currentView = null;
 
-	public FlightBoxEnabledListener(JComboBox<String> flightBox, Routeplaner routeplaner) {
-		this.flightBox=flightBox;
-		this.routeplaner=routeplaner;
+	public FlightBoxEnabledListener(JComboBox<String> flightBox) {
+		this.flightBox = flightBox;
 	}
 
 	@Override
@@ -25,6 +22,7 @@ public class FlightBoxEnabledListener implements ActionListener {
 		Object o = event.getSource();
 
 		if (o.equals(flightBox)) {
+
 			switch (flightBox.getSelectedIndex()) {
 			// New Flight:
 			case 0:
@@ -46,12 +44,9 @@ public class FlightBoxEnabledListener implements ActionListener {
 			default:
 				// do nothing
 				break;
-		}
-			routeplaner.setCurrentView(currentView);
-			routeplaner.setView(currentView);
+			}
+			Routeplaner.getInstance().setCurrentView(currentView);
+			Routeplaner.getInstance().setView(currentView);
 		}
 	}
 }
-
-
-

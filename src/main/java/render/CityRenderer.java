@@ -9,12 +9,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import gps_coordinates.GpsCoordinate;
 
+@SuppressWarnings("serial")
 public class CityRenderer extends DefaultTableCellRenderer {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private List<GpsCoordinate> receiving;
 
 	@Override
@@ -23,13 +20,13 @@ public class CityRenderer extends DefaultTableCellRenderer {
 
 		String city = (String) value;
 		for (GpsCoordinate gps : receiving) {
-				if (gps.getCity().equals(city)) {
-					if (gps.getLongitude() > 0) {
-						setForeground(Color.BLUE);
-					} else {
-						setForeground(Color.RED);
-					}
-				} 
+			if (gps.getCity().equals(city)) {
+				if (gps.getLongitude() > 0) {
+					setForeground(Color.BLUE);
+				} else {
+					setForeground(Color.RED);
+				}
+			}
 		}
 
 		return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

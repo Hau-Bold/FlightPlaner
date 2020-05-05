@@ -29,7 +29,6 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 	private IconMenuItem renameFlight;
 	private IconMenuItem selectFlight;
 	private OverView overView;
-	private Routeplaner myRouteplaner;
 
 	public OverViewContextMenu(OverView overView, MouseEvent event) {
 		super(event);
@@ -39,7 +38,6 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 	}
 
 	private void initComponent() {
-		myRouteplaner = Routeplaner.getInstance();
 
 		removeFlight = new IconMenuItem("Images/deleteIcon.png", Constants.REMOVEFLIGHT);
 		removeFlight.addActionListener(this);
@@ -56,6 +54,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 	public void actionPerformed(ActionEvent event) {
 
 		Object o = event.getSource();
+		Routeplaner routeplaner = Routeplaner.getInstance();
 
 		if (o.equals(selectFlight)) {
 			JTable table = overView.getTable();
@@ -64,16 +63,16 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 				String flightNumber = (String) table.getValueAt(row, 1);
 				ArrayList<GpsCoordinate> flight = null;
 				try {
-					flight = myRouteplaner.getDatabase().getFlightAsList(flightNumber);
+					flight = routeplaner.getDatabase().getFlightAsList(flightNumber);
 					/** setting start */
-					myRouteplaner.setStartGps(
-							OverViewLogic.getStartGps(flightNumber, myRouteplaner.getDatabase().getConnection()));
-					myRouteplaner.setMaster(flight);
+					routeplaner.setStartGps(
+							OverViewLogic.getStartGps(flightNumber, routeplaner.getDatabase().getConnection()));
+					routeplaner.setMaster(flight);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
 				if (flight != null) {
-					CommonModel modelTargets = myRouteplaner.getModelTargets();
+					CommonModel modelTargets = routeplaner.getModelTargets();
 					if (!modelTargets.isEmpty()) {
 						modelTargets.clear();
 					}
@@ -81,21 +80,21 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 							gps.getStreet(), gps.getCity(), gps.getCountry(), String.valueOf(gps.getLongitude()),
 							String.valueOf(gps.getLatitude()))));
 					modelTargets.revalidate();
-					JLabel statusBar = myRouteplaner.getStatusBar();
+					JLabel statusBar = routeplaner.getStatusBar();
 					statusBar.setText(DatabaseLogic.getDbName() + File.separator + flightNumber);
-					myRouteplaner.setStatusBar(statusBar);
-					Routeplaner.flightNumber = flightNumber;
+					routeplaner.setStatusBar(statusBar);
+					routeplaner.flightNumber = flightNumber;
 					overView.dispose();
 				}
 			}
-			myRouteplaner.getTabbedPane().setSelectedIndex(1);
+			routeplaner.getTabbedPane().setSelectedIndex(1);
 			this.dispose();
 		}
 
 		else if (o.equals(removeFlight)) {
 			JTable table = overView.getTable();
 			CommonModel model = overView.getModel();
-			DatabaseLogic databaseLogic = myRouteplaner.getDatabase();
+			DatabaseLogic databaseLogic = routeplaner.getDatabase();
 			String nameOfFlight = null;
 
 			int[] arrayOfSelectedRows = table.getSelectedRows();
@@ -105,16 +104,15 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 					nameOfFlight = (String) table.getValueAt(arrayOfSelectedRows[row], 1);
 					try {
 						OverViewLogic.removeFlight(nameOfFlight, databaseLogic);
-						QueryHelper.dropTable(nameOfFlight,
-								myRouteplaner.getDatabase().getConnection().getConnection());
+						QueryHelper.dropTable(nameOfFlight, routeplaner.getDatabase().getConnection().getConnection());
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
 				}
 				model.deleteRow(arrayOfSelectedRows);
 				model.revalidate();
-				if (nameOfFlight.equals(myRouteplaner.getFlightNumber())) {
-					myRouteplaner.getModelTargets().clear();
+				if (nameOfFlight.equals(routeplaner.getFlightNumber())) {
+					routeplaner.getModelTargets().clear();
 				}
 			}
 			this.dispose();

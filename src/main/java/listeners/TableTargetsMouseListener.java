@@ -11,23 +11,16 @@ import widgets.contextMenu.TargetsContextMenu;
 public class TableTargetsMouseListener implements MouseListener {
 
 	private TargetsContextMenu targetsContextMenu = null;
-	private Routeplaner routeplaner;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param routeplaner
-	 *            - the routeplaner
-	 * @param tableRouteContextMenu
-	 *            - the tableRouteContextMenu
-	 */
-	public TableTargetsMouseListener(Routeplaner routeplaner, TargetsContextMenu targetsContextMenu) {
-		this.routeplaner = routeplaner;
+	// ctor.
+	public TableTargetsMouseListener(TargetsContextMenu targetsContextMenu) {
 		this.targetsContextMenu = targetsContextMenu;
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent event) {
+		Routeplaner routeplaner = Routeplaner.getInstance();
+
 		OverView overView = routeplaner.getOverView();
 		OverViewContextMenu overViewContextMenu;
 		if (overView != null) {
@@ -50,26 +43,18 @@ public class TableTargetsMouseListener implements MouseListener {
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

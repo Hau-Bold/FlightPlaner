@@ -36,16 +36,14 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 	private JButton btnConfirm;
 	public String start, flightNumber;
 	private boolean isConnected;
-	private Routeplaner routeplaner;
 
 	public String getStart() {
 		return start;
 	}
 
-	private AddressDialog(String flightNumber, boolean isConnected, Routeplaner routeplaner) {
+	private AddressDialog(String flightNumber, boolean isConnected) {
 		this.flightNumber = flightNumber;
 		this.isConnected = isConnected;
-		this.routeplaner = routeplaner;
 		initComponent();
 		showFrame();
 	}
@@ -97,9 +95,9 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 		this.add(btnConfirm);
 	}
 
-	public static AddressDialog getInstance(String flightNumber, boolean b, Routeplaner routeplaner) {
+	public static AddressDialog getInstance(String flightNumber, boolean b) {
 		if (instance == null) {
-			return new AddressDialog(flightNumber, b, routeplaner);
+			return new AddressDialog(flightNumber, b);
 		}
 		return null;
 	}
@@ -138,7 +136,7 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 			GpsCoordinate gpsOfStart = null;
 			try {
 				gpsOfStart = Utils.getGpsCoordinateToLocation(start, 0);
-				routeplaner.setStartGps(gpsOfStart);
+				Routeplaner.getInstance().setStartGps(gpsOfStart);
 			} catch (MalformedURLException e2) {
 				e2.printStackTrace();
 			} catch (JDOMException e2) {
@@ -155,7 +153,7 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 				/** the flightnumber is valid */
 				try {
 					OverViewLogic.insertStartLocation(flightNumber, gpsOfStart,
-							routeplaner.getDatabase().getConnection());
+							Routeplaner.getInstance().getDatabase().getConnection());
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}

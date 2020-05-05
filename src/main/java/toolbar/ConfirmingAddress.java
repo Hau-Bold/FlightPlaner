@@ -21,12 +21,10 @@ public class ConfirmingAddress extends JFrame implements ActionListener {
 
 	private JToolBar toolbarAdress;
 	private JPanel panelToolbar;
-	private Routeplaner routenplaner;
 	private JButton confirmAddress;
 
-	public ConfirmingAddress(int x, int y, int width, int height, Routeplaner routenplaner) {
+	public ConfirmingAddress(int x, int y, int width, int height) {
 		initComponent(x, y, width, height);
-		this.routenplaner = routenplaner;
 	}
 
 	private void initComponent(int x, int y, int width, int height) {
@@ -51,8 +49,6 @@ public class ConfirmingAddress extends JFrame implements ActionListener {
 
 		panelToolbar.add(toolbarAdress, BorderLayout.CENTER);
 		this.getContentPane().add(panelToolbar);
-
-		// toolbarAdress.add(btnConfirmAddress);
 	}
 
 	public void showFrame() {
@@ -69,9 +65,8 @@ public class ConfirmingAddress extends JFrame implements ActionListener {
 		Object o = event.getSource();
 		if (o.equals(confirmAddress)) {
 			try {
-				routenplaner.reactOnConfirmAdress();
+				Routeplaner.getInstance().reactOnConfirmAdress();
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

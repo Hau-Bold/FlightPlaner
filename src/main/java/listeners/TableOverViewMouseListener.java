@@ -19,24 +19,6 @@ public class TableOverViewMouseListener implements MouseListener {
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent event) {
-		// if (overViewContextMenu != null) {
-		// overViewContextMenu.dispose();
-		// }
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void mousePressed(MouseEvent event) {
 
 		TargetsContextMenu targetsContextMenu = Routeplaner.getInstance().getTargetContextMenu();
@@ -54,13 +36,21 @@ public class TableOverViewMouseListener implements MouseListener {
 			overViewContextMenu = new OverViewContextMenu(overView, event);
 			overView.setOverViewContextMenu(overViewContextMenu);
 		}
+	}
 
+	@Override
+	public void mouseClicked(MouseEvent event) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
 	}
-
 }

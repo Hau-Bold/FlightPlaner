@@ -339,9 +339,12 @@ public class Utils {
 
 	}
 
-	public static void glue(Routeplaner routenplaner, ConfirmingAddress confirmingAdress) {
-		confirmingAdress.setLocation(new Point(routenplaner.getX(), routenplaner.getY() + routenplaner.getWidth()));
-		routenplaner.isGlued = true;
+	public static void glue(ConfirmingAddress confirmingAdress) {
+
+		Routeplaner routeplaner = Routeplaner.getInstance();
+
+		confirmingAdress.setLocation(new Point(routeplaner.getX(), routeplaner.getY() + routeplaner.getWidth()));
+		routeplaner.isGlued = true;
 	}
 
 	public static boolean isEmpty(int[] arrayOfSelectedRows) {

@@ -1,6 +1,5 @@
 package algorithms;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import gps_coordinates.GpsCoordinate;
@@ -8,7 +7,6 @@ import widgets.progression.InfiniteProgress;
 
 public final class ConcreteCommand implements ICommand {
 
-	private GpsCoordinate startGps;
 	private List<GpsCoordinate> targets;
 	private int locX;
 	private int locY;
@@ -25,16 +23,14 @@ public final class ConcreteCommand implements ICommand {
 	 * @param locY
 	 * @param locX
 	 */
-	public ConcreteCommand(GpsCoordinate startGps, ArrayList<GpsCoordinate> targets, int locX, int locY) {
-		this.startGps = startGps;
-		this.targets = targets;
+	public ConcreteCommand(int locX, int locY) {
 		this.locX = locX;
 		this.locY = locY;
 	}
 
 	@Override
 	public void execute() {
-		new InfiniteProgress(startGps, targets, locX, locY).execute();
+		new InfiniteProgress(locX, locY).execute();
 	}
 
 }

@@ -15,7 +15,6 @@ import javax.swing.JTable;
 
 import Routenplaner.Colors;
 import Routenplaner.Constants;
-import client.Routeplaner;
 import database.DatabaseLogic;
 import listeners.TableOverViewMouseListener;
 import render.TargetRenderer;
@@ -31,35 +30,21 @@ public class OverView extends JFrame {
 	private Container panelTable;
 	private List<Flight> overViewEntries = null;
 	private CommonModel model;
-	private Routeplaner routenplaner;
 	private static OverViewContextMenu overViewContextMenu = null;
 	private final String[] nameOfColumns = { Constants.ID, Constants.FLIGHTNUMBER, Constants.START, Constants.LONGITUDE,
 			Constants.LATITUDE, Constants.TARGET };
 
-	/**
-	 * to create an instance of this class
-	 * 
-	 * @param overViewEntries
-	 * @param routenplaner
-	 * @return
-	 */
-	public static OverView getInstance(List<Flight> overViewEntries, Routeplaner routenplaner) {
+	// ctor
+	public static OverView getInstance(List<Flight> overViewEntries) {
 		if (instance == null) {
-			instance = new OverView(overViewEntries, routenplaner);
+			instance = new OverView(overViewEntries);
 		}
 		return instance;
 	}
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param overViewEntries
-	 * @param routenplaner
-	 * @param overViewContextMenu
-	 */
-	private OverView(List<Flight> overViewEntries, Routeplaner routenplaner) {
+	// ctor
+	private OverView(List<Flight> overViewEntries) {
 		this.overViewEntries = overViewEntries;
-		this.routenplaner = routenplaner;
 		initComponent();
 	}
 

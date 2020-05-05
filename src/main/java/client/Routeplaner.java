@@ -166,6 +166,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 	private DefaultListSelectionModel listSelectionModel;
 
 	public static Routeplaner getInstance() {
+
 		if (myInstance == null) {
 			myInstance = new Routeplaner();
 		}
@@ -197,11 +198,11 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		this.setBounds(X + 100, Y, WIDTH, HEIGHT);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		confirmingAdress = new ConfirmingAddress(this.getX(), this.getY() + this.getWidth(), this.getWidth(), 60, this);
+		confirmingAdress = new ConfirmingAddress(this.getX(), this.getY() + this.getWidth(), this.getWidth(), 60);
 
-		routePlanerLocationListener = new RoutePlanerLocationListener(confirmingAdress, this);
+		routePlanerLocationListener = new RoutePlanerLocationListener(confirmingAdress);
 		this.addComponentListener(routePlanerLocationListener);
-		confirmingAdress.addComponentListener(new ConfirmingAdressLocationListener(confirmingAdress, this));
+		confirmingAdress.addComponentListener(new ConfirmingAdressLocationListener(confirmingAdress));
 		routePlanerWindowListener = new RoutePlanerWindowListener(confirmingAdress);
 		this.addWindowListener(routePlanerWindowListener);
 
@@ -398,7 +399,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		tableTargets.setFillsViewportHeight(true);
 		tableTargets.setFont(new Font("Helvetica", Font.BOLD, 11));
 		tableTargets.getColumnModel().getColumn(5).setCellRenderer(new TargetRenderer());
-		tableTargets.addMouseListener(new TableTargetsMouseListener(this, targetContextMenu));
+		tableTargets.addMouseListener(new TableTargetsMouseListener(targetContextMenu));
 
 		panelTargetsNorth.add(new JScrollPane(tableTargets));
 
@@ -503,7 +504,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 
 					flightBox.removeActionListener(flightBox.getActionListeners()[0]);
 					flightBox.setRenderer(new DefaultListCellRenderer());
-					flightBox.addActionListener(new FlightBoxEnabledListener(flightBox, myInstance));
+					flightBox.addActionListener(new FlightBoxEnabledListener(flightBox));
 
 				}
 				break;
@@ -526,7 +527,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 				}
 				break;
 			default:
-				// do nothing
+				// unreachable
 			}
 		}
 
@@ -554,7 +555,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 				System.err.println("was not able to get OVERVIEW as list");
 				e1.printStackTrace();
 			}
-			overView = OverView.getInstance(overViewEntries, this);
+			overView = OverView.getInstance(overViewEntries);
 			panelAdresse.addMouseListener(new RoutePlanerMouseListener(overView));
 			overView.showFrame();
 		}
@@ -565,8 +566,8 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 				try {
 					if (QueryHelper.checkIfTableExists(flightToDrop, database.getConnection().getConnection())) {
 
-						String userChoice = JOptionPane.showInputDialog(Routeplaner.this,
-								"Drop table " + flightToDrop + "?", JOptionPane.YES_NO_CANCEL_OPTION);
+						String userChoice = JOptionPane.showInputDialog(myInstance, "Drop table " + flightToDrop + "?",
+								JOptionPane.YES_NO_CANCEL_OPTION);
 						if (userChoice != null) {
 							try {
 								QueryHelper.dropTable(flightToDrop, database.getConnection().getConnection());
@@ -642,7 +643,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		}
 
 		else if (o.equals(btnMyLocation)) {
-			AddressDialog.getInstance(flightNumber, isConnected(), this);
+			AddressDialog.getInstance(flightNumber, isConnected());
 		}
 
 		else if (o.equals(btnShowMap)) {
@@ -844,14 +845,14 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 
 	public void executeOptimization(int locX, int locY) {
 		if (startGps != null) {
-			new ConcreteCommand(startGps, master, locX, locY).execute();
+			new ConcreteCommand(locX, locY).execute();
 		}
 	}
 
-	public void check(GpsCoordinate startGPS, List<GpsCoordinate> receiving) {
+	public void check() {
 
 		modelRoute.clear();
-		computedRoute = myOptimization.compute(startGPS, receiving);
+		computedRoute = myOptimization.compute(startGps, master);
 		Utils.fillModel(computedRoute, modelRoute, true);
 		cityRender.setData(computedRoute);
 		GpsCoordinate targetGps = computedRoute.get(computedRoute.size() - 1);

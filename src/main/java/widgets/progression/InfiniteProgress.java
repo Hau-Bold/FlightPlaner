@@ -1,22 +1,14 @@
 package widgets.progression;
 
-import java.util.List;
-
 import javax.swing.SwingWorker;
 
 import client.Routeplaner;
-import gps_coordinates.GpsCoordinate;
 
 public class InfiniteProgress extends SwingWorker<Void, Void> {
 	private int myCurrentXCoordinate;
 	private int myCurrentYCoordinate;
-	private GpsCoordinate startGps;
-	private List<GpsCoordinate> targets;
 
-	public InfiniteProgress(GpsCoordinate startGps, List<GpsCoordinate> targets, int currentXCoordinate,
-			int currentYCoordinate) {
-		this.startGps = startGps;
-		this.targets = targets;
+	public InfiniteProgress(int currentXCoordinate, int currentYCoordinate) {
 		myCurrentXCoordinate = currentXCoordinate;
 		myCurrentYCoordinate = currentYCoordinate;
 	}
@@ -25,7 +17,7 @@ public class InfiniteProgress extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
 		ProgressBar Progress = new ProgressBar(myCurrentXCoordinate, myCurrentYCoordinate);
 		Progress.getProgressBar().setIndeterminate(true);
-		Routeplaner.getInstance().check(startGps, targets);
+		Routeplaner.getInstance().check();
 		Progress.dispose();
 
 		return null;

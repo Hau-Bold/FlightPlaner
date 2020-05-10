@@ -39,11 +39,11 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 
 	private void initComponent() {
 
-		removeFlight = new IconMenuItem("Images/deleteIcon.png", Constants.REMOVEFLIGHT);
+		removeFlight = new IconMenuItem("deleteIcon.png", Constants.REMOVEFLIGHT);
 		removeFlight.addActionListener(this);
-		renameFlight = new IconMenuItem("Images/rename.jpg", Constants.RENAME);
+		renameFlight = new IconMenuItem("rename.jpg", Constants.RENAME);
 		renameFlight.addActionListener(this);
-		selectFlight = new IconMenuItem("Images/showIcon.png", Constants.SELECTFLIGHT);
+		selectFlight = new IconMenuItem("showIcon.png", Constants.SELECTFLIGHT);
 		selectFlight.addActionListener(this);
 
 		super.add(removeFlight, renameFlight, selectFlight);

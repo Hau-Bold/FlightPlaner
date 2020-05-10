@@ -56,7 +56,6 @@ import listeners.FlightBoxDisabledListener;
 import listeners.FlightBoxEnabledListener;
 import listeners.ListenerForEmptyFields;
 import listeners.RoutePlanerMouseListener;
-import listeners.RoutePlanerWindowListener;
 import listeners.TableTargetsMouseListener;
 import overview.Flight;
 import overview.OverView;
@@ -64,9 +63,6 @@ import overview.OverViewLogic;
 import render.CityRenderer;
 import render.TargetRenderer;
 import tablemodel.CommonModel;
-import toolbar.ConfirmingAddress;
-import toolbar.ConfirmingAdressLocationListener;
-import toolbar.RoutePlanerLocationListener;
 import widgets.contextMenu.TargetsContextMenu;
 
 @SuppressWarnings("serial")
@@ -82,7 +78,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 	private JTabbedPane tabbedPane;
 
 	private JPanel panelAdresse, panelTargets;
-	private JComboBox<String> databaseBox, flightBox;
+	private JComboBox<String> databaseBox, optionsForDatabase;
 	private JLabel lblFlight, lblstreet, lblcity, lblcountry;
 	private JTextField txtNewFlight, txtStreet, txtCity, txtCountry;
 
@@ -147,34 +143,48 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 	 */
 	private List<GpsCoordinate> computedRoute;
 
-	private IconButton btnSubmitFlightNumber, btnSubmitFlightToSelect, btnSave, btnAccessData, btnSubmitFlightToDrop;
+	private IconButton btnSubmitFlightNumber, btnSubmitFlightToSelect, btnSave, btnAccessData, btnSubmitFlightToDrop,
+			confirmAddress;
 	public static String flightNumber;
 
 	private JTextField txtDropFlight, txtSelectFlight;
 
 	// to set the view
 	private String currentView;
+
 	private GpsCoordinate startGps = null;
 	private CityRenderer cityRender;
 	private TargetsContextMenu targetContextMenu = null;
-	private ConfirmingAddress confirmingAdress;
-	private RoutePlanerLocationListener routePlanerLocationListener;
-	private RoutePlanerWindowListener routePlanerWindowListener;
 
 	public boolean isGlued = false;
 	public OverView overView = null;
 	private DefaultListSelectionModel listSelectionModel;
+	public static String pathToImageFolder;
 
 	public static Routeplaner getInstance() {
 
+		// if (myInstance == null) {
+		// throw new InvalidActivityException();
+		// }
+		return myInstance;
+	}
+
+	public static Routeplaner getInstance(String directoryOfDecoder) {
+
 		if (myInstance == null) {
-			myInstance = new Routeplaner();
+			myInstance = new Routeplaner(directoryOfDecoder);
 		}
 		return myInstance;
 	}
 
 	// ctor
-	private Routeplaner() {
+	private Routeplaner(String directory) {
+
+		pathToImageFolder = directory + File.separator + Constants.IMAGE;
+
+		if (!new File(pathToImageFolder).exists()) {
+			throw new IllegalArgumentException(String.format("path %s does not exists", pathToImageFolder));
+		}
 
 		// Setting the Layout
 		try {
@@ -194,17 +204,10 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 
 	private void initComponent() {
 
-		this.setTitle(Constants.ROUTEPLANER);
+		this.setTitle(Constants.FLIGHTPLANER);
 		this.setBounds(X + 100, Y, WIDTH, HEIGHT);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		confirmingAdress = new ConfirmingAddress(this.getX(), this.getY() + this.getWidth(), this.getWidth(), 60);
-
-		routePlanerLocationListener = new RoutePlanerLocationListener(confirmingAdress);
-		this.addComponentListener(routePlanerLocationListener);
-		confirmingAdress.addComponentListener(new ConfirmingAdressLocationListener(confirmingAdress));
-		routePlanerWindowListener = new RoutePlanerWindowListener(confirmingAdress);
-		this.addWindowListener(routePlanerWindowListener);
 
 		// adding tabbedPane
 		tabbedPane = new JTabbedPane();
@@ -216,18 +219,18 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		tabbedPane.addTab("Datenbank", panelAdresse);
 		tabbedPane.setMnemonicAt(0, KeyEvent.VK_0);
 
-		// the combobox for databasemenu:
-		String flightOptions[] = { Constants.CREATEFLIGHT, Constants.INSERTTARGET, Constants.DROPFLIGHT,
-				Constants.SELECTFLIGHT };
-		flightBox = new JComboBox<String>(flightOptions);
-		flightBox.setBounds(0, 0, 100, 20);
-		flightBox.setBorder(BorderFactory.createRaisedBevelBorder());
-		flightBox.setFont(Fonts.MainFont);
+		// optiones for database:
+		optionsForDatabase = new JComboBox<String>(new String[] { Constants.CREATEFLIGHT, Constants.INSERTTARGET,
+				Constants.DROPFLIGHT, Constants.SELECTFLIGHT });
+		optionsForDatabase.setBounds(0, 0, 100, 20);
+		optionsForDatabase.setBorder(BorderFactory.createRaisedBevelBorder());
+		optionsForDatabase.setFont(Fonts.MainFont);
 		listSelectionModel = new DefaultListSelectionModel();
 		listSelectionModel.addSelectionInterval(0, 0);
 		listSelectionModel.addSelectionInterval(2, 3);
-		flightBox.setRenderer(new ComboBoxRenderer(listSelectionModel));
-		flightBox.addActionListener(new FlightBoxDisabledListener(listSelectionModel, flightBox, this));
+		optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
+		optionsForDatabase
+				.addActionListener(new FlightBoxDisabledListener(listSelectionModel, optionsForDatabase, this));
 
 		// the combobox for the database:
 		String dBOptions[] = { Constants.CONNECT, Constants.DISCONNECT };
@@ -238,16 +241,20 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		databaseBox.addActionListener(this);
 		databaseBox.setEnabled(true);
 
-		btnSave = new IconButton("Images/saveIcon.png", 180, 0);
+		btnSave = new IconButton(pathToImageFolder, "saveIcon.png", 180, 0);
 		btnSave.addActionListener(this);
 
-		btnAccessData = new IconButton("Images/accessDataIcon.jpg", 200, 0);
+		btnAccessData = new IconButton(pathToImageFolder, "accessDataIcon.jpg", 200, 0);
 		btnAccessData.addActionListener(this);
 
-		panelAdresse.add(flightBox);
+		confirmAddress = new IconButton(pathToImageFolder, "Confirm.png", 220, 0);
+		confirmAddress.addActionListener(this);
+
+		panelAdresse.add(optionsForDatabase);
 		panelAdresse.add(databaseBox);
 		panelAdresse.add(btnSave);
 		panelAdresse.add(btnAccessData);
+		panelAdresse.add(confirmAddress);
 
 		// Anlegen der Flugnummer:
 		lblFlight = new JLabel(Constants.FLIGHTNUMBER + ":");
@@ -257,7 +264,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		lblFlight.setVisible(false);
 		panelAdresse.add(lblFlight);
 
-		btnSubmitFlightNumber = new IconButton("Images/confirmIcon.png", 200, 50);
+		btnSubmitFlightNumber = new IconButton(pathToImageFolder, "confirmIcon.png", 200, 50);
 		btnSubmitFlightNumber.addActionListener(this);
 		panelAdresse.add(btnSubmitFlightNumber);
 
@@ -270,7 +277,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		panelAdresse.add(txtNewFlight);
 
 		// Drop a concrete Flight:
-		btnSubmitFlightToDrop = new IconButton("Images/deleteIcon.png", 200, 50);
+		btnSubmitFlightToDrop = new IconButton(pathToImageFolder, "deleteIcon.png", 200, 50);
 		btnSubmitFlightToDrop.addActionListener(this);
 		panelAdresse.add(btnSubmitFlightToDrop);
 
@@ -283,7 +290,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		panelAdresse.add(txtDropFlight);
 
 		// Select a concrete Flight:
-		btnSubmitFlightToSelect = new IconButton("Images/confirmIcon.png", 200, 50);
+		btnSubmitFlightToSelect = new IconButton(pathToImageFolder, "Confirm.png", 200, 50);
 		btnSubmitFlightToSelect.addActionListener(this);
 		panelAdresse.add(btnSubmitFlightToSelect);
 
@@ -323,7 +330,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		txtCity.setBounds(80, 80, 100, 20);
 		txtCity.setFocusable(true);
 		txtCity.setBackground(Color.GREEN);
-		txtCity.getDocument().addDocumentListener(new ListenerForEmptyFields(txtCity, confirmingAdress));
+		txtCity.getDocument().addDocumentListener(new ListenerForEmptyFields(txtCity, confirmAddress));
 		txtCity.setVisible(false);
 		panelAdresse.add(txtCity);
 
@@ -502,9 +509,9 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 						btnSave.setVisible(true);
 					}
 
-					flightBox.removeActionListener(flightBox.getActionListeners()[0]);
-					flightBox.setRenderer(new DefaultListCellRenderer());
-					flightBox.addActionListener(new FlightBoxEnabledListener(flightBox));
+					optionsForDatabase.removeActionListener(optionsForDatabase.getActionListeners()[0]);
+					optionsForDatabase.setRenderer(new DefaultListCellRenderer());
+					optionsForDatabase.addActionListener(new FlightBoxEnabledListener(optionsForDatabase));
 
 				}
 				break;
@@ -520,10 +527,10 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 					btnSave.setVisible(false);
 					setView(Constants.STANDART);
 
-					flightBox.removeActionListener(flightBox.getActionListeners()[0]);
-					flightBox.setRenderer(new ComboBoxRenderer(listSelectionModel));
-					flightBox.addActionListener(
-							new FlightBoxDisabledListener(listSelectionModel, flightBox, myInstance));
+					optionsForDatabase.removeActionListener(optionsForDatabase.getActionListeners()[0]);
+					optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
+					optionsForDatabase.addActionListener(
+							new FlightBoxDisabledListener(listSelectionModel, optionsForDatabase, myInstance));
 				}
 				break;
 			default:
@@ -558,6 +565,14 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 			overView = OverView.getInstance(overViewEntries);
 			panelAdresse.addMouseListener(new RoutePlanerMouseListener(overView));
 			overView.showFrame();
+		}
+
+		else if (o.equals(confirmAddress)) {
+			try {
+				confirmAdress();
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}
 		}
 
 		else if (o.equals(btnSubmitFlightToDrop)) {
@@ -732,6 +747,9 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 				/** management of view "SELECTFLIGHT" */
 				txtSelectFlight.setVisible(false);
 				btnSubmitFlightToSelect.setVisible(false);
+
+				confirmAddress.setVisible(true);
+
 				break;
 
 			case Constants.DROPFLIGHT:
@@ -784,7 +802,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		}
 	}
 
-	public void reactOnConfirmAdress() throws JSONException {
+	private void confirmAdress() throws JSONException {
 		int counter = master.size();
 		counter++;
 
@@ -891,14 +909,6 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		this.master = master;
 	}
 
-	public RoutePlanerLocationListener getRoutePlanerLocationListener() {
-		return routePlanerLocationListener;
-	}
-
-	public void setRoutePlanerLocationListener(RoutePlanerLocationListener routePlanerLocationListener) {
-		this.routePlanerLocationListener = routePlanerLocationListener;
-	}
-
 	public CommonModel getModelTargets() {
 		return modelTargets;
 	}
@@ -921,14 +931,6 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 
 	public void setTargetContextMenu(TargetsContextMenu targetContextMenu) {
 		this.targetContextMenu = targetContextMenu;
-	}
-
-	public RoutePlanerWindowListener getRoutePlanerWindowListener() {
-		return routePlanerWindowListener;
-	}
-
-	public void setRoutePlanerWindowListener(RoutePlanerWindowListener routePlanerWindowListener) {
-		this.routePlanerWindowListener = routePlanerWindowListener;
 	}
 
 	public OverView getOverView() {

@@ -18,11 +18,9 @@ import org.jdom.JDOMException;
 import org.json.JSONException;
 import org.json.simple.parser.ParseException;
 
-import client.Routeplaner;
 import gps_coordinates.GPS;
 import gps_coordinates.GpsCoordinate;
 import tablemodel.CommonModel;
-import toolbar.ConfirmingAddress;
 
 /**
  * for functions
@@ -337,14 +335,6 @@ public class Utils {
 			}
 		}
 
-	}
-
-	public static void glue(ConfirmingAddress confirmingAdress) {
-
-		Routeplaner routeplaner = Routeplaner.getInstance();
-
-		confirmingAdress.setLocation(new Point(routeplaner.getX(), routeplaner.getY() + routeplaner.getWidth()));
-		routeplaner.isGlued = true;
 	}
 
 	public static boolean isEmpty(int[] arrayOfSelectedRows) {

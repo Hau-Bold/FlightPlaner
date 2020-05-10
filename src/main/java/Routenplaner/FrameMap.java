@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import javax.swing.event.ChangeListener;
 
 import animation.AnimatePlane;
 import animation.AnimateTarget;
+import client.Routeplaner;
 import gps_coordinates.GpsCoordinate;
 
 public class FrameMap extends JFrame implements ActionListener, ChangeListener {
@@ -66,7 +68,10 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		BufferedImage bufferedimage = null;
 		// load map into bufferedimage:
 		try {
-			bufferedimage = ImageIO.read(getClass().getResource("../Images/zeitzonen.png"));
+			// bufferedimage =
+			// ImageIO.read(getClass().getResource("../Images/zeitzonen.png"));
+			bufferedimage = ImageIO
+					.read(new File(Routeplaner.getInstance().pathToImageFolder + File.separator + "zeitzonen.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

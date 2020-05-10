@@ -72,7 +72,7 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 		lblClientCity.setOpaque(true);
 		this.add(lblClientCity);
 
-		btnConfirm = new IconButton("Images/Confirm_icon.png", 190, 35);
+		btnConfirm = new IconButton(Routeplaner.getInstance().pathToImageFolder, "Confirm_icon.png", 190, 35);
 		btnConfirm.setMnemonic(KeyEvent.VK_Q);
 		btnConfirm.addActionListener(this);
 

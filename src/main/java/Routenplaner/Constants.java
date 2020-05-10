@@ -27,7 +27,7 @@ public final class Constants {
 	public static final String REMOVEFLIGHT = "delete";
 	public static final String RENAME = "rename";
 	public static final String Route = "Route";
-	public static final String ROUTEPLANER = "Routing";
+	public static final String FLIGHTPLANER = "FlightPlaner";
 	public static final String START = "Start";
 	public static final String STARTPOINT = "start point";
 	public static final String RANDOM = "Random";
@@ -39,4 +39,5 @@ public final class Constants {
 	public static final String STANDART = "STANDART";
 	public static final String PRINTPREVIEW = "Print preview";
 	public static final String PROCESSING = "Processing Data";
+	public static final String IMAGE = "Images";
 }

@@ -37,7 +37,6 @@ public class TableTargetsMouseListener implements MouseListener {
 				targetsContextMenu.dispose();
 			}
 			targetsContextMenu = new TargetsContextMenu(event);
-			routeplaner.getRoutePlanerWindowListener().setContextMenu(targetsContextMenu);
 		}
 	}
 

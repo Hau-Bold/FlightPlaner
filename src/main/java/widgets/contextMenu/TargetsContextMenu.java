@@ -12,7 +12,7 @@ import algorithms.FindNext;
 import algorithms.FindOptimized;
 import algorithms.FindRandom;
 import algorithms.IOptimization;
-import client.Routeplaner;
+import client.RoutePlanningService;
 import widgets.IconMenuItem;
 
 @SuppressWarnings("serial")
@@ -66,7 +66,7 @@ public class TargetsContextMenu extends CommonContextMenu implements ActionListe
 
 		Object o = event.getSource();
 
-		Routeplaner routeplaner = Routeplaner.getInstance();
+		RoutePlanningService routeplaner = RoutePlanningService.getInstance();
 
 		int x = getLocation().x;
 		int y = getLocation().y;

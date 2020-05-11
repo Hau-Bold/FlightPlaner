@@ -21,7 +21,7 @@ import javax.swing.event.ChangeListener;
 
 import animation.AnimatePlane;
 import animation.AnimateTarget;
-import client.Routeplaner;
+import client.RoutePlanningService;
 import gps_coordinates.GpsCoordinate;
 
 public class FrameMap extends JFrame implements ActionListener, ChangeListener {
@@ -71,7 +71,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 			// bufferedimage =
 			// ImageIO.read(getClass().getResource("../Images/zeitzonen.png"));
 			bufferedimage = ImageIO
-					.read(new File(Routeplaner.getInstance().pathToImageFolder + File.separator + "zeitzonen.png"));
+					.read(new File(RoutePlanningService.getInstance().pathToImageFolder + File.separator + "zeitzonen.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

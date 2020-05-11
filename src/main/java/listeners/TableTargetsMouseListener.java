@@ -3,7 +3,7 @@ package listeners;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import client.Routeplaner;
+import client.RoutePlanningService;
 import overview.OverView;
 import widgets.contextMenu.OverViewContextMenu;
 import widgets.contextMenu.TargetsContextMenu;
@@ -19,7 +19,7 @@ public class TableTargetsMouseListener implements MouseListener {
 
 	@Override
 	public void mouseClicked(MouseEvent event) {
-		Routeplaner routeplaner = Routeplaner.getInstance();
+		RoutePlanningService routeplaner = RoutePlanningService.getInstance();
 
 		OverView overView = routeplaner.getOverView();
 		OverViewContextMenu overViewContextMenu;

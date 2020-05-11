@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import QueryHelper.QueryHelper.QueryHelper;
 import Routenplaner.Constants;
 import database.DBConnection;
 import database.DatabaseLogic;
+import database.QueryHelper;
 import gps_coordinates.GpsCoordinate;
 
 public class OverViewLogic {

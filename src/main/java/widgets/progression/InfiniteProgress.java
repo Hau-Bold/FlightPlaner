@@ -2,7 +2,7 @@ package widgets.progression;
 
 import javax.swing.SwingWorker;
 
-import client.Routeplaner;
+import client.RoutePlanningService;
 
 public class InfiniteProgress extends SwingWorker<Void, Void> {
 	private int myCurrentXCoordinate;
@@ -17,7 +17,7 @@ public class InfiniteProgress extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
 		ProgressBar Progress = new ProgressBar(myCurrentXCoordinate, myCurrentYCoordinate);
 		Progress.getProgressBar().setIndeterminate(true);
-		Routeplaner.getInstance().check();
+		RoutePlanningService.getInstance().check();
 		Progress.dispose();
 
 		return null;

@@ -7,16 +7,16 @@ import javax.swing.JComboBox;
 import javax.swing.ListSelectionModel;
 
 import Routenplaner.Constants;
-import client.Routeplaner;
+import client.RoutePlanningService;
 
 public class FlightBoxDisabledListener implements ActionListener {
 
 	private ListSelectionModel dmode;
 	private JComboBox<String> flightBox;
-	private Routeplaner routeplaner;
+	private RoutePlanningService routeplaner;
 	String currentView = null;
 
-	public FlightBoxDisabledListener(ListSelectionModel dmode, JComboBox<String> flightBox, Routeplaner routeplaner) {
+	public FlightBoxDisabledListener(ListSelectionModel dmode, JComboBox<String> flightBox, RoutePlanningService routeplaner) {
 		this.dmode = dmode;
 		this.flightBox = flightBox;
 		this.routeplaner = routeplaner;

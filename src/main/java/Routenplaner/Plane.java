@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import client.Routeplaner;
+import client.RoutePlanningService;
 
 @SuppressWarnings("serial")
 public class Plane extends JLabel {
@@ -27,7 +27,7 @@ public class Plane extends JLabel {
 		this.setSize(width, height);
 		try {
 			bufferedimage = ImageIO
-					.read(new File(Routeplaner.getInstance().pathToImageFolder + File.separator + "flieger.png"));// Constants
+					.read(new File(RoutePlanningService.getInstance().pathToImageFolder + File.separator + "flieger.png"));// Constants
 																													// for
 																													// Names???
 			imageplane = bufferedimage;

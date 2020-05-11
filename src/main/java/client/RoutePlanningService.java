@@ -33,13 +33,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.jdom.JDOMException;
 import org.json.JSONException;
-import org.json.simple.parser.ParseException;
+import org.springframework.stereotype.Service;
 
-import com.jgoodies.common.internal.Messages;
-
-import QueryHelper.QueryHelper.QueryHelper;
 import Routenplaner.AddressDialog;
 import Routenplaner.AddressVector;
 import Routenplaner.Constants;
@@ -50,6 +46,7 @@ import Routenplaner.Utils;
 import algorithms.ConcreteCommand;
 import algorithms.IOptimization;
 import database.DatabaseLogic;
+import database.QueryHelper;
 import gps_coordinates.GPS;
 import gps_coordinates.GpsCoordinate;
 import listeners.FlightBoxDisabledListener;
@@ -65,8 +62,9 @@ import render.TargetRenderer;
 import tablemodel.CommonModel;
 import widgets.contextMenu.TargetsContextMenu;
 
+@Service("RoutePlanningService")
 @SuppressWarnings("serial")
-public class Routeplaner extends JFrame implements ActionListener, DocumentListener {
+public class RoutePlanningService extends JFrame implements ActionListener, DocumentListener {
 
 	private IOptimization myOptimization;
 	private final int X = 10;
@@ -74,7 +72,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 	private final int WIDTH = 500;// TODO move
 	private final int HEIGHT = 500;// TODO move
 
-	private static Routeplaner myInstance;
+	private static RoutePlanningService myInstance;
 	private JTabbedPane tabbedPane;
 
 	private JPanel panelAdresse, panelTargets;
@@ -156,35 +154,21 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 	private CityRenderer cityRender;
 	private TargetsContextMenu targetContextMenu = null;
 
-	public boolean isGlued = false;
 	public OverView overView = null;
 	private DefaultListSelectionModel listSelectionModel;
+	private String myDirectory;
 	public static String pathToImageFolder;
 
-	public static Routeplaner getInstance() {
-
-		// if (myInstance == null) {
-		// throw new InvalidActivityException();
-		// }
-		return myInstance;
-	}
-
-	public static Routeplaner getInstance(String directoryOfDecoder) {
+	public static RoutePlanningService getInstance() {
 
 		if (myInstance == null) {
-			myInstance = new Routeplaner(directoryOfDecoder);
+			myInstance = new RoutePlanningService();
 		}
 		return myInstance;
 	}
 
 	// ctor
-	private Routeplaner(String directory) {
-
-		pathToImageFolder = directory + File.separator + Constants.IMAGE;
-
-		if (!new File(pathToImageFolder).exists()) {
-			throw new IllegalArgumentException(String.format("path %s does not exists", pathToImageFolder));
-		}
+	private RoutePlanningService() {
 
 		// Setting the Layout
 		try {
@@ -199,10 +183,15 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 		} catch (UnsupportedLookAndFeelException e2) {
 			e2.printStackTrace();
 		}
-		initComponent();
 	}
 
-	private void initComponent() {
+	public void initComponent() {
+
+		pathToImageFolder = myDirectory + File.separator + Constants.IMAGE;
+
+		if (!new File(pathToImageFolder).exists()) {
+			throw new IllegalArgumentException(String.format("path %s does not exists", pathToImageFolder));
+		}
 
 		this.setTitle(Constants.FLIGHTPLANER);
 		this.setBounds(X + 100, Y, WIDTH, HEIGHT);
@@ -549,7 +538,7 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 					e1.printStackTrace();
 				}
 			} else {
-				JOptionPane.showMessageDialog(this, String.format(Messages.MUST_NOT_BE_NULL, flightNumber));
+				JOptionPane.showMessageDialog(this, String.format("%s", flightNumber));
 			}
 		}
 
@@ -595,8 +584,8 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 							}
 						}
 					} else {
-						JOptionPane.showInputDialog(Routeplaner.this, "Flight" + flightToDrop + " does not exist",
-								JOptionPane.CLOSED_OPTION);
+						JOptionPane.showInputDialog(RoutePlanningService.this,
+								"Flight" + flightToDrop + " does not exist", JOptionPane.CLOSED_OPTION);
 					}
 				} catch (SQLException e1) {
 					e1.printStackTrace();
@@ -618,8 +607,8 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 					Utils.fillModel(response, modelTargets, false);
 
 				} else {
-					JOptionPane.showInputDialog(Routeplaner.this, "Flight " + flightToSelect + " does not exist",
-							JOptionPane.CLOSED_OPTION);
+					JOptionPane.showInputDialog(RoutePlanningService.this,
+							"Flight " + flightToSelect + " does not exist", JOptionPane.CLOSED_OPTION);
 				}
 			} catch (SQLException e1) {
 				e1.printStackTrace();
@@ -821,11 +810,6 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 						gps = GPS.requestGPS(Utils.replaceUnusableChars(builder.toString()));
 					} catch (MalformedURLException e2) {
 						e2.printStackTrace();
-					} catch (JDOMException e1) {
-						e1.printStackTrace();
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
 
 					if (gps != null) {
@@ -975,6 +959,10 @@ public class Routeplaner extends JFrame implements ActionListener, DocumentListe
 
 	public void setOptimization(IOptimization optimization) {
 		myOptimization = optimization;
+	}
+
+	public void setDirectory(String directory) {
+		myDirectory = directory;
 	}
 
 }

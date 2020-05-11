@@ -14,11 +14,10 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.jdom.JDOMException;
 import org.json.JSONException;
 import org.json.simple.parser.ParseException;
 
-import client.Routeplaner;
+import client.RoutePlanningService;
 import gps_coordinates.GpsCoordinate;
 import listeners.ListenerForEmptyFields;
 import overview.OverViewLogic;
@@ -72,7 +71,7 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 		lblClientCity.setOpaque(true);
 		this.add(lblClientCity);
 
-		btnConfirm = new IconButton(Routeplaner.getInstance().pathToImageFolder, "Confirm_icon.png", 190, 35);
+		btnConfirm = new IconButton(RoutePlanningService.getInstance().pathToImageFolder, "Confirm_icon.png", 190, 35);
 		btnConfirm.setMnemonic(KeyEvent.VK_Q);
 		btnConfirm.addActionListener(this);
 
@@ -136,13 +135,10 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 			GpsCoordinate gpsOfStart = null;
 			try {
 				gpsOfStart = Utils.getGpsCoordinateToLocation(start, 0);
-				Routeplaner.getInstance().setStartGps(gpsOfStart);
+				RoutePlanningService.getInstance().setStartGps(gpsOfStart);
 			} catch (MalformedURLException e2) {
 				e2.printStackTrace();
-			} catch (JDOMException e2) {
-				e2.printStackTrace();
 			} catch (JSONException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} catch (ParseException e1) {
 				// TODO Auto-generated catch block
@@ -153,7 +149,7 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 				/** the flightnumber is valid */
 				try {
 					OverViewLogic.insertStartLocation(flightNumber, gpsOfStart,
-							Routeplaner.getInstance().getDatabase().getConnection());
+							RoutePlanningService.getInstance().getDatabase().getConnection());
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}

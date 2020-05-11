@@ -22,8 +22,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry combineaccessrules="false" kind="src" path="/QueryHelper"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/orgJson"/>
-	<classpathentry kind="lib" path="C:/Users/Haubold/workspace/externalJars/json-simple-1.1/json-simple-1.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

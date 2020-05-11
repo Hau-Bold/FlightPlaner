@@ -4,9 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
-import org.jdom.JDOMException;
 import org.json.JSONException;
-import org.json.simple.parser.ParseException;
 
 import Routenplaner.OpenStreetMapUtils;
 
@@ -31,21 +29,9 @@ public class GPS {
 	private static String latitude;
 	private static String longitude;
 
-	/**
-	 * to get the GpsCoordinate to a given location
-	 * 
-	 * @param location
-	 *            - the location
-	 * @return
-	 * @throws MalformedURLException
-	 *             - in case of technical error
-	 * @throws JDOMException
-	 *             - in case of technical error
-	 * @throws JSONException
-	 * @throws ParseException
-	 */
+	//
 	public static GpsCoordinate requestGPS(String receiving)
-			throws MalformedURLException, JDOMException, JSONException, ParseException {
+			throws MalformedURLException, JSONException, org.json.simple.parser.ParseException {
 
 		URL url = new URL(GOOGLEAPISTART + receiving + GOOGLEAPIEND);
 		// Document doc = null;

@@ -8,7 +8,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 
 import Routenplaner.Utils;
-import client.Routeplaner;
+import client.RoutePlanningService;
 import widgets.control.MenuItemMouseListener;
 
 @SuppressWarnings("serial")
@@ -18,7 +18,7 @@ public class IconMenuItem extends JMenuItem {
 
 		if (!Utils.nullOrEmpty(pathOfIcon)) {
 
-			String ressource = Routeplaner.getInstance().pathToImageFolder + File.separator + pathOfIcon;
+			String ressource = RoutePlanningService.getInstance().pathToImageFolder + File.separator + pathOfIcon;
 
 			ImageIcon icon = new ImageIcon(ressource);
 			icon.setImage(icon.getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));

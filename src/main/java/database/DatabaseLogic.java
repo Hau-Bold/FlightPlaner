@@ -7,7 +7,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import QueryHelper.QueryHelper.QueryHelper;
 import Routenplaner.Constants;
 import gps_coordinates.GpsCoordinate;
 

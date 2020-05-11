@@ -14,7 +14,6 @@ import java.util.Vector;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import org.jdom.JDOMException;
 import org.json.JSONException;
 import org.json.simple.parser.ParseException;
 
@@ -135,7 +134,7 @@ public class Utils {
 	 * @throws ParseException
 	 */
 	public static GpsCoordinate getGpsCoordinateToLocation(String location, int id)
-			throws MalformedURLException, JDOMException, JSONException, ParseException {
+			throws MalformedURLException, JSONException, ParseException {
 		String[] locationSplitted = location.split(",");
 		GpsCoordinate gps = new GpsCoordinate(GPS.requestGPS(location).getLatitude(),
 				(GPS.requestGPS(location)).getLongitude());

@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 
-import QueryHelper.QueryHelper.QueryHelper;
 import Routenplaner.AddressVector;
 import Routenplaner.Constants;
 import Routenplaner.Utils;
-import client.Routeplaner;
+import client.RoutePlanningService;
 import database.DatabaseLogic;
+import database.QueryHelper;
 import gps_coordinates.GpsCoordinate;
 import overview.OverView;
 import overview.OverViewLogic;
@@ -54,7 +54,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 	public void actionPerformed(ActionEvent event) {
 
 		Object o = event.getSource();
-		Routeplaner routeplaner = Routeplaner.getInstance();
+		RoutePlanningService routeplaner = RoutePlanningService.getInstance();
 
 		if (o.equals(selectFlight)) {
 			JTable table = overView.getTable();

@@ -1,82 +1,52 @@
 package overview;
 
-/*to represent a flight*/
 public class Flight {
-	
-	public double getLongitude() {
-		return longitude;
+
+	private String myFlightnumber;
+	private String myStart;
+	private double myLongitude;
+	private double myLatitude;
+	private String myTarget;
+
+	// ctor
+	public Flight(String flightnumber, String start, String target) {
+		myFlightnumber = flightnumber;
+		myStart = start;
+		myTarget = target;
 	}
 
-	public void setLongitude(double longitude) {
-		this.longitude = longitude;
+	// ctor
+	public Flight(String flightnumber, String start, double longitude, double latitude, String target) {
+		this(flightnumber, start, target);
+		myLongitude = longitude;
+		myLatitude = latitude;
 	}
 
-	public double getLatitude() {
-		return latitude;
-	}
-
-	public void setLatidtude(double latidtude) {
-		this.latitude = latidtude;
-	}
-
-	private String flightnumber;
-	private String start;
-	private double longitude;
-	private double latitude;
-	private String target;
-	
 	public String getFlightnumber() {
-		return flightnumber;
+		return myFlightnumber;
 	}
 
 	public String getStart() {
-		return start;
+		return myStart;
 	}
 
 	public String getTarget() {
-		return target;
-	}
-	
-	/**
-	 * Constructor.
-	 * @param flightnumber - the flightnumber
-	 * @param start - the start
-	 * @param target - the target
-	 */
-	public Flight(String flightnumber, String start, String target) {
-		super();
-		this.flightnumber = flightnumber;
-		this.start = start;
-		this.target = target;
-	}
-	
-	/**
-	 * Constructor.
-	 * @param flightnumber - the flightnumber
-	 * @param start - the start
-	 */
-	public Flight(String flightnumber, String start) {
-		super();
-		this.flightnumber = flightnumber;
-		this.start = start;
-		this.target = "";
+		return myTarget;
 	}
 
-	/**
-	 * Constructor.
-	 * @param flightnumber - the flightnumber
-	 * @param target 
-	 * @param latitude 
-	 * @param longitude 
-	 * @param start 
-	 */
-	public Flight(String flightnumber, String start, double longitude, double latitude, String target) {
-		super();
-		this.flightnumber = flightnumber;
-		this.start = start;
-		this.longitude=longitude;
-		this.latitude=latitude;
-		this.target = target;
+	public double getLongitude() {
+		return myLongitude;
 	}
-	
+
+	public void setLongitude(double longitude) {
+		myLongitude = longitude;
+	}
+
+	public double getLatitude() {
+		return myLatitude;
+	}
+
+	public void setLatidtude(double latitude) {
+		myLatitude = latitude;
+	}
 }

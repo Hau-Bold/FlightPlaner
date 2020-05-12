@@ -6,7 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JComboBox;
 
 import Routenplaner.Constants;
-import client.RoutePlanningService;
+import client.FlightPlaner;
 
 public class FlightBoxEnabledListener implements ActionListener {
 
@@ -45,8 +45,8 @@ public class FlightBoxEnabledListener implements ActionListener {
 				// do nothing
 				break;
 			}
-			RoutePlanningService.getInstance().setCurrentView(currentView);
-			RoutePlanningService.getInstance().setView(currentView);
+			FlightPlaner.getInstance().setCurrentView(currentView);
+			FlightPlaner.getInstance().setView(currentView);
 		}
 	}
 }

@@ -21,8 +21,10 @@ import javax.swing.event.ChangeListener;
 
 import animation.AnimatePlane;
 import animation.AnimateTarget;
-import client.RoutePlanningService;
+import animation.Plane;
+import client.FlightPlaner;
 import gps_coordinates.GpsCoordinate;
+import routePlanningService.Impl.RoutePlanningHelper;
 
 public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 	/**
@@ -54,7 +56,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 	private FrameMap(List<GpsCoordinate> computedRoute) {
 		this.gpsCoordinates = computedRoute;
 		targetList = new ArrayList<Point>();
-		computedRoute.forEach(gps -> targetList.add(Utils.gpsToMiller(gps)));
+		computedRoute.forEach(gps -> targetList.add(RoutePlanningHelper.gpsToMiller(gps)));
 		initComponent();
 		showFrame();
 	}
@@ -70,8 +72,8 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		try {
 			// bufferedimage =
 			// ImageIO.read(getClass().getResource("../Images/zeitzonen.png"));
-			bufferedimage = ImageIO
-					.read(new File(RoutePlanningService.getInstance().pathToImageFolder + File.separator + "zeitzonen.png"));
+			bufferedimage = ImageIO.read(new File(
+					FlightPlaner.getInstance().getPathToImageFolder() + File.separator + "zeitzonen.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -161,7 +163,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 
 			if (counter2 % 2 == 0) {
 				btnShowTargets.setEnabled(false);
-				Utils.drawRoute(targetList, imagepanel);
+				RoutePlanningHelper.drawRoute(targetList, imagepanel);
 				btn_showRoute.setText("Hide Route");
 
 			}
@@ -174,7 +176,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		}
 
 		if (o.equals(btnStartFlight)) {
-			Thread flight = new Thread(new AnimatePlane(plane, targetList, gpsCoordinates));
+			Thread flight = new Thread(new AnimatePlane(plane, targetList));
 			flight.start();
 		}
 	}
@@ -218,7 +220,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		}
 
 		else if (btn_showRoute.getText().equals("Hide Route")) {
-			Utils.drawRoute(targetList, imagepanel);
+			RoutePlanningHelper.drawRoute(targetList, imagepanel);
 		}
 
 	}

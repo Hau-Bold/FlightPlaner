@@ -17,10 +17,11 @@ import javax.swing.event.DocumentListener;
 import org.json.JSONException;
 import org.json.simple.parser.ParseException;
 
-import client.RoutePlanningService;
+import client.FlightPlaner;
 import gps_coordinates.GpsCoordinate;
 import listeners.ListenerForEmptyFields;
 import overview.OverViewLogic;
+import routePlanningService.Impl.RoutePlanningHelper;
 
 /**
  * 
@@ -71,7 +72,8 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 		lblClientCity.setOpaque(true);
 		this.add(lblClientCity);
 
-		btnConfirm = new IconButton(RoutePlanningService.getInstance().pathToImageFolder, "Confirm_icon.png", 190, 35);
+		btnConfirm = new IconButton(FlightPlaner.getInstance().getPathToImageFolder(), "Confirm_icon.png", 190,
+				35);
 		btnConfirm.setMnemonic(KeyEvent.VK_Q);
 		btnConfirm.addActionListener(this);
 
@@ -131,11 +133,11 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 			builder.append(txtClientCity.getText());
 			builder.append(txtClientCountry.getText());
 
-			start = Utils.replaceUnusableChars(builder.toString());
+			start = RoutePlanningHelper.replaceUnusableChars(builder.toString());
 			GpsCoordinate gpsOfStart = null;
 			try {
-				gpsOfStart = Utils.getGpsCoordinateToLocation(start, 0);
-				RoutePlanningService.getInstance().setStartGps(gpsOfStart);
+				gpsOfStart = RoutePlanningHelper.getGpsCoordinateToLocation(start, 0);
+				FlightPlaner.getInstance().setStartGps(gpsOfStart);
 			} catch (MalformedURLException e2) {
 				e2.printStackTrace();
 			} catch (JSONException e1) {
@@ -149,7 +151,7 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 				/** the flightnumber is valid */
 				try {
 					OverViewLogic.insertStartLocation(flightNumber, gpsOfStart,
-							RoutePlanningService.getInstance().getDatabase().getConnection());
+							FlightPlaner.getInstance().getDatabase().getConnection());
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}

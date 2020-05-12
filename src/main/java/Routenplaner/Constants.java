@@ -1,7 +1,6 @@
 package Routenplaner;
 
 public final class Constants {
-	final static Double CORRECTION = 0.11029411764705882352941176470588;
 
 	public static final String CITY = "CITY";
 	public static final String CONNECT = "Connect";

@@ -1,4 +1,4 @@
-package Routenplaner;
+package routePlanningService.Impl;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
@@ -17,22 +17,15 @@ import javax.swing.JTextField;
 import org.json.JSONException;
 import org.json.simple.parser.ParseException;
 
+import Routenplaner.ImagePanel;
+import Routenplaner.SpecialPoint;
 import gps_coordinates.GPS;
 import gps_coordinates.GpsCoordinate;
+import routePlanningService.Constants.Constants;
 import tablemodel.CommonModel;
 
-/**
- * for functions
- */
-public class Utils {
+public class RoutePlanningHelper {
 
-	/**
-	 * to remove not accepted chars
-	 * 
-	 * @param receiving
-	 *            - the String to examine
-	 * @return - the transformed String
-	 */
 	public static String replaceUnusableChars(String receiving) {
 		if (receiving != null) {
 			receiving = receiving.replaceAll("ä", "ae");
@@ -44,14 +37,7 @@ public class Utils {
 		return receiving;
 	}
 
-	/**
-	 * to get permutations
-	 * 
-	 * @param targets
-	 *            - the targets
-	 * @return - list of permutations
-	 */
-	public static List<ArrayList<GpsCoordinate>> getPermutationOf(List<GpsCoordinate> targets) {
+	public static List<ArrayList<GpsCoordinate>> getPermutations(List<GpsCoordinate> targets) {
 		List<ArrayList<GpsCoordinate>> permutations = new ArrayList<ArrayList<GpsCoordinate>>();
 		if (targets.size() == 2) {
 			ArrayList<GpsCoordinate> values1 = new ArrayList<GpsCoordinate>();
@@ -66,7 +52,7 @@ public class Utils {
 			for (GpsCoordinate item : targets) {
 				ArrayList<GpsCoordinate> copy = new ArrayList<GpsCoordinate>(targets);
 				copy.remove(item);
-				List<ArrayList<GpsCoordinate>> perm = getPermutationOf(copy);
+				List<ArrayList<GpsCoordinate>> perm = getPermutations(copy);
 				for (ArrayList<GpsCoordinate> p : perm) {
 					copy = new ArrayList<GpsCoordinate>();
 					copy.add(item);
@@ -79,33 +65,21 @@ public class Utils {
 		return permutations;
 	}
 
-	/**
-	 * 
-	 * @param doubleList
-	 *            Input eine Liste mit double Eintr�gen
-	 * @return Minimaler Wert der doubleList mit Index
-	 */
-	public static SpecialPoint getMinimumAndIndexOfMinimum(List<Double> doubleList) {
+	public static SpecialPoint getMinimumAndIndexOfMinimum(List<Double> list) {
 
 		SpecialPoint pt = new SpecialPoint();
 		pt.setIndex(0);
-		pt.setDistance(doubleList.get(0));
+		pt.setDistance(list.get(0));
 
-		for (int i = 1; i < doubleList.size(); i++) {
-			if (doubleList.get(i) <= pt.getDistance()) {
+		for (int i = 1; i < list.size(); i++) {
+			if (list.get(i) <= pt.getDistance()) {
 				pt.setIndex(i);
-				pt.setDistance(doubleList.get(i));
+				pt.setDistance(list.get(i));
 			}
 		}
 		return pt;
 	}
 
-	/**
-	 * 
-	 * @param receiving
-	 *            Input eine Liste mit double Eintr�gen
-	 * @return Maximaler Wert der doubleList mit Index
-	 */
 	public static SpecialPoint getMaximumAndIndexOfMaximum(List<Double> receiving) {
 		SpecialPoint response = new SpecialPoint();
 		response.setIndex(0);
@@ -120,19 +94,6 @@ public class Utils {
 		return response;
 	}
 
-	/**
-	 * 
-	 * @param location
-	 *            the location
-	 * @param id
-	 *            - the id
-	 * @return GpsCoordinate for location
-	 * @throws MalformedURLException
-	 *             - in case of technical error
-	 * @throws JDOMException
-	 * @throws JSONException
-	 * @throws ParseException
-	 */
 	public static GpsCoordinate getGpsCoordinateToLocation(String location, int id)
 			throws MalformedURLException, JSONException, ParseException {
 		String[] locationSplitted = location.split(",");
@@ -172,13 +133,6 @@ public class Utils {
 
 	}
 
-	/**
-	 * transforms gps into pixel
-	 * 
-	 * @param x
-	 * @param y
-	 * @return
-	 */
 	public static Point gpsToMiller(GpsCoordinate gps) {
 		double xMiller = (gps.getLongitude() + 168.2) / Constants.CORRECTION;
 		final double H = 2136.0;
@@ -200,12 +154,7 @@ public class Utils {
 		return new GpsCoordinate(latitude, longitude);
 	}
 
-	/**
-	 * to clear the JTextFields
-	 * 
-	 * @param var
-	 *            the JTextFields
-	 */
+	// TODO move to other Helper
 	public static void clearTextFields(JTextField... var) {
 		for (JTextField txtField : var) {
 			txtField.setText("");
@@ -213,14 +162,7 @@ public class Utils {
 
 	}
 
-	/**
-	 * to determine the visibility of several JLabels
-	 * 
-	 * @param isVisible
-	 *            - a boolean the visibility depends on
-	 * @param varargs
-	 *            - the JLabels
-	 */
+	// TODO move to other Helper
 	public static void setVisibilityOfLabels(boolean isVisible, JLabel... varargs) {
 		for (JLabel label : varargs) {
 			label.setVisible(isVisible);
@@ -228,27 +170,13 @@ public class Utils {
 
 	}
 
-	/**
-	 * to determine the visibility of several JTextFields
-	 * 
-	 * @param isVisible
-	 *            - a boolean the visibility depends on
-	 * @param varargs
-	 *            - the JTextFields
-	 */
+	// TODO move to other Helper
 	public static void setVisibilityOfJTextFields(boolean isVisible, JTextField... varargs) {
 		for (JTextField textfield : varargs) {
 			textfield.setVisible(isVisible);
 		}
 	}
 
-	/**
-	 * to complete the total length of a given path
-	 * 
-	 * @param receiving
-	 *            - the list of GpsCoordinates
-	 * @return the length of the path
-	 */
 	public static double getTotalDistance(List<GpsCoordinate> receiving) {
 		double response = .0;
 		for (int i = 0; i < receiving.size() - 1; i++) {
@@ -257,17 +185,6 @@ public class Utils {
 		return response;
 	}
 
-	/**
-	 * to compute the distance between two GpsCoordinates
-	 * 
-	 * unit: km
-	 * 
-	 * @param -
-	 *            from
-	 * @param -
-	 *            to
-	 * @return - the distance
-	 */
 	public static double distanceBetween(GpsCoordinate from, GpsCoordinate to) {
 		final double radius = 6371.0;
 		double distance = Math.sin(Math.toRadians(from.getLatitude())) * Math.sin(Math.toRadians(to.getLatitude()));
@@ -340,6 +257,7 @@ public class Utils {
 		return arrayOfSelectedRows.length == 0;
 	}
 
+	// TODO move to other Helper
 	public static void drawRoute(ArrayList<Point> targetList, ImagePanel imagepanel) {
 		Graphics2D g = (Graphics2D) imagepanel.getGraphics();
 		Stroke s = new BasicStroke(2.4f, // Width
@@ -360,5 +278,4 @@ public class Utils {
 	public static int convertLongToInt(long value) {
 		return Integer.valueOf(String.valueOf(value));
 	}
-
 }

@@ -5,7 +5,8 @@ import java.io.File;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import client.RoutePlanningService;
+import client.FlightPlaner;
+import routePlanningService.Impl.OptimizationService;
 
 public class DomainLayerSpringContext {
 
@@ -28,6 +29,14 @@ public class DomainLayerSpringContext {
 		return myInstance;
 	}
 
+	public static DomainLayerSpringContext GetContext() {
+		if (myInstance == null) {
+			throw new IllegalAccessError("Not able to lauch spring context, please use constructor with argument");
+		}
+
+		return myInstance;
+	}
+
 	public static DomainLayerSpringContext GetContext(String directory) {
 
 		DomainLayerSpringContext context = GetInstance(directory);
@@ -35,8 +44,11 @@ public class DomainLayerSpringContext {
 		return context;
 	}
 
-	public RoutePlanningService GetRoutePlanningService() {
-		return (RoutePlanningService) myApplicationContext.getBean("RoutePlanningService");
+	public FlightPlaner GetFlightPlaner() {
+		return (FlightPlaner) myApplicationContext.getBean("FlightPlaner");
 	}
 
+	public OptimizationService GetOptimizationService() {
+		return (OptimizationService) myApplicationContext.getBean("OptimizationService");
+	}
 }

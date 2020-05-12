@@ -5,14 +5,12 @@ import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.ImageIcon;
 
 import Routenplaner.FrameMap;
-import Routenplaner.Plane;
-import Routenplaner.Utils;
 import gps_coordinates.GpsCoordinate;
+import routePlanningService.Impl.RoutePlanningHelper;
 
 public class AnimatePlane implements Runnable {
 	private ArrayList<Point> targetsForFlight;
@@ -20,11 +18,9 @@ public class AnimatePlane implements Runnable {
 	final int newWidth = 50;
 	final int newHeight = 50;
 	private int xplane, yplane;
-	private List<GpsCoordinate> gpsCoordinates;
 
-	public AnimatePlane(Plane plane, ArrayList<Point> targetsForFlight, List<GpsCoordinate> gpsCoordinate) {
+	public AnimatePlane(Plane plane, ArrayList<Point> targetsForFlight) {
 		this.plane = plane;
-		this.gpsCoordinates = gpsCoordinate;
 		this.targetsForFlight = targetsForFlight;
 		this.xplane = (newWidth - plane.getWidth()) / 2;
 		this.yplane = (newHeight - plane.getHeight()) / 2;
@@ -47,13 +43,13 @@ public class AnimatePlane implements Runnable {
 
 			while ((xCoorPlane != xCoorTo) || (yCoorPlane != yCoorTo)) {
 
-				GpsCoordinate gpsTo = Utils.millerToGps(new Point(xCoorTo, yCoorTo));
+				GpsCoordinate gpsTo = RoutePlanningHelper.millerToGps(new Point(xCoorTo, yCoorTo));
 
 				/** to save the old location */
 				Point oldLocation = new Point(xCoorPlane, yCoorPlane);
 				long timeAtOldLocation = System.currentTimeMillis();
 				long elapsedTime = System.currentTimeMillis() - startTime;
-				int time = Utils.convertLongToInt(elapsedTime);
+				int time = RoutePlanningHelper.convertLongToInt(elapsedTime);
 
 				if (xCoorTo > xCoorPlane) {
 					xCoorPlane++;
@@ -101,12 +97,13 @@ public class AnimatePlane implements Runnable {
 				long elapsedTime2 = timeAtNewLocation - timeAtOldLocation;
 
 				plane.setLocation(xCoorPlane, yCoorPlane);
-				double distance = Utils.distanceBetween(Utils.millerToGps(oldLocation), Utils.millerToGps(newLocation));
+				double distance = RoutePlanningHelper.distanceBetween(RoutePlanningHelper.millerToGps(oldLocation),
+						RoutePlanningHelper.millerToGps(newLocation));
 
 				/** time in seconds: */
 				elapsedTime2 = (long) ((elapsedTime2) / 1000.0);
 
-				// int f =Utils.convertLongToInt(Math.round(distance));
+				// int f =RoutePlanningHelper.convertLongToInt(Math.round(distance));
 			}
 			plane.setLocation(xCoorPlane, yCoorPlane);
 		}

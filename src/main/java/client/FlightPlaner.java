@@ -34,6 +34,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.json.JSONException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import Routenplaner.AddressDialog;
@@ -42,9 +43,6 @@ import Routenplaner.Constants;
 import Routenplaner.Fonts;
 import Routenplaner.FrameMap;
 import Routenplaner.IconButton;
-import Routenplaner.Utils;
-import algorithms.ConcreteCommand;
-import algorithms.IOptimization;
 import database.DatabaseLogic;
 import database.QueryHelper;
 import gps_coordinates.GPS;
@@ -59,20 +57,22 @@ import overview.OverView;
 import overview.OverViewLogic;
 import render.CityRenderer;
 import render.TargetRenderer;
+import routePlanningService.Contract.IOptimizationService;
+import routePlanningService.Impl.RoutePlanningHelper;
 import tablemodel.CommonModel;
 import widgets.contextMenu.TargetsContextMenu;
+import widgets.progression.InfiniteProgress;
 
-@Service("RoutePlanningService")
 @SuppressWarnings("serial")
-public class RoutePlanningService extends JFrame implements ActionListener, DocumentListener {
+public class FlightPlaner extends JFrame implements ActionListener, DocumentListener {
 
-	private IOptimization myOptimization;
+	private IOptimizationService myOptimization;
 	private final int X = 10;
 	private final int Y = 10;
 	private final int WIDTH = 500;// TODO move
 	private final int HEIGHT = 500;// TODO move
 
-	private static RoutePlanningService myInstance;
+	private static FlightPlaner myInstance;
 	private JTabbedPane tabbedPane;
 
 	private JPanel panelAdresse, panelTargets;
@@ -157,18 +157,18 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 	public OverView overView = null;
 	private DefaultListSelectionModel listSelectionModel;
 	private String myDirectory;
-	public static String pathToImageFolder;
+	private String myPathToImageFolder;
 
-	public static RoutePlanningService getInstance() {
+	public static FlightPlaner getInstance() {
 
 		if (myInstance == null) {
-			myInstance = new RoutePlanningService();
+			myInstance = new FlightPlaner();
 		}
 		return myInstance;
 	}
 
 	// ctor
-	private RoutePlanningService() {
+	private FlightPlaner() {
 
 		// Setting the Layout
 		try {
@@ -187,10 +187,10 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 
 	public void initComponent() {
 
-		pathToImageFolder = myDirectory + File.separator + Constants.IMAGE;
+		myPathToImageFolder = myDirectory + File.separator + Constants.IMAGE;
 
-		if (!new File(pathToImageFolder).exists()) {
-			throw new IllegalArgumentException(String.format("path %s does not exists", pathToImageFolder));
+		if (!new File(myPathToImageFolder).exists()) {
+			throw new IllegalArgumentException(String.format("path %s does not exists", myPathToImageFolder));
 		}
 
 		this.setTitle(Constants.FLIGHTPLANER);
@@ -230,13 +230,13 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 		databaseBox.addActionListener(this);
 		databaseBox.setEnabled(true);
 
-		btnSave = new IconButton(pathToImageFolder, "saveIcon.png", 180, 0);
+		btnSave = new IconButton(myPathToImageFolder, "saveIcon.png", 180, 0);
 		btnSave.addActionListener(this);
 
-		btnAccessData = new IconButton(pathToImageFolder, "accessDataIcon.jpg", 200, 0);
+		btnAccessData = new IconButton(myPathToImageFolder, "accessDataIcon.jpg", 200, 0);
 		btnAccessData.addActionListener(this);
 
-		confirmAddress = new IconButton(pathToImageFolder, "Confirm.png", 220, 0);
+		confirmAddress = new IconButton(myPathToImageFolder, "Confirm.png", 220, 0);
 		confirmAddress.addActionListener(this);
 
 		panelAdresse.add(optionsForDatabase);
@@ -253,7 +253,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 		lblFlight.setVisible(false);
 		panelAdresse.add(lblFlight);
 
-		btnSubmitFlightNumber = new IconButton(pathToImageFolder, "confirmIcon.png", 200, 50);
+		btnSubmitFlightNumber = new IconButton(myPathToImageFolder, "confirmIcon.png", 200, 50);
 		btnSubmitFlightNumber.addActionListener(this);
 		panelAdresse.add(btnSubmitFlightNumber);
 
@@ -266,7 +266,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 		panelAdresse.add(txtNewFlight);
 
 		// Drop a concrete Flight:
-		btnSubmitFlightToDrop = new IconButton(pathToImageFolder, "deleteIcon.png", 200, 50);
+		btnSubmitFlightToDrop = new IconButton(myPathToImageFolder, "deleteIcon.png", 200, 50);
 		btnSubmitFlightToDrop.addActionListener(this);
 		panelAdresse.add(btnSubmitFlightToDrop);
 
@@ -279,7 +279,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 		panelAdresse.add(txtDropFlight);
 
 		// Select a concrete Flight:
-		btnSubmitFlightToSelect = new IconButton(pathToImageFolder, "Confirm.png", 200, 50);
+		btnSubmitFlightToSelect = new IconButton(myPathToImageFolder, "Confirm.png", 200, 50);
 		btnSubmitFlightToSelect.addActionListener(this);
 		panelAdresse.add(btnSubmitFlightToSelect);
 
@@ -528,7 +528,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 		}
 
 		else if (o.equals(btnSave)) {
-			if (!Utils.nullOrEmpty(flightNumber)) {
+			if (!RoutePlanningHelper.nullOrEmpty(flightNumber)) {
 				try {
 					database.createFlight(flightNumber);
 					OverViewLogic.insertFlightNumber(flightNumber, database.getConnection());
@@ -584,7 +584,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 							}
 						}
 					} else {
-						JOptionPane.showInputDialog(RoutePlanningService.this,
+						JOptionPane.showInputDialog(FlightPlaner.this,
 								"Flight" + flightToDrop + " does not exist", JOptionPane.CLOSED_OPTION);
 					}
 				} catch (SQLException e1) {
@@ -604,10 +604,10 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 					if (!modelTargets.isEmpty()) {
 						modelTargets.clear();
 					}
-					Utils.fillModel(response, modelTargets, false);
+					RoutePlanningHelper.fillModel(response, modelTargets, false);
 
 				} else {
-					JOptionPane.showInputDialog(RoutePlanningService.this,
+					JOptionPane.showInputDialog(FlightPlaner.this,
 							"Flight " + flightToSelect + " does not exist", JOptionPane.CLOSED_OPTION);
 				}
 			} catch (SQLException e1) {
@@ -706,8 +706,8 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 				}
 
 				/** management of view "INSERTTARGET:" */
-				Utils.setVisibilityOfLabels(false, lblstreet, lblcity, lblcountry);
-				Utils.setVisibilityOfJTextFields(false, txtStreet, txtCity, txtCountry);
+				RoutePlanningHelper.setVisibilityOfLabels(false, lblstreet, lblcity, lblcountry);
+				RoutePlanningHelper.setVisibilityOfJTextFields(false, txtStreet, txtCity, txtCountry);
 
 				/** management of view "DROPFLIGHT" */
 				txtDropFlight.setVisible(false);
@@ -725,8 +725,8 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 				btnSave.setVisible(false);
 
 				/** management of view "INSERTTARGET:" */
-				Utils.setVisibilityOfLabels(true, lblstreet, lblcity, lblcountry);
-				Utils.setVisibilityOfJTextFields(true, txtStreet, txtCity, txtCountry);
+				RoutePlanningHelper.setVisibilityOfLabels(true, lblstreet, lblcity, lblcountry);
+				RoutePlanningHelper.setVisibilityOfJTextFields(true, txtStreet, txtCity, txtCountry);
 				txtCity.requestFocus();
 
 				/** management of view "DROPFLIGHT" */
@@ -748,8 +748,8 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 					btnSubmitFlightNumber.setVisible(false);
 					btnSave.setVisible(false);
 					/** management of view "INSERTTARGET:" */
-					Utils.setVisibilityOfLabels(false, lblstreet, lblcity, lblcountry);
-					Utils.setVisibilityOfJTextFields(false, txtStreet, txtCity, txtCountry);
+					RoutePlanningHelper.setVisibilityOfLabels(false, lblstreet, lblcity, lblcountry);
+					RoutePlanningHelper.setVisibilityOfJTextFields(false, txtStreet, txtCity, txtCountry);
 					/** management of view "DROPFLIGHT" */
 					lblFlight.setVisible(true);
 					txtDropFlight.setVisible(true);
@@ -767,8 +767,8 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 					btnSave.setVisible(false);
 
 					/** management of view "INSERTTARGET:" */
-					Utils.setVisibilityOfLabels(false, lblstreet, lblcity, lblcountry);
-					Utils.setVisibilityOfJTextFields(false, txtStreet, txtCity, txtCountry);
+					RoutePlanningHelper.setVisibilityOfLabels(false, lblstreet, lblcity, lblcountry);
+					RoutePlanningHelper.setVisibilityOfJTextFields(false, txtStreet, txtCity, txtCountry);
 
 					/** management of view "DROPFLIGHT" */
 					txtDropFlight.setVisible(false);
@@ -807,7 +807,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 
 					/** to request the coordinates */
 					try {
-						gps = GPS.requestGPS(Utils.replaceUnusableChars(builder.toString()));
+						gps = GPS.requestGPS(RoutePlanningHelper.replaceUnusableChars(builder.toString()));
 					} catch (MalformedURLException e2) {
 						e2.printStackTrace();
 					}
@@ -837,7 +837,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 
 						}
 					}
-					Utils.clearTextFields(txtStreet, txtCity, txtCountry);
+					RoutePlanningHelper.clearTextFields(txtStreet, txtCity, txtCountry);
 					txtCity.requestFocus();
 				}
 			} catch (Exception e) {
@@ -847,7 +847,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 
 	public void executeOptimization(int locX, int locY) {
 		if (startGps != null) {
-			new ConcreteCommand(locX, locY).execute();
+			new InfiniteProgress(locX, locY).execute();
 		}
 	}
 
@@ -855,7 +855,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 
 		modelRoute.clear();
 		computedRoute = myOptimization.compute(startGps, master);
-		Utils.fillModel(computedRoute, modelRoute, true);
+		RoutePlanningHelper.fillModel(computedRoute, modelRoute, true);
 		cityRender.setData(computedRoute);
 		GpsCoordinate targetGps = computedRoute.get(computedRoute.size() - 1);
 		if (isConnected) {
@@ -957,7 +957,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 		this.tabbedPane = tabbedPane;
 	}
 
-	public void setOptimization(IOptimization optimization) {
+	public void setOptimization(IOptimizationService optimization) {
 		myOptimization = optimization;
 	}
 
@@ -965,4 +965,7 @@ public class RoutePlanningService extends JFrame implements ActionListener, Docu
 		myDirectory = directory;
 	}
 
+	public String getPathToImageFolder() {
+		return myPathToImageFolder;
+	}
 }

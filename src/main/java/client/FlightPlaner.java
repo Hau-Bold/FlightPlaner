@@ -34,14 +34,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.json.JSONException;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import Routenplaner.AddressDialog;
 import Routenplaner.AddressVector;
 import Routenplaner.Constants;
 import Routenplaner.Fonts;
-import Routenplaner.FrameMap;
 import Routenplaner.IconButton;
 import database.DatabaseLogic;
 import database.QueryHelper;
@@ -52,21 +49,22 @@ import listeners.FlightBoxEnabledListener;
 import listeners.ListenerForEmptyFields;
 import listeners.RoutePlanerMouseListener;
 import listeners.TableTargetsMouseListener;
-import overview.Flight;
-import overview.OverView;
-import overview.OverViewLogic;
 import render.CityRenderer;
 import render.TargetRenderer;
 import routePlanningService.Contract.IOptimizationService;
 import routePlanningService.Impl.RoutePlanningHelper;
+import routePlanningService.overview.Flight;
+import spring.DomainLayerSpringContext;
 import tablemodel.CommonModel;
+import widgets.animation.FrameMap;
 import widgets.contextMenu.TargetsContextMenu;
+import widgets.flightsOverview.FlightsOverview;
 import widgets.progression.InfiniteProgress;
 
 @SuppressWarnings("serial")
 public class FlightPlaner extends JFrame implements ActionListener, DocumentListener {
 
-	private IOptimizationService myOptimization;
+	private IOptimizationService myOptimizationService;
 	private final int X = 10;
 	private final int Y = 10;
 	private final int WIDTH = 500;// TODO move
@@ -154,18 +152,10 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	private CityRenderer cityRender;
 	private TargetsContextMenu targetContextMenu = null;
 
-	public OverView overView = null;
+	public FlightsOverview myFlightsOverview = null;
 	private DefaultListSelectionModel listSelectionModel;
 	private String myDirectory;
 	private String myPathToImageFolder;
-
-	public static FlightPlaner getInstance() {
-
-		if (myInstance == null) {
-			myInstance = new FlightPlaner();
-		}
-		return myInstance;
-	}
 
 	// ctor
 	private FlightPlaner() {
@@ -218,8 +208,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		listSelectionModel.addSelectionInterval(0, 0);
 		listSelectionModel.addSelectionInterval(2, 3);
 		optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
-		optionsForDatabase
-				.addActionListener(new FlightBoxDisabledListener(listSelectionModel, optionsForDatabase, this));
+		optionsForDatabase.addActionListener(new FlightBoxDisabledListener(listSelectionModel, optionsForDatabase));
 
 		// the combobox for the database:
 		String dBOptions[] = { Constants.CONNECT, Constants.DISCONNECT };
@@ -485,7 +474,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					database = new DatabaseLogic();
 					database.connect();
 					try {
-						OverViewLogic.createTableFlights(database.getConnection());
+						DatabaseLogic.createTableFlights(database.getConnection());
 					} catch (SQLException e1) {
 						System.err.println("was not able to create table " + Constants.OVERVIEW);
 						e1.printStackTrace();
@@ -518,12 +507,12 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 					optionsForDatabase.removeActionListener(optionsForDatabase.getActionListeners()[0]);
 					optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
-					optionsForDatabase.addActionListener(
-							new FlightBoxDisabledListener(listSelectionModel, optionsForDatabase, myInstance));
+					optionsForDatabase
+							.addActionListener(new FlightBoxDisabledListener(listSelectionModel, optionsForDatabase));
 				}
 				break;
 			default:
-				// unreachable
+				throw new IllegalArgumentException();
 			}
 		}
 
@@ -531,7 +520,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			if (!RoutePlanningHelper.nullOrEmpty(flightNumber)) {
 				try {
 					database.createFlight(flightNumber);
-					OverViewLogic.insertFlightNumber(flightNumber, database.getConnection());
+					DatabaseLogic.insertFlightNumber(flightNumber, database.getConnection());
 					btnSave.setVisible(false);
 					statusBar.setText(database.getDbName() + File.separator + flightNumber);
 				} catch (SQLException e1) {
@@ -546,14 +535,16 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			List<Flight> overViewEntries = null;
 
 			try {
-				overViewEntries = OverViewLogic.getTableAsList(database.getConnection());
+				overViewEntries = DatabaseLogic.getTableAsList(database.getConnection());
 			} catch (SQLException e1) {
 				System.err.println("was not able to get OVERVIEW as list");
 				e1.printStackTrace();
 			}
-			overView = OverView.getInstance(overViewEntries);
-			panelAdresse.addMouseListener(new RoutePlanerMouseListener(overView));
-			overView.showFrame();
+			DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
+			myFlightsOverview = springContext.GetFlightsOverview();
+			myFlightsOverview.initComponent(overViewEntries);
+			panelAdresse.addMouseListener(new RoutePlanerMouseListener());
+			myFlightsOverview.showFrame();
 		}
 
 		else if (o.equals(confirmAddress)) {
@@ -584,8 +575,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 							}
 						}
 					} else {
-						JOptionPane.showInputDialog(FlightPlaner.this,
-								"Flight" + flightToDrop + " does not exist", JOptionPane.CLOSED_OPTION);
+						JOptionPane.showInputDialog(FlightPlaner.this, "Flight" + flightToDrop + " does not exist",
+								JOptionPane.CLOSED_OPTION);
 					}
 				} catch (SQLException e1) {
 					e1.printStackTrace();
@@ -607,8 +598,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					RoutePlanningHelper.fillModel(response, modelTargets, false);
 
 				} else {
-					JOptionPane.showInputDialog(FlightPlaner.this,
-							"Flight " + flightToSelect + " does not exist", JOptionPane.CLOSED_OPTION);
+					JOptionPane.showInputDialog(FlightPlaner.this, "Flight " + flightToSelect + " does not exist",
+							JOptionPane.CLOSED_OPTION);
 				}
 			} catch (SQLException e1) {
 				e1.printStackTrace();
@@ -854,13 +845,13 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	public void check() {
 
 		modelRoute.clear();
-		computedRoute = myOptimization.compute(startGps, master);
+		computedRoute = myOptimizationService.compute(startGps, master);
 		RoutePlanningHelper.fillModel(computedRoute, modelRoute, true);
 		cityRender.setData(computedRoute);
 		GpsCoordinate targetGps = computedRoute.get(computedRoute.size() - 1);
 		if (isConnected) {
 			try {
-				OverViewLogic.insertTargetLocation(flightNumber, targetGps.getCity(), database.getConnection());
+				DatabaseLogic.insertTargetLocation(flightNumber, targetGps.getCity(), database.getConnection());
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -917,12 +908,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		this.targetContextMenu = targetContextMenu;
 	}
 
-	public OverView getOverView() {
-		return overView;
-	}
-
-	public void setOverView(OverView overView) {
-		this.overView = overView;
+	public FlightsOverview getMyFlightsOverview() {
+		return myFlightsOverview;
 	}
 
 	public boolean isConnected() {
@@ -958,7 +945,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	}
 
 	public void setOptimization(IOptimizationService optimization) {
-		myOptimization = optimization;
+		myOptimizationService = optimization;
 	}
 
 	public void setDirectory(String directory) {

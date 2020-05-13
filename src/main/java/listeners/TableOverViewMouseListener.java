@@ -4,16 +4,21 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import client.FlightPlaner;
-import overview.OverView;
+import spring.DomainLayerSpringContext;
 import widgets.contextMenu.OverViewContextMenu;
 import widgets.contextMenu.TargetsContextMenu;
+import widgets.flightsOverview.FlightsOverview;
 
 public class TableOverViewMouseListener implements MouseListener {
 
 	private OverViewContextMenu overViewContextMenu;
-	private OverView overView;
+	private FlightsOverview overView;
+	private FlightPlaner myFlightPlaner;
 
-	public TableOverViewMouseListener(OverView overView, OverViewContextMenu overViewContextMenu) {
+	public TableOverViewMouseListener(FlightsOverview overView, OverViewContextMenu overViewContextMenu) {
+		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
+		myFlightPlaner = springContext.GetFlightPlaner();
+
 		this.overView = overView;
 		this.overViewContextMenu = overViewContextMenu;
 	}
@@ -21,20 +26,19 @@ public class TableOverViewMouseListener implements MouseListener {
 	@Override
 	public void mousePressed(MouseEvent event) {
 
-		TargetsContextMenu targetsContextMenu = FlightPlaner.getInstance().getTargetContextMenu();
+		TargetsContextMenu targetsContextMenu = myFlightPlaner.getTargetContextMenu();
 		if (targetsContextMenu != null) {
 			targetsContextMenu.dispose();
 			targetsContextMenu.dispose();
 		}
 
-		if ((event.getSource() == overView.getTable())
-				&& (event.getSource() != FlightPlaner.getInstance().getTableTargets())
+		if ((event.getSource() == overView.getTable()) && (event.getSource() != myFlightPlaner.getTableTargets())
 				&& (event.getButton() == MouseEvent.BUTTON3)) {
 			if (overViewContextMenu != null) {
 				overViewContextMenu.dispose();
 			}
 			overViewContextMenu = new OverViewContextMenu(overView, event);
-			overView.setOverViewContextMenu(overViewContextMenu);
+			overView.setMyOverViewContextMenu(overViewContextMenu);
 		}
 	}
 

@@ -1,4 +1,4 @@
-package Routenplaner;
+package widgets.animation;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -19,18 +19,17 @@ import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import animation.AnimatePlane;
-import animation.AnimateTarget;
-import animation.Plane;
+import Routenplaner.ImagePanel;
+import animationService.AnimatePlane;
+import animationService.AnimateTarget;
 import client.FlightPlaner;
 import gps_coordinates.GpsCoordinate;
 import routePlanningService.Impl.RoutePlanningHelper;
+import spring.DomainLayerSpringContext;
 
+@SuppressWarnings("serial")
 public class FrameMap extends JFrame implements ActionListener, ChangeListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+
 	private static FrameMap frameMap;
 	private JButton btnShowTargets, btn_showRoute, btnStartFlight;
 	private JToolBar toolbar;
@@ -40,7 +39,6 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 	private final int xwidthPanelMap = 1000;
 	private final int yheightPanelMap = 1000;
 	public static JScrollPane scrollmap;
-	private List<GpsCoordinate> gpsCoordinates;
 	private Thread t1;
 	private static ImagePanel imagepanel;
 	private Plane plane;
@@ -48,13 +46,16 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 	private Target labeltarget;
 	private static ArrayList<Point> targetList;
 	private ArrayList<Target> labellist = new ArrayList<Target>();
+	private FlightPlaner myFlightPlaner;
 
 	public static ImagePanel getImagepanel() {
 		return imagepanel;
 	}
 
 	private FrameMap(List<GpsCoordinate> computedRoute) {
-		this.gpsCoordinates = computedRoute;
+		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
+		myFlightPlaner = springContext.GetFlightPlaner();
+
 		targetList = new ArrayList<Point>();
 		computedRoute.forEach(gps -> targetList.add(RoutePlanningHelper.gpsToMiller(gps)));
 		initComponent();
@@ -72,8 +73,8 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		try {
 			// bufferedimage =
 			// ImageIO.read(getClass().getResource("../Images/zeitzonen.png"));
-			bufferedimage = ImageIO.read(new File(
-					FlightPlaner.getInstance().getPathToImageFolder() + File.separator + "zeitzonen.png"));
+			bufferedimage = ImageIO
+					.read(new File(myFlightPlaner.getPathToImageFolder() + File.separator + "zeitzonen.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

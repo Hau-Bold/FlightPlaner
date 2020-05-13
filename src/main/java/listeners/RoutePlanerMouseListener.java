@@ -3,46 +3,36 @@ package listeners;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import overview.OverView;
+import spring.DomainLayerSpringContext;
+import widgets.flightsOverview.FlightsOverview;
 
 public class RoutePlanerMouseListener implements MouseListener {
 
-	private OverView overView;
+	@Override
+	public void mouseClicked(MouseEvent event) {
 
-	public RoutePlanerMouseListener(OverView overView) {
-		this.overView = overView;
+		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
+		FlightsOverview flightsOverview = springContext.GetFlightsOverview();
+
+		if ((event.getSource() != flightsOverview.getTable()) && (flightsOverview.getMyOverViewContextMenu() != null)) {
+			flightsOverview.getMyOverViewContextMenu().dispose();
+		}
 	}
 
 	@Override
-	public void mouseClicked(MouseEvent event) {
-		
-            if((event.getSource()!=overView.getTable()) && (overView.getOverViewContextMenu()!=null))
-             {
-            	 overView.getOverViewContextMenu().dispose();
-             }
-	      }
-
-	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

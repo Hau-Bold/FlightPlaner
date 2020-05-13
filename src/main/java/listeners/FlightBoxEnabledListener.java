@@ -7,23 +7,28 @@ import javax.swing.JComboBox;
 
 import Routenplaner.Constants;
 import client.FlightPlaner;
+import spring.DomainLayerSpringContext;
 
 public class FlightBoxEnabledListener implements ActionListener {
 
-	private JComboBox<String> flightBox;
+	private JComboBox<String> myOptionsToHandleFlights;
 	String currentView = null;
+	private FlightPlaner myFlightPlaner;
 
-	public FlightBoxEnabledListener(JComboBox<String> flightBox) {
-		this.flightBox = flightBox;
+	public FlightBoxEnabledListener(JComboBox<String> optionsToHandleFlight) {
+		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
+		myFlightPlaner = springContext.GetFlightPlaner();
+
+		myOptionsToHandleFlights = optionsToHandleFlight;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object o = event.getSource();
 
-		if (o.equals(flightBox)) {
+		if (o.equals(myOptionsToHandleFlights)) {
 
-			switch (flightBox.getSelectedIndex()) {
+			switch (myOptionsToHandleFlights.getSelectedIndex()) {
 			// New Flight:
 			case 0:
 				currentView = Constants.CREATEFLIGHT;
@@ -45,8 +50,8 @@ public class FlightBoxEnabledListener implements ActionListener {
 				// do nothing
 				break;
 			}
-			FlightPlaner.getInstance().setCurrentView(currentView);
-			FlightPlaner.getInstance().setView(currentView);
+			myFlightPlaner.setCurrentView(currentView);
+			myFlightPlaner.setView(currentView);
 		}
 	}
 }

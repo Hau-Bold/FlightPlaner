@@ -1,32 +1,28 @@
-package animation;
+package animationService;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
-import Routenplaner.Target;
+import widgets.animation.Target;
 
-/**
- * 
- * a class to animate the targets
- */
 public class AnimateTarget implements Runnable {
 
-	private Target labelTarget;
+	private Target myTarget;
 
-	public AnimateTarget(Target labeltarget) {
-		this.labelTarget = labeltarget;
+	public AnimateTarget(Target target) {
+		myTarget = target;
 	}
 
 	@Override
 	public void run() {
 
-		Graphics2D g = (Graphics2D) labelTarget.getGraphics();
-		Point center = labelTarget.getCentre();
+		Graphics2D g = (Graphics2D) myTarget.getGraphics();
+		Point center = myTarget.getCenter();
 		while (true) {
 			for (int j = 0; j < 10; j++) {
 				g.setColor(j % 2 == 0 ? Color.LIGHT_GRAY : Color.WHITE);
-				g.drawOval((int)center.getX(),(int) center.getY(), 2 * j, 2 * j);
+				g.drawOval((int) center.getX(), (int) center.getY(), 2 * j, 2 * j);
 				try {
 					Thread.sleep(200);
 				} catch (InterruptedException e) {
@@ -35,7 +31,7 @@ public class AnimateTarget implements Runnable {
 			}
 			try {
 				Thread.sleep(400);
-				labelTarget.repaint();
+				myTarget.repaint();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

@@ -7,6 +7,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 import client.FlightPlaner;
 import routePlanningService.Impl.OptimizationService;
+import widgets.flightsOverview.FlightsOverview;
 
 public class DomainLayerSpringContext {
 
@@ -50,5 +51,9 @@ public class DomainLayerSpringContext {
 
 	public OptimizationService GetOptimizationService() {
 		return (OptimizationService) myApplicationContext.getBean("OptimizationService");
+	}
+
+	public FlightsOverview GetFlightsOverview() {
+		return (FlightsOverview) myApplicationContext.getBean("FlightsOverview");
 	}
 }

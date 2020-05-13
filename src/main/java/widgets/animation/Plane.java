@@ -1,4 +1,4 @@
-package animation;
+package widgets.animation;
 
 import java.awt.Image;
 import java.awt.Point;
@@ -7,35 +7,36 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.inject.Inject;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import client.FlightPlaner;
+import spring.DomainLayerSpringContext;
 
 @SuppressWarnings("serial")
 public class Plane extends JLabel {
-	private BufferedImage bufferedimage = null;
-	private Image imageplane;
+	private BufferedImage myBufferedimage = null;
+	private Image myImageplane;
 	final int height = 50;// Todo Move
 	final int width = 50;
 
-	@Inject
-	private FlightPlaner routePlanningService;
-
 	public Plane(Point point) {
-		this.setSize(width, height);
+		setSize(width, height);
+
+		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
+		FlightPlaner flightPlaner = springContext.GetFlightPlaner();
+
 		try {
-			bufferedimage = ImageIO
-					.read(new File(routePlanningService.getPathToImageFolder() + File.separator + "flieger.png"));// Constants
+			myBufferedimage = ImageIO
+					.read(new File(flightPlaner.getPathToImageFolder() + File.separator + "flieger.png"));// Constants
 			// for
 			// Names???
-			imageplane = bufferedimage;
-			imageplane = imageplane.getScaledInstance(height, width, 0);
+			myImageplane = myBufferedimage;
+			myImageplane = myImageplane.getScaledInstance(height, width, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setIcon(new ImageIcon(imageplane));
+		setIcon(new ImageIcon(myImageplane));
 	}
 
 	@Override
@@ -44,6 +45,6 @@ public class Plane extends JLabel {
 	}
 
 	public Image getImageplane() {
-		return imageplane;
+		return myImageplane;
 	}
 }

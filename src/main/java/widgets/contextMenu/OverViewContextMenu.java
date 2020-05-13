@@ -16,12 +16,11 @@ import client.FlightPlaner;
 import database.DatabaseLogic;
 import database.QueryHelper;
 import gps_coordinates.GpsCoordinate;
-import overview.OverView;
-import overview.OverViewLogic;
 import routePlanningService.Impl.RoutePlanningHelper;
 import spring.DomainLayerSpringContext;
 import tablemodel.CommonModel;
 import widgets.IconMenuItem;
+import widgets.flightsOverview.FlightsOverview;
 
 @SuppressWarnings("serial")
 public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu implements ActionListener {
@@ -29,13 +28,13 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 	private IconMenuItem removeFlight;
 	private IconMenuItem renameFlight;
 	private IconMenuItem selectFlight;
-	private OverView overView;
-	private FlightPlaner myRoutePlanningService;
+	private FlightsOverview overView;
+	private FlightPlaner myFlightPlaner;
 
-	public OverViewContextMenu(OverView overView, MouseEvent event) {
+	public OverViewContextMenu(FlightsOverview overView, MouseEvent event) {
 		super(event);
 		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
-		myRoutePlanningService = springContext.GetFlightPlaner();
+		myFlightPlaner = springContext.GetFlightPlaner();
 
 		initComponent();
 		this.overView = overView;
@@ -67,16 +66,16 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 				String flightNumber = (String) table.getValueAt(row, 1);
 				ArrayList<GpsCoordinate> flight = null;
 				try {
-					flight = myRoutePlanningService.getDatabase().getFlightAsList(flightNumber);
+					flight = myFlightPlaner.getDatabase().getFlightAsList(flightNumber);
 					/** setting start */
-					myRoutePlanningService.setStartGps(OverViewLogic.getStartGps(flightNumber,
-							myRoutePlanningService.getDatabase().getConnection()));
-					myRoutePlanningService.setMaster(flight);
+					myFlightPlaner.setStartGps(
+							DatabaseLogic.getStartGps(flightNumber, myFlightPlaner.getDatabase().getConnection()));
+					myFlightPlaner.setMaster(flight);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
 				if (flight != null) {
-					CommonModel modelTargets = myRoutePlanningService.getModelTargets();
+					CommonModel modelTargets = myFlightPlaner.getModelTargets();
 					if (!modelTargets.isEmpty()) {
 						modelTargets.clear();
 					}
@@ -84,21 +83,21 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 							gps.getStreet(), gps.getCity(), gps.getCountry(), String.valueOf(gps.getLongitude()),
 							String.valueOf(gps.getLatitude()))));
 					modelTargets.revalidate();
-					JLabel statusBar = myRoutePlanningService.getStatusBar();
+					JLabel statusBar = myFlightPlaner.getStatusBar();
 					statusBar.setText(DatabaseLogic.getDbName() + File.separator + flightNumber);
-					myRoutePlanningService.setStatusBar(statusBar);
-					myRoutePlanningService.flightNumber = flightNumber;
+					myFlightPlaner.setStatusBar(statusBar);
+					myFlightPlaner.flightNumber = flightNumber;
 					overView.dispose();
 				}
 			}
-			myRoutePlanningService.getTabbedPane().setSelectedIndex(1);
+			myFlightPlaner.getTabbedPane().setSelectedIndex(1);
 			this.dispose();
 		}
 
 		else if (o.equals(removeFlight)) {
 			JTable table = overView.getTable();
-			CommonModel model = overView.getModel();
-			DatabaseLogic databaseLogic = myRoutePlanningService.getDatabase();
+			CommonModel model = overView.getMyModel();
+			DatabaseLogic databaseLogic = myFlightPlaner.getDatabase();
 			String nameOfFlight = null;
 
 			int[] arrayOfSelectedRows = table.getSelectedRows();
@@ -107,17 +106,17 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 				for (int row = 0; row < arrayOfSelectedRows.length; row++) {
 					nameOfFlight = (String) table.getValueAt(arrayOfSelectedRows[row], 1);
 					try {
-						OverViewLogic.removeFlight(nameOfFlight, databaseLogic);
+						DatabaseLogic.removeFlight(nameOfFlight, databaseLogic);
 						QueryHelper.dropTable(nameOfFlight,
-								myRoutePlanningService.getDatabase().getConnection().getConnection());
+								myFlightPlaner.getDatabase().getConnection().getConnection());
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
 				}
 				model.deleteRow(arrayOfSelectedRows);
 				model.revalidate();
-				if (nameOfFlight.equals(myRoutePlanningService.getFlightNumber())) {
-					myRoutePlanningService.getModelTargets().clear();
+				if (nameOfFlight.equals(myFlightPlaner.getFlightNumber())) {
+					myFlightPlaner.getModelTargets().clear();
 				}
 			}
 			this.dispose();

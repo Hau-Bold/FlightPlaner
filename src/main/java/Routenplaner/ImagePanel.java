@@ -6,21 +6,23 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
+import widgets.animation.FrameMap;
+
+@SuppressWarnings("serial")
 public class ImagePanel extends JPanel {
 
-	private static final long serialVersionUID = 1L;
-	private BufferedImage bufferedimage;
+	private BufferedImage myBufferedimage;
 
-	public BufferedImage getBufferedimage() {
-		return bufferedimage;
+	public BufferedImage getMyBufferedimage() {
+		return myBufferedimage;
 	}
 
 	public void setBufferedimage(BufferedImage bufferedimage) {
-		this.bufferedimage = bufferedimage;
+		myBufferedimage = bufferedimage;
 	}
 
 	public ImagePanel(BufferedImage bufferedimage) {
-		this.bufferedimage = bufferedimage;
+		myBufferedimage = bufferedimage;
 		this.setLayout(null);
 		this.setPreferredSize(new Dimension(bufferedimage.getWidth(), bufferedimage.getHeight()));
 	}
@@ -29,7 +31,7 @@ public class ImagePanel extends JPanel {
 	protected void paintComponent(Graphics g) {
 		// TODO Auto-generated method stub
 		super.paintComponent(g);
-		g.drawImage(bufferedimage, 0, 0, FrameMap.scrollmap);
+		g.drawImage(myBufferedimage, 0, 0, FrameMap.scrollmap);
 
 	}
 

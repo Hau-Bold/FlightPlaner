@@ -3,39 +3,39 @@ package listeners;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import client.FlightPlaner;
-import overview.OverView;
+import spring.DomainLayerSpringContext;
 import widgets.contextMenu.OverViewContextMenu;
 import widgets.contextMenu.TargetsContextMenu;
+import widgets.flightsOverview.FlightsOverview;
 
 public class TableTargetsMouseListener implements MouseListener {
 
-	private TargetsContextMenu targetsContextMenu = null;
+	private TargetsContextMenu myTargetsContextMenu = null;
 
 	// ctor.
 	public TableTargetsMouseListener(TargetsContextMenu targetsContextMenu) {
-		this.targetsContextMenu = targetsContextMenu;
+		myTargetsContextMenu = targetsContextMenu;
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent event) {
-		FlightPlaner routeplaner = FlightPlaner.getInstance();
+		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
 
-		OverView overView = routeplaner.getOverView();
+		FlightsOverview flightsOverview = springContext.GetFlightsOverview();
 		OverViewContextMenu overViewContextMenu;
-		if (overView != null) {
-			overViewContextMenu = overView.getOverViewContextMenu();
-			overView.dispose();
+		if (flightsOverview != null) {
+			overViewContextMenu = flightsOverview.getMyOverViewContextMenu();
+			flightsOverview.dispose();
 			if (overViewContextMenu != null) {
 				overViewContextMenu.dispose();
 			}
 		}
 
 		if (event.getButton() == MouseEvent.BUTTON3) {
-			if (targetsContextMenu != null) {
-				targetsContextMenu.dispose();
+			if (myTargetsContextMenu != null) {
+				myTargetsContextMenu.dispose();
 			}
-			targetsContextMenu = new TargetsContextMenu(event);
+			myTargetsContextMenu = new TargetsContextMenu(event);
 		}
 	}
 

@@ -22,6 +22,7 @@ import Routenplaner.SpecialPoint;
 import gps_coordinates.GPS;
 import gps_coordinates.GpsCoordinate;
 import routePlanningService.Constants.Constants;
+import routePlanningService.overview.Flight;
 import tablemodel.CommonModel;
 
 public class RoutePlanningHelper {
@@ -251,6 +252,27 @@ public class RoutePlanningHelper {
 			}
 		}
 
+	}
+
+	public static CommonModel generateModelOfFlights(List<Flight> receiving, String[] myNameOfColumns) {
+
+		CommonModel model = new CommonModel(myNameOfColumns);
+
+		Vector<String> datarow;
+		int counter = 1;
+		for (Flight entry : receiving) {
+			datarow = new Vector<String>();
+			datarow.add(String.valueOf(counter));
+			datarow.add(entry.getFlightnumber());
+			datarow.add(entry.getStart());
+			datarow.add(String.valueOf(entry.getLatitude()));
+			datarow.add(String.valueOf(entry.getLongitude()));
+			datarow.add(entry.getTarget());
+			model.addDataRow(datarow);
+			counter++;
+		}
+
+		return model;
 	}
 
 	public static boolean isEmpty(int[] arrayOfSelectedRows) {

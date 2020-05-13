@@ -8,27 +8,30 @@ import javax.swing.ListSelectionModel;
 
 import Routenplaner.Constants;
 import client.FlightPlaner;
+import spring.DomainLayerSpringContext;
 
 public class FlightBoxDisabledListener implements ActionListener {
 
-	private ListSelectionModel dmode;
-	private JComboBox<String> flightBox;
-	private FlightPlaner routeplaner;
+	private ListSelectionModel mydmode;
+	private JComboBox<String> myOptionsForFlight;
+	private FlightPlaner myFlightPlaner;
 	String currentView = null;
 
-	public FlightBoxDisabledListener(ListSelectionModel dmode, JComboBox<String> flightBox, FlightPlaner routeplaner) {
-		this.dmode = dmode;
-		this.flightBox = flightBox;
-		this.routeplaner = routeplaner;
+	public FlightBoxDisabledListener(ListSelectionModel dmode, JComboBox<String> optionsForFlight) {
+		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
+		myFlightPlaner = springContext.GetFlightPlaner();
+
+		mydmode = dmode;
+		myOptionsForFlight = optionsForFlight;
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object o = event.getSource();
 
-		if (o.equals(flightBox)) {
-			int index = flightBox.getSelectedIndex();
-			if (dmode.isSelectedIndex(index)) {
+		if (o.equals(myOptionsForFlight)) {
+			int index = myOptionsForFlight.getSelectedIndex();
+			if (mydmode.isSelectedIndex(index)) {
 				return;
 			} else {
 
@@ -37,8 +40,8 @@ public class FlightBoxDisabledListener implements ActionListener {
 					currentView = Constants.INSERTTARGET;
 					break;
 				}
-				routeplaner.setCurrentView(currentView);
-				routeplaner.setView(currentView);
+				myFlightPlaner.setCurrentView(currentView);
+				myFlightPlaner.setView(currentView);
 			}
 		}
 	}

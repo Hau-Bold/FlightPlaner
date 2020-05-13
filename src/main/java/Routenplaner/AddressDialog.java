@@ -18,10 +18,11 @@ import org.json.JSONException;
 import org.json.simple.parser.ParseException;
 
 import client.FlightPlaner;
+import database.DatabaseLogic;
 import gps_coordinates.GpsCoordinate;
 import listeners.ListenerForEmptyFields;
-import overview.OverViewLogic;
 import routePlanningService.Impl.RoutePlanningHelper;
+import spring.DomainLayerSpringContext;
 
 /**
  * 
@@ -34,15 +35,17 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 	private JLabel lblClientStreet, lblClientCity, lblClientCountry;
 	private JTextField txtClientStreet, txtClientCity, txtClientCountry;
 	private JButton btnConfirm;
-	public String start, flightNumber;
+	public String start;
+	public String myFlightNumber;
 	private boolean isConnected;
-
-	public String getStart() {
-		return start;
-	}
+	private FlightPlaner myFlightPlaner;
 
 	private AddressDialog(String flightNumber, boolean isConnected) {
-		this.flightNumber = flightNumber;
+
+		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
+		myFlightPlaner = springContext.GetFlightPlaner();
+
+		myFlightNumber = flightNumber;
 		this.isConnected = isConnected;
 		initComponent();
 		showFrame();
@@ -72,8 +75,7 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 		lblClientCity.setOpaque(true);
 		this.add(lblClientCity);
 
-		btnConfirm = new IconButton(FlightPlaner.getInstance().getPathToImageFolder(), "Confirm_icon.png", 190,
-				35);
+		btnConfirm = new IconButton(myFlightPlaner.getPathToImageFolder(), "Confirm_icon.png", 190, 35);
 		btnConfirm.setMnemonic(KeyEvent.VK_Q);
 		btnConfirm.addActionListener(this);
 
@@ -137,7 +139,7 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 			GpsCoordinate gpsOfStart = null;
 			try {
 				gpsOfStart = RoutePlanningHelper.getGpsCoordinateToLocation(start, 0);
-				FlightPlaner.getInstance().setStartGps(gpsOfStart);
+				myFlightPlaner.setStartGps(gpsOfStart);
 			} catch (MalformedURLException e2) {
 				e2.printStackTrace();
 			} catch (JSONException e1) {
@@ -150,8 +152,8 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 			if (isConnected) {
 				/** the flightnumber is valid */
 				try {
-					OverViewLogic.insertStartLocation(flightNumber, gpsOfStart,
-							FlightPlaner.getInstance().getDatabase().getConnection());
+					DatabaseLogic.insertStartLocation(myFlightNumber, gpsOfStart,
+							myFlightPlaner.getDatabase().getConnection());
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
@@ -162,6 +164,10 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 
 	@Override
 	public void changedUpdate(DocumentEvent arg0) {
+	}
+
+	public String getStart() {
+		return start;
 	}
 
 }

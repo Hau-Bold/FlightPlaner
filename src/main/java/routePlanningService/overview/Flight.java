@@ -1,4 +1,4 @@
-package overview;
+package routePlanningService.overview;
 
 public class Flight {
 
@@ -38,15 +38,7 @@ public class Flight {
 		return myLongitude;
 	}
 
-	public void setLongitude(double longitude) {
-		myLongitude = longitude;
-	}
-
 	public double getLatitude() {
 		return myLatitude;
-	}
-
-	public void setLatidtude(double latitude) {
-		myLatitude = latitude;
 	}
 }

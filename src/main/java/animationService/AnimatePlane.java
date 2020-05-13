@@ -1,4 +1,4 @@
-package animation;
+package animationService;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -8,20 +8,21 @@ import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 
-import Routenplaner.FrameMap;
 import gps_coordinates.GpsCoordinate;
 import routePlanningService.Impl.RoutePlanningHelper;
+import widgets.animation.FrameMap;
+import widgets.animation.Plane;
 
 public class AnimatePlane implements Runnable {
-	private ArrayList<Point> targetsForFlight;
-	private Plane plane;
+	private ArrayList<Point> myTargets;
+	private Plane myPlane;
 	final int newWidth = 50;
 	final int newHeight = 50;
 	private int xplane, yplane;
 
-	public AnimatePlane(Plane plane, ArrayList<Point> targetsForFlight) {
-		this.plane = plane;
-		this.targetsForFlight = targetsForFlight;
+	public AnimatePlane(Plane plane, ArrayList<Point> targets) {
+		myPlane = plane;
+		myTargets = targets;
 		this.xplane = (newWidth - plane.getWidth()) / 2;
 		this.yplane = (newHeight - plane.getHeight()) / 2;
 	}
@@ -29,13 +30,13 @@ public class AnimatePlane implements Runnable {
 	@Override
 	public void run() {
 
-		for (int counter = 0; counter < targetsForFlight.size() - 1; counter++) {
+		for (int counter = 0; counter < myTargets.size() - 1; counter++) {
 
 			long startTime = System.currentTimeMillis();
 
 			// Koordinaten der zu fliegenden Strecke
-			Point from = targetsForFlight.get(counter);
-			Point to = targetsForFlight.get(counter + 1);
+			Point from = myTargets.get(counter);
+			Point to = myTargets.get(counter + 1);
 			int xCoorPlane = from.x;
 			int yCoorPlane = from.y;
 			int xCoorTo = to.x;
@@ -84,7 +85,7 @@ public class AnimatePlane implements Runnable {
 					argument = Math.toDegrees(Math.atan(argument)) + Math.toDegrees(Math.PI);
 				}
 
-				movePlane(argument, plane);
+				rotatePlane(argument, myPlane);
 
 				try {
 					Thread.sleep(10);
@@ -96,7 +97,7 @@ public class AnimatePlane implements Runnable {
 
 				long elapsedTime2 = timeAtNewLocation - timeAtOldLocation;
 
-				plane.setLocation(xCoorPlane, yCoorPlane);
+				myPlane.setLocation(xCoorPlane, yCoorPlane);
 				double distance = RoutePlanningHelper.distanceBetween(RoutePlanningHelper.millerToGps(oldLocation),
 						RoutePlanningHelper.millerToGps(newLocation));
 
@@ -105,29 +106,22 @@ public class AnimatePlane implements Runnable {
 
 				// int f =RoutePlanningHelper.convertLongToInt(Math.round(distance));
 			}
-			plane.setLocation(xCoorPlane, yCoorPlane);
+			myPlane.setLocation(xCoorPlane, yCoorPlane);
 		}
 	}
 
-	/**
-	 * to move the plane around argument
-	 * 
-	 * @param argument
-	 *            - the argument
-	 * @param plane
-	 *            - the plane
-	 */
-	private void movePlane(double argument, Plane plane2) {
+	// TODO move this method to plane
+	private void rotatePlane(double argument, Plane plane) {
 		double alpha = Math.toRadians(argument);
 		BufferedImage rotate = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = rotate.createGraphics();
 		AffineTransform affinetransfrom = new AffineTransform();
-		affinetransfrom.setToRotation(alpha, xplane + (plane.getWidth() / 2), yplane + (plane.getHeight() / 2));
+		affinetransfrom.setToRotation(alpha, xplane + (myPlane.getWidth() / 2), yplane + (myPlane.getHeight() / 2));
 		affinetransfrom.translate(xplane, yplane);
 		g2d.setTransform(affinetransfrom);
-		g2d.drawImage(plane.getImageplane(), 0, 0, FrameMap.getImagepanel());
+		g2d.drawImage(myPlane.getImageplane(), 0, 0, FrameMap.getImagepanel());
 
-		plane.setIcon(new ImageIcon(rotate));
+		myPlane.setIcon(new ImageIcon(rotate));
 	}
 
 }

@@ -13,11 +13,6 @@ import Routenplaner.Constants;
 import gps_coordinates.GpsCoordinate;
 import routePlanningService.overview.Flight;
 
-/**
- * A Class,that contains the used standard queries like INSERT, UPDATE,
- * DROP,CREATE
- *
- */
 public class DatabaseLogic {
 	private static DBConnection connection;
 	private final String WORKING_DIRECTORY = System.getProperty("user.home.workspace");
@@ -39,6 +34,8 @@ public class DatabaseLogic {
 	 * to connect
 	 */
 	public void connect() {
+
+		// TODO move to bin folder.....
 		connection = new DBConnection(WORKING_DIRECTORY + DbName);
 	}
 

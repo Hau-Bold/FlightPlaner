@@ -1,4 +1,4 @@
-package client;
+package render;
 
 import java.awt.Component;
 
@@ -11,10 +11,10 @@ import Routenplaner.Colors;
 @SuppressWarnings("serial")
 public class ComboBoxRenderer extends BasicComboBoxRenderer {
 
-	private ListSelectionModel disabledItems;
+	private ListSelectionModel mydisabledItemsModel;
 
-	ComboBoxRenderer(ListSelectionModel dmode) {
-		this.disabledItems = dmode;
+	public ComboBoxRenderer(ListSelectionModel isabledItemsModel) {
+		mydisabledItemsModel = isabledItemsModel;
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class ComboBoxRenderer extends BasicComboBoxRenderer {
 
 		Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 
-		if (!disabledItems.isSelectedIndex(index)) {
+		if (!mydisabledItemsModel.isSelectedIndex(index)) {
 			if (isSelected) {
 				component.setBackground(super.getBackground());
 				component.setForeground(super.getForeground());
@@ -32,7 +32,7 @@ public class ComboBoxRenderer extends BasicComboBoxRenderer {
 				component.setForeground(super.getForeground());
 			}
 		} else {
-			if (disabledItems.isSelectedIndex(index)) {
+			if (mydisabledItemsModel.isSelectedIndex(index)) {
 				component.setBackground(Colors.colorRenderGray);
 				component.setForeground(super.getForeground());
 			}

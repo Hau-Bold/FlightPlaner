@@ -33,8 +33,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.json.JSONException;
-
 import Routenplaner.AddressDialog;
 import Routenplaner.AddressVector;
 import Routenplaner.Constants;
@@ -42,7 +40,6 @@ import Routenplaner.Fonts;
 import Routenplaner.IconButton;
 import database.DatabaseLogic;
 import database.QueryHelper;
-import gps_coordinates.GPS;
 import gps_coordinates.GpsCoordinate;
 import listeners.FlightBoxDisabledListener;
 import listeners.FlightBoxEnabledListener;
@@ -50,8 +47,10 @@ import listeners.ListenerForEmptyFields;
 import listeners.RoutePlanerMouseListener;
 import listeners.TableTargetsMouseListener;
 import render.CityRenderer;
+import render.ComboBoxRenderer;
 import render.TargetRenderer;
 import routePlanningService.Contract.IOptimizationService;
+import routePlanningService.Impl.OpenStreetMapService;
 import routePlanningService.Impl.RoutePlanningHelper;
 import routePlanningService.overview.Flight;
 import spring.DomainLayerSpringContext;
@@ -548,11 +547,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		}
 
 		else if (o.equals(confirmAddress)) {
-			try {
-				confirmAdress();
-			} catch (JSONException e1) {
-				e1.printStackTrace();
-			}
+			confirmAdress();
 		}
 
 		else if (o.equals(btnSubmitFlightToDrop)) {
@@ -782,7 +777,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		}
 	}
 
-	private void confirmAdress() throws JSONException {
+	private void confirmAdress() {
 		int counter = master.size();
 		counter++;
 
@@ -798,7 +793,10 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 					/** to request the coordinates */
 					try {
-						gps = GPS.requestGPS(RoutePlanningHelper.replaceUnusableChars(builder.toString()));
+
+						gps = OpenStreetMapService.getInstance()
+								.getCoordinates(RoutePlanningHelper.replaceUnusableChars(builder.toString()));
+
 					} catch (MalformedURLException e2) {
 						e2.printStackTrace();
 					}

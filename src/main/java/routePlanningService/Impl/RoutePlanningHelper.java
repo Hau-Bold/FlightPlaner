@@ -4,7 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,6 @@ import org.json.simple.parser.ParseException;
 
 import Routenplaner.ImagePanel;
 import Routenplaner.SpecialPoint;
-import gps_coordinates.GPS;
 import gps_coordinates.GpsCoordinate;
 import routePlanningService.Constants.Constants;
 import routePlanningService.overview.Flight;
@@ -96,10 +95,9 @@ public class RoutePlanningHelper {
 	}
 
 	public static GpsCoordinate getGpsCoordinateToLocation(String location, int id)
-			throws MalformedURLException, JSONException, ParseException {
+			throws JSONException, ParseException, IOException {
 		String[] locationSplitted = location.split(",");
-		GpsCoordinate gps = new GpsCoordinate(GPS.requestGPS(location).getLatitude(),
-				(GPS.requestGPS(location)).getLongitude());
+		GpsCoordinate gps = OpenStreetMapService.getInstance().getCoordinates(location);
 
 		gps.setId(id);
 

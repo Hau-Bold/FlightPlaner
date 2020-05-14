@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.sql.SQLException;
 
@@ -142,10 +143,11 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 				myFlightPlaner.setStartGps(gpsOfStart);
 			} catch (MalformedURLException e2) {
 				e2.printStackTrace();
-			} catch (JSONException e1) {
-				e1.printStackTrace();
 			} catch (ParseException e1) {
-				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			} catch (JSONException e1) {
 				e1.printStackTrace();
 			}
 

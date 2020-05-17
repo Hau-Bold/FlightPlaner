@@ -32,11 +32,11 @@ Routenplaner\AddressDialog.class
 Routenplaner\Constants.class
 widgets\flightsOverview\FlightsOverview.class
 widgets\control\AbstractMenuItemMouseListener.class
+routePlanningService\Contract\IOpenStreetMapService.class
 listeners\RoutePlanerMouseListener.class
 Routenplaner\Fonts.class
 routePlanningService\Impl\OptimizationService$FindOptimized.class
 listeners\ListenerForEmptyFields.class
-listeners\FlightBoxDisabledListener.class
 Routenplaner\Colors.class
 Routenplaner\SpecialPoint.class
 routePlanningService\Impl\OptimizationService$FindRandom.class
@@ -47,7 +47,6 @@ database\DBConnection$1.class
 widgets\animation\FrameMap.class
 Routenplaner\ScrollPaneMap.class
 routePlanningService\Impl\OptimizationService$FindNext.class
-listeners\FlightBoxEnabledListener.class
 routePlanningService\Impl\RoutePlanningHelper.class
 widgets\animation\Target.class
 Routenplaner\IconButton.class

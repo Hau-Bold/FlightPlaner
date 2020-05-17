@@ -3,12 +3,14 @@ package spring;
 import java.io.File;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import client.FlightPlaner;
-import routePlanningService.Impl.OptimizationService;
+import routePlanningService.Contract.IOpenStreetMapService;
+import routePlanningService.Contract.IOptimizationService;
 import widgets.flightsOverview.FlightsOverview;
 
+@Configuration
 public class DomainLayerSpringContext {
 
 	String myDirectory;
@@ -18,8 +20,8 @@ public class DomainLayerSpringContext {
 
 	private DomainLayerSpringContext(String directory) {
 
-		String pathToRessource = directory + File.separator + "Config" + File.separator + "Beans.xml";
-		myApplicationContext = new FileSystemXmlApplicationContext(pathToRessource);
+		String configLocation = directory + File.separator + "Config" + File.separator + "Beans.xml";
+		myApplicationContext = new FileSystemXmlApplicationContext(configLocation);
 	}
 
 	private static DomainLayerSpringContext GetInstance(String directory) {
@@ -45,15 +47,15 @@ public class DomainLayerSpringContext {
 		return context;
 	}
 
-	public FlightPlaner GetFlightPlaner() {
-		return (FlightPlaner) myApplicationContext.getBean("FlightPlaner");
-	}
-
-	public OptimizationService GetOptimizationService() {
-		return (OptimizationService) myApplicationContext.getBean("OptimizationService");
+	public IOptimizationService GetOptimizationService() {
+		return (IOptimizationService) myApplicationContext.getBean("OptimizationService");
 	}
 
 	public FlightsOverview GetFlightsOverview() {
 		return (FlightsOverview) myApplicationContext.getBean("FlightsOverview");
+	}
+
+	public IOpenStreetMapService GetOpenStreetMapService() {
+		return (IOpenStreetMapService) myApplicationContext.getBean("OpenStreetMapService");
 	}
 }

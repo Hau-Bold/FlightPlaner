@@ -28,16 +28,17 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 	private IconMenuItem removeFlight;
 	private IconMenuItem renameFlight;
 	private IconMenuItem selectFlight;
-	private FlightsOverview overView;
+	private FlightsOverview myFlightsOverView;
 	private FlightPlaner myFlightPlaner;
 
-	public OverViewContextMenu(FlightsOverview overView, MouseEvent event) {
+	public OverViewContextMenu(MouseEvent event) {
 		super(event);
 		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
-		myFlightPlaner = springContext.GetFlightPlaner();
+		myFlightPlaner = FlightPlaner.getInstance();
+		myFlightsOverView = springContext.GetFlightsOverview();
 
 		initComponent();
-		this.overView = overView;
+
 		showMenu();
 	}
 
@@ -60,7 +61,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 		Object o = event.getSource();
 
 		if (o.equals(selectFlight)) {
-			JTable table = overView.getTable();
+			JTable table = myFlightsOverView.getTable();
 			int row = table.getSelectedRow();
 			if (row != -1) {
 				String flightNumber = (String) table.getValueAt(row, 1);
@@ -75,7 +76,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 					e.printStackTrace();
 				}
 				if (flight != null) {
-					CommonModel modelTargets = myFlightPlaner.getModelTargets();
+					CommonModel modelTargets = myFlightPlaner.getMyCommonModelForTargets();
 					if (!modelTargets.isEmpty()) {
 						modelTargets.clear();
 					}
@@ -87,7 +88,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 					statusBar.setText(DatabaseLogic.getDbName() + File.separator + flightNumber);
 					myFlightPlaner.setStatusBar(statusBar);
 					myFlightPlaner.flightNumber = flightNumber;
-					overView.dispose();
+					myFlightsOverView.dispose();
 				}
 			}
 			myFlightPlaner.getTabbedPane().setSelectedIndex(1);
@@ -95,8 +96,8 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 		}
 
 		else if (o.equals(removeFlight)) {
-			JTable table = overView.getTable();
-			CommonModel model = overView.getMyModel();
+			JTable table = myFlightsOverView.getTable();
+			CommonModel model = myFlightsOverView.getMyModel();
 			DatabaseLogic databaseLogic = myFlightPlaner.getDatabase();
 			String nameOfFlight = null;
 
@@ -116,7 +117,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 				model.deleteRow(arrayOfSelectedRows);
 				model.revalidate();
 				if (nameOfFlight.equals(myFlightPlaner.getFlightNumber())) {
-					myFlightPlaner.getModelTargets().clear();
+					myFlightPlaner.getMyCommonModelForTargets().clear();
 				}
 			}
 			this.dispose();

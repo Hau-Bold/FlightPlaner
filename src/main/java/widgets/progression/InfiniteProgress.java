@@ -3,7 +3,6 @@ package widgets.progression;
 import javax.swing.SwingWorker;
 
 import client.FlightPlaner;
-import spring.DomainLayerSpringContext;
 
 public class InfiniteProgress extends SwingWorker<Void, Void> {
 	private int myCurrentXCoordinate;
@@ -13,8 +12,7 @@ public class InfiniteProgress extends SwingWorker<Void, Void> {
 	public InfiniteProgress(int currentXCoordinate, int currentYCoordinate) {
 		myCurrentXCoordinate = currentXCoordinate;
 		myCurrentYCoordinate = currentYCoordinate;
-		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
-		flightPlaner = springContext.GetFlightPlaner();
+		flightPlaner = FlightPlaner.getInstance();
 	}
 
 	@Override

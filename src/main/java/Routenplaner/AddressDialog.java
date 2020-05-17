@@ -40,11 +40,14 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 	public String myFlightNumber;
 	private boolean isConnected;
 	private FlightPlaner myFlightPlaner;
+	private RoutePlanningHelper myRoutePlanningHelper;
 
 	private AddressDialog(String flightNumber, boolean isConnected) {
 
 		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
-		myFlightPlaner = springContext.GetFlightPlaner();
+		myFlightPlaner = FlightPlaner.getInstance();
+
+		myRoutePlanningHelper = new RoutePlanningHelper(springContext.GetOpenStreetMapService());
 
 		myFlightNumber = flightNumber;
 		this.isConnected = isConnected;
@@ -136,10 +139,10 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 			builder.append(txtClientCity.getText());
 			builder.append(txtClientCountry.getText());
 
-			start = RoutePlanningHelper.replaceUnusableChars(builder.toString());
+			start = myRoutePlanningHelper.replaceUnusableChars(builder.toString());
 			GpsCoordinate gpsOfStart = null;
 			try {
-				gpsOfStart = RoutePlanningHelper.getGpsCoordinateToLocation(start, 0);
+				gpsOfStart = myRoutePlanningHelper.getGpsCoordinateToLocation(start, 0);
 				myFlightPlaner.setStartGps(gpsOfStart);
 			} catch (MalformedURLException e2) {
 				e2.printStackTrace();

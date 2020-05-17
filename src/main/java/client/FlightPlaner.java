@@ -41,16 +41,14 @@ import Routenplaner.IconButton;
 import database.DatabaseLogic;
 import database.QueryHelper;
 import gps_coordinates.GpsCoordinate;
-import listeners.FlightBoxDisabledListener;
-import listeners.FlightBoxEnabledListener;
 import listeners.ListenerForEmptyFields;
 import listeners.RoutePlanerMouseListener;
 import listeners.TableTargetsMouseListener;
 import render.CityRenderer;
 import render.ComboBoxRenderer;
 import render.TargetRenderer;
+import routePlanningService.Contract.IOpenStreetMapService;
 import routePlanningService.Contract.IOptimizationService;
-import routePlanningService.Impl.OpenStreetMapService;
 import routePlanningService.Impl.RoutePlanningHelper;
 import routePlanningService.overview.Flight;
 import spring.DomainLayerSpringContext;
@@ -63,13 +61,18 @@ import widgets.progression.InfiniteProgress;
 @SuppressWarnings("serial")
 public class FlightPlaner extends JFrame implements ActionListener, DocumentListener {
 
+	private static String myDirectory;
+	private static FlightPlaner myInstance = null;
+
 	private IOptimizationService myOptimizationService;
+	private IOpenStreetMapService myOpenStreetMapService;
+	private RoutePlanningHelper myRoutePlanningHelper;
+
 	private final int X = 10;
 	private final int Y = 10;
 	private final int WIDTH = 500;// TODO move
 	private final int HEIGHT = 500;// TODO move
 
-	private static FlightPlaner myInstance;
 	private JTabbedPane tabbedPane;
 
 	private JPanel panelAdresse, panelTargets;
@@ -102,7 +105,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	/**
 	 * panel,model and table for addresses
 	 */
-	private CommonModel modelTargets;
+	private CommonModel myCommonModelForTargets;
 	private CommonModel modelRoute;
 	private JTable tableTargets, tableRoute;
 	private JPanel panelTargetsNorth;
@@ -153,11 +156,33 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 	public FlightsOverview myFlightsOverview = null;
 	private DefaultListSelectionModel listSelectionModel;
-	private String myDirectory;
+
 	private String myPathToImageFolder;
+
+	public static FlightPlaner getInstance(String directory) {
+		if (myInstance == null) {
+			myDirectory = directory;
+			myInstance = new FlightPlaner();
+		}
+
+		return myInstance;
+	}
+
+	public static FlightPlaner getInstance() {
+		if (myInstance == null) {
+			throw new IllegalAccessError();
+		}
+
+		return myInstance;
+	}
 
 	// ctor
 	private FlightPlaner() {
+
+		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext(myDirectory);
+		myFlightsOverview = springContext.GetFlightsOverview();
+		myOpenStreetMapService = springContext.GetOpenStreetMapService();
+		myRoutePlanningHelper = new RoutePlanningHelper(myOpenStreetMapService);
 
 		// Setting the Layout
 		try {
@@ -172,6 +197,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		} catch (UnsupportedLookAndFeelException e2) {
 			e2.printStackTrace();
 		}
+
+		initComponent();
 	}
 
 	public void initComponent() {
@@ -207,11 +234,10 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		listSelectionModel.addSelectionInterval(0, 0);
 		listSelectionModel.addSelectionInterval(2, 3);
 		optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
-		optionsForDatabase.addActionListener(new FlightBoxDisabledListener(listSelectionModel, optionsForDatabase));
 
 		// the combobox for the database:
-		String dBOptions[] = { Constants.CONNECT, Constants.DISCONNECT };
-		databaseBox = new JComboBox<String>(dBOptions);
+		String optionsForDataBase[] = { Constants.CONNECT, Constants.DISCONNECT };
+		databaseBox = new JComboBox<String>(optionsForDataBase);
 		databaseBox.setBounds(100, 0, 80, 20);
 		databaseBox.setBorder(BorderFactory.createRaisedBevelBorder());
 		databaseBox.setFont(Fonts.MainFont);
@@ -375,8 +401,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 		String[] columns = { Constants.ID, Constants.STREET, Constants.CITY, Constants.COUNTRY, Constants.LONGITUDE,
 				Constants.LATITUDE };
-		modelTargets = new CommonModel(columns);
-		tableTargets = new JTable(modelTargets);
+		myCommonModelForTargets = new CommonModel(columns);
+		tableTargets = new JTable(myCommonModelForTargets);
 		tableTargets.setPreferredScrollableViewportSize(new Dimension(200, 100));
 		tableTargets.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 		tableTargets.getTableHeader().setReorderingAllowed(false);
@@ -488,7 +514,6 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 					optionsForDatabase.removeActionListener(optionsForDatabase.getActionListeners()[0]);
 					optionsForDatabase.setRenderer(new DefaultListCellRenderer());
-					optionsForDatabase.addActionListener(new FlightBoxEnabledListener(optionsForDatabase));
 
 				}
 				break;
@@ -506,8 +531,6 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 					optionsForDatabase.removeActionListener(optionsForDatabase.getActionListeners()[0]);
 					optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
-					optionsForDatabase
-							.addActionListener(new FlightBoxDisabledListener(listSelectionModel, optionsForDatabase));
 				}
 				break;
 			default:
@@ -539,8 +562,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 				System.err.println("was not able to get OVERVIEW as list");
 				e1.printStackTrace();
 			}
-			DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
-			myFlightsOverview = springContext.GetFlightsOverview();
+
 			myFlightsOverview.initComponent(overViewEntries);
 			panelAdresse.addMouseListener(new RoutePlanerMouseListener());
 			myFlightsOverview.showFrame();
@@ -587,10 +609,10 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					statusBar.setText(statusBar.getText() + File.separator + flightNumber);
 					btnSubmitFlightToSelect.setVisible(false);
 					List<GpsCoordinate> response = database.getFlightAsList(flightToSelect);
-					if (!modelTargets.isEmpty()) {
-						modelTargets.clear();
+					if (!myCommonModelForTargets.isEmpty()) {
+						myCommonModelForTargets.clear();
 					}
-					RoutePlanningHelper.fillModel(response, modelTargets, false);
+					RoutePlanningHelper.fillModel(response, myCommonModelForTargets, false);
 
 				} else {
 					JOptionPane.showInputDialog(FlightPlaner.this, "Flight " + flightToSelect + " does not exist",
@@ -612,7 +634,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			/* remove from database */
 			if (isConnected() == true) {
 				for (int row = 0; row < arrayOfSelectedRows.length; row++) {
-					Object object = modelTargets.getValueAt(arrayOfSelectedRows[row], 0);
+					Object object = myCommonModelForTargets.getValueAt(arrayOfSelectedRows[row], 0);
 					if (object != null) {
 						int id = Integer.valueOf(String.valueOf(object).trim());
 						database.deleteTarget(flightNumber, id);
@@ -628,8 +650,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			}
 
 			/* remove from model */
-			modelTargets.deleteRow(arrayOfSelectedRows);
-			modelTargets.revalidate();
+			myCommonModelForTargets.deleteRow(arrayOfSelectedRows);
+			myCommonModelForTargets.revalidate();
 		}
 
 		else if (o.equals(btnMyLocation)) {
@@ -794,8 +816,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					/** to request the coordinates */
 					try {
 
-						gps = OpenStreetMapService.getInstance()
-								.getCoordinates(RoutePlanningHelper.replaceUnusableChars(builder.toString()));
+						gps = myOpenStreetMapService
+								.getCoordinates(myRoutePlanningHelper.replaceUnusableChars(builder.toString()));
 
 					} catch (MalformedURLException e2) {
 						e2.printStackTrace();
@@ -811,10 +833,10 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 						if (!master.contains(gps)) {
 
 							master.add(gps);
-							modelTargets.addDataRow(new AddressVector(String.valueOf(counter), txtStreet.getText(),
-									txtCity.getText(), txtCountry.getText(), String.valueOf(gps.getLongitude()),
-									String.valueOf(gps.getLatitude())));
-							modelTargets.revalidate();
+							myCommonModelForTargets.addDataRow(new AddressVector(String.valueOf(counter),
+									txtStreet.getText(), txtCity.getText(), txtCountry.getText(),
+									String.valueOf(gps.getLongitude()), String.valueOf(gps.getLatitude())));
+							myCommonModelForTargets.revalidate();
 
 							if (isConnected() && (flightNumber != null)) {
 								try {
@@ -882,12 +904,12 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		this.master = master;
 	}
 
-	public CommonModel getModelTargets() {
-		return modelTargets;
+	public CommonModel getMyCommonModelForTargets() {
+		return myCommonModelForTargets;
 	}
 
-	public void setModelTargets(CommonModel modelTargets) {
-		this.modelTargets = modelTargets;
+	public void setMyCommonModelForTargets(CommonModel modelTargets) {
+		this.myCommonModelForTargets = modelTargets;
 	}
 
 	public JTable getTableTargets() {
@@ -944,10 +966,6 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 	public void setOptimization(IOptimizationService optimization) {
 		myOptimizationService = optimization;
-	}
-
-	public void setDirectory(String directory) {
-		myDirectory = directory;
 	}
 
 	public String getPathToImageFolder() {

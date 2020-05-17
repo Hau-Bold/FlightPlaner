@@ -4,15 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
 import Routenplaner.SpecialPoint;
 import gps_coordinates.GpsCoordinate;
 import routePlanningService.Contract.IOptimizationService;
 
-@Component
-@Service("OptimizationService")
 public class OptimizationService {
 
 	private ArrayList<GpsCoordinate> response;
@@ -38,7 +33,7 @@ public class OptimizationService {
 						tmpReceiving.forEach(
 								gps -> distanceList.add(RoutePlanningHelper.distanceBetween(startGpsTmp, gps)));
 
-						SpecialPoint pt = RoutePlanningHelper.getMaximumAndIndexOfMaximum(distanceList);
+						SpecialPoint pt = getMaximumAndIndexOfMaximum(distanceList);
 						int index = pt.getIndex();
 						response.add(tmpReceiving.get(index));
 						startGps = tmpReceiving.get(index);
@@ -74,7 +69,7 @@ public class OptimizationService {
 						tmpReceiving.forEach(
 								gps -> distanceList.add(RoutePlanningHelper.distanceBetween(startGpsTmp, gps)));
 
-						SpecialPoint point = RoutePlanningHelper.getMaximumAndIndexOfMaximum(distanceList);
+						SpecialPoint point = getMaximumAndIndexOfMaximum(distanceList);
 
 						int index = point.getIndex();
 						response.add(tmpReceiving.get(index));
@@ -85,7 +80,7 @@ public class OptimizationService {
 						tmpReceiving.forEach(
 								gps -> distanceList.add(RoutePlanningHelper.distanceBetween(startGpsTmp, gps)));
 
-						point = RoutePlanningHelper.getMinimumAndIndexOfMinimum(distanceList);
+						point = getMinimumAndIndexOfMinimum(distanceList);
 
 						index = point.getIndex();
 						response.add(tmpReceiving.get(index));
@@ -123,7 +118,7 @@ public class OptimizationService {
 					while (tmpReceiving.size() > 1) {
 						tmpReceiving
 								.forEach(gps -> distances.add(RoutePlanningHelper.distanceBetween(startGpsTmp, gps)));
-						SpecialPoint point = RoutePlanningHelper.getMinimumAndIndexOfMinimum(distances);
+						SpecialPoint point = getMinimumAndIndexOfMinimum(distances);
 
 						int index = point.getIndex();
 						response.add(tmpReceiving.get(index));
@@ -133,7 +128,7 @@ public class OptimizationService {
 
 						tmpReceiving
 								.forEach(gps -> distances.add(RoutePlanningHelper.distanceBetween(startGpsTmp, gps)));
-						point = RoutePlanningHelper.getMaximumAndIndexOfMaximum(distances);
+						point = getMaximumAndIndexOfMaximum(distances);
 
 						index = point.getIndex();
 						response.add(tmpReceiving.get(index));
@@ -166,7 +161,7 @@ public class OptimizationService {
 					response.add(0, startGps);
 					while (tmpReceiving.size() > 1) {
 						tmpReceiving.forEach(gps -> distances.add(RoutePlanningHelper.distanceBetween(gpstmps, gps)));
-						SpecialPoint point = RoutePlanningHelper.getMinimumAndIndexOfMinimum(distances);
+						SpecialPoint point = getMinimumAndIndexOfMinimum(distances);
 						int index = point.getIndex();
 						response.add(tmpReceiving.get(index));
 						startGps = tmpReceiving.get(index);
@@ -190,7 +185,7 @@ public class OptimizationService {
 					response.add(0, startGps);
 				} else {
 
-					List<ArrayList<GpsCoordinate>> input = RoutePlanningHelper.getPermutations(targets);
+					List<ArrayList<GpsCoordinate>> input = getPermutations(targets);
 					List<Double> distances = new ArrayList<Double>();
 
 					input.forEach(list -> {
@@ -198,7 +193,7 @@ public class OptimizationService {
 						distances.add(RoutePlanningHelper.getTotalDistance(list));
 					});
 
-					SpecialPoint point = RoutePlanningHelper.getMinimumAndIndexOfMinimum(distances);
+					SpecialPoint point = getMinimumAndIndexOfMinimum(distances);
 					response = new ArrayList<GpsCoordinate>(input.get(point.getIndex()));
 				}
 			}
@@ -227,4 +222,62 @@ public class OptimizationService {
 			return response;
 		}
 	}
+
+	private SpecialPoint getMaximumAndIndexOfMaximum(List<Double> receiving) {
+		SpecialPoint response = new SpecialPoint();
+		response.setIndex(0);
+		response.setDistance(receiving.get(0));
+
+		for (int i = 1; i < receiving.size(); i++) {
+			if (receiving.get(i) >= response.getDistance()) {
+				response.setIndex(i);
+				response.setDistance(receiving.get(i));
+			}
+		}
+		return response;
+	}
+
+	private SpecialPoint getMinimumAndIndexOfMinimum(List<Double> list) {
+
+		SpecialPoint pt = new SpecialPoint();
+		pt.setIndex(0);
+		pt.setDistance(list.get(0));
+
+		for (int i = 1; i < list.size(); i++) {
+			if (list.get(i) <= pt.getDistance()) {
+				pt.setIndex(i);
+				pt.setDistance(list.get(i));
+			}
+		}
+		return pt;
+	}
+
+	private List<ArrayList<GpsCoordinate>> getPermutations(List<GpsCoordinate> targets) {
+		List<ArrayList<GpsCoordinate>> permutations = new ArrayList<ArrayList<GpsCoordinate>>();
+		if (targets.size() == 2) {
+			ArrayList<GpsCoordinate> values1 = new ArrayList<GpsCoordinate>();
+			ArrayList<GpsCoordinate> values2 = new ArrayList<GpsCoordinate>();
+			values1.add(targets.get(0));
+			values1.add(targets.get(1));
+			values2.add(targets.get(1));
+			values2.add(targets.get(0));
+			permutations.add(values1);
+			permutations.add(values2);
+		} else {
+			for (GpsCoordinate item : targets) {
+				ArrayList<GpsCoordinate> copy = new ArrayList<GpsCoordinate>(targets);
+				copy.remove(item);
+				List<ArrayList<GpsCoordinate>> perm = getPermutations(copy);
+				for (ArrayList<GpsCoordinate> p : perm) {
+					copy = new ArrayList<GpsCoordinate>();
+					copy.add(item);
+					copy.addAll(p);
+					permutations.add(copy);
+				}
+			}
+		}
+
+		return permutations;
+	}
+
 }

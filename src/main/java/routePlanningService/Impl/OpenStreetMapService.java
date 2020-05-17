@@ -13,21 +13,14 @@ import org.json.simple.parser.ParseException;
 
 import Routenplaner.Constants;
 import gps_coordinates.GpsCoordinate;
+import routePlanningService.Contract.IOpenStreetMapService;
 
-public class OpenStreetMapService {
+public class OpenStreetMapService implements IOpenStreetMapService {
 
-	private static OpenStreetMapService instance = null;
 	private JSONParser jsonParser;
 
-	public OpenStreetMapService() {
-		jsonParser = new JSONParser();
-	}
-
-	public static OpenStreetMapService getInstance() {
-		if (instance == null) {
-			instance = new OpenStreetMapService();
-		}
-		return instance;
+	private OpenStreetMapService() {
+		jsonParser = new JSONParser();// TODO call from spring
 	}
 
 	private String getRequest(String url) throws IOException {
@@ -53,11 +46,12 @@ public class OpenStreetMapService {
 		return response.toString();
 	}
 
-	public GpsCoordinate getCoordinates(String address) throws ParseException, IOException {
+	@Override
+	public GpsCoordinate getCoordinates(String location) throws ParseException, IOException {
 		StringBuffer query = new StringBuffer();
 		query.append("https://nominatim.openstreetmap.org/search?q=");
 
-		String[] split = address.split(" ");
+		String[] split = location.split(" ");
 		String queryResult = null;
 
 		if (split.length == 0) {

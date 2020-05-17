@@ -26,8 +26,8 @@ public class TargetsContextMenu extends CommonContextMenu implements ActionListe
 	public TargetsContextMenu(MouseEvent event) {
 		super(event);
 		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
-		myOptimizationService = springContext.GetOptimizationService();
-		myRouteplanningService = springContext.GetFlightPlaner();
+		myOptimizationService = (OptimizationService) springContext.GetOptimizationService();
+		myRouteplanningService = FlightPlaner.getInstance();
 		initComponent();
 		showMenu();
 	}

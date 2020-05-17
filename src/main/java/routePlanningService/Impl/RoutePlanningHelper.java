@@ -18,15 +18,21 @@ import org.json.JSONException;
 import org.json.simple.parser.ParseException;
 
 import Routenplaner.ImagePanel;
-import Routenplaner.SpecialPoint;
 import gps_coordinates.GpsCoordinate;
 import routePlanningService.Constants.Constants;
+import routePlanningService.Contract.IOpenStreetMapService;
 import routePlanningService.overview.Flight;
 import tablemodel.CommonModel;
 
 public class RoutePlanningHelper {
 
-	public static String replaceUnusableChars(String receiving) {
+	public IOpenStreetMapService myOpenStreetMapService;
+
+	public RoutePlanningHelper(IOpenStreetMapService openStreetMapService) {
+		myOpenStreetMapService = openStreetMapService;
+	}
+
+	public String replaceUnusableChars(String receiving) {
 		if (receiving != null) {
 			receiving = receiving.replaceAll("ä", "ae");
 			receiving = receiving.replaceAll("ü", "ue");
@@ -37,67 +43,10 @@ public class RoutePlanningHelper {
 		return receiving;
 	}
 
-	public static List<ArrayList<GpsCoordinate>> getPermutations(List<GpsCoordinate> targets) {
-		List<ArrayList<GpsCoordinate>> permutations = new ArrayList<ArrayList<GpsCoordinate>>();
-		if (targets.size() == 2) {
-			ArrayList<GpsCoordinate> values1 = new ArrayList<GpsCoordinate>();
-			ArrayList<GpsCoordinate> values2 = new ArrayList<GpsCoordinate>();
-			values1.add(targets.get(0));
-			values1.add(targets.get(1));
-			values2.add(targets.get(1));
-			values2.add(targets.get(0));
-			permutations.add(values1);
-			permutations.add(values2);
-		} else {
-			for (GpsCoordinate item : targets) {
-				ArrayList<GpsCoordinate> copy = new ArrayList<GpsCoordinate>(targets);
-				copy.remove(item);
-				List<ArrayList<GpsCoordinate>> perm = getPermutations(copy);
-				for (ArrayList<GpsCoordinate> p : perm) {
-					copy = new ArrayList<GpsCoordinate>();
-					copy.add(item);
-					copy.addAll(p);
-					permutations.add(copy);
-				}
-			}
-		}
-
-		return permutations;
-	}
-
-	public static SpecialPoint getMinimumAndIndexOfMinimum(List<Double> list) {
-
-		SpecialPoint pt = new SpecialPoint();
-		pt.setIndex(0);
-		pt.setDistance(list.get(0));
-
-		for (int i = 1; i < list.size(); i++) {
-			if (list.get(i) <= pt.getDistance()) {
-				pt.setIndex(i);
-				pt.setDistance(list.get(i));
-			}
-		}
-		return pt;
-	}
-
-	public static SpecialPoint getMaximumAndIndexOfMaximum(List<Double> receiving) {
-		SpecialPoint response = new SpecialPoint();
-		response.setIndex(0);
-		response.setDistance(receiving.get(0));
-
-		for (int i = 1; i < receiving.size(); i++) {
-			if (receiving.get(i) >= response.getDistance()) {
-				response.setIndex(i);
-				response.setDistance(receiving.get(i));
-			}
-		}
-		return response;
-	}
-
-	public static GpsCoordinate getGpsCoordinateToLocation(String location, int id)
+	public GpsCoordinate getGpsCoordinateToLocation(String location, int id)
 			throws JSONException, ParseException, IOException {
 		String[] locationSplitted = location.split(",");
-		GpsCoordinate gps = OpenStreetMapService.getInstance().getCoordinates(location);
+		GpsCoordinate gps = myOpenStreetMapService.getCoordinates(location);
 
 		gps.setId(id);
 

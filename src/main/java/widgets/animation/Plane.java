@@ -11,7 +11,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import client.FlightPlaner;
-import spring.DomainLayerSpringContext;
 
 @SuppressWarnings("serial")
 public class Plane extends JLabel {
@@ -23,8 +22,7 @@ public class Plane extends JLabel {
 	public Plane(Point point) {
 		setSize(width, height);
 
-		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
-		FlightPlaner flightPlaner = springContext.GetFlightPlaner();
+		FlightPlaner flightPlaner = FlightPlaner.getInstance();
 
 		try {
 			myBufferedimage = ImageIO

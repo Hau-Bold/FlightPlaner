@@ -4,7 +4,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import client.FlightPlaner;
-import spring.DomainLayerSpringContext;
 import widgets.contextMenu.OverViewContextMenu;
 import widgets.contextMenu.TargetsContextMenu;
 import widgets.flightsOverview.FlightsOverview;
@@ -16,8 +15,7 @@ public class TableOverViewMouseListener implements MouseListener {
 	private FlightPlaner myFlightPlaner;
 
 	public TableOverViewMouseListener(FlightsOverview overView, OverViewContextMenu overViewContextMenu) {
-		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
-		myFlightPlaner = springContext.GetFlightPlaner();
+		myFlightPlaner = FlightPlaner.getInstance();
 
 		this.overView = overView;
 		this.overViewContextMenu = overViewContextMenu;
@@ -37,7 +35,7 @@ public class TableOverViewMouseListener implements MouseListener {
 			if (overViewContextMenu != null) {
 				overViewContextMenu.dispose();
 			}
-			overViewContextMenu = new OverViewContextMenu(overView, event);
+			overViewContextMenu = new OverViewContextMenu(event);
 			overView.setMyOverViewContextMenu(overViewContextMenu);
 		}
 	}

@@ -4,29 +4,25 @@ import java.awt.Color;
 import java.awt.Image;
 import java.io.File;
 
-import javax.inject.Inject;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 
 import client.FlightPlaner;
 import routePlanningService.Impl.RoutePlanningHelper;
-import spring.DomainLayerSpringContext;
 import widgets.control.MenuItemMouseListener;
 
 @SuppressWarnings("serial")
 public class IconMenuItem extends JMenuItem {
 
-	@Inject
-	private FlightPlaner myRoutePlanningService;
+	private FlightPlaner myFlightPlaner;
 
 	public IconMenuItem(String pathOfIcon, String text) {
 
-		DomainLayerSpringContext context = DomainLayerSpringContext.GetContext();
-		myRoutePlanningService = context.GetFlightPlaner();
+		myFlightPlaner = FlightPlaner.getInstance();
 
 		if (!RoutePlanningHelper.nullOrEmpty(pathOfIcon)) {
 
-			String ressource = myRoutePlanningService.getPathToImageFolder() + File.separator + pathOfIcon;
+			String ressource = myFlightPlaner.getPathToImageFolder() + File.separator + pathOfIcon;
 
 			ImageIcon icon = new ImageIcon(ressource);
 			icon.setImage(icon.getImage().getScaledInstance(15, 15, Image.SCALE_SMOOTH));

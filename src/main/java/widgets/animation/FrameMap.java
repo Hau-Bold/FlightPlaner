@@ -25,7 +25,6 @@ import animationService.AnimateTarget;
 import client.FlightPlaner;
 import gps_coordinates.GpsCoordinate;
 import routePlanningService.Impl.RoutePlanningHelper;
-import spring.DomainLayerSpringContext;
 
 @SuppressWarnings("serial")
 public class FrameMap extends JFrame implements ActionListener, ChangeListener {
@@ -53,8 +52,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 	}
 
 	private FrameMap(List<GpsCoordinate> computedRoute) {
-		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext();
-		myFlightPlaner = springContext.GetFlightPlaner();
+		myFlightPlaner = FlightPlaner.getInstance();
 
 		targetList = new ArrayList<Point>();
 		computedRoute.forEach(gps -> targetList.add(RoutePlanningHelper.gpsToMiller(gps)));

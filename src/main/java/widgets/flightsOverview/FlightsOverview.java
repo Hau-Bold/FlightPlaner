@@ -14,10 +14,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import Routenplaner.Colors;
-import Routenplaner.Constants;
 import database.DatabaseLogic;
 import listeners.TableOverViewMouseListener;
 import render.TargetRenderer;
+import routePlanningService.Constants.Constants;
 import routePlanningService.Impl.RoutePlanningHelper;
 import routePlanningService.overview.Flight;
 import tablemodel.CommonModel;

@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
-import gps_coordinates.GpsCoordinate;
+import routePlanningService.Impl.GPS;
 
 public interface IOpenStreetMapService {
 
-	GpsCoordinate getCoordinates(String location) throws ParseException, IOException;
+	GPS getCoordinates(String location) throws ParseException, IOException;
 }

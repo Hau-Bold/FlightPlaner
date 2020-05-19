@@ -1,6 +1,5 @@
 routePlanningService\Impl\OptimizationService$FindFarest.class
 client\ClientFlightPlaner.class
-gps_coordinates\GpsCoordinate.class
 widgets\IconMenuItem.class
 Routenplaner\AddressVector.class
 widgets\contextMenu\TargetsContextMenu.class
@@ -29,7 +28,6 @@ spring\DomainLayerSpringContext.class
 routePlanningService\Impl\OptimizationService$FindFarestThenNearest.class
 listeners\completeMouseListener.class
 Routenplaner\AddressDialog.class
-Routenplaner\Constants.class
 widgets\flightsOverview\FlightsOverview.class
 widgets\control\AbstractMenuItemMouseListener.class
 routePlanningService\Contract\IOpenStreetMapService.class
@@ -48,6 +46,7 @@ widgets\animation\FrameMap.class
 Routenplaner\ScrollPaneMap.class
 routePlanningService\Impl\OptimizationService$FindNext.class
 routePlanningService\Impl\RoutePlanningHelper.class
+routePlanningService\Impl\GPS.class
 widgets\animation\Target.class
 Routenplaner\IconButton.class
 client\ClientFlightPlaner$1.class

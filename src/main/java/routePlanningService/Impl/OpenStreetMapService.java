@@ -11,8 +11,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import Routenplaner.Constants;
-import gps_coordinates.GpsCoordinate;
+import routePlanningService.Constants.Constants;
 import routePlanningService.Contract.IOpenStreetMapService;
 
 public class OpenStreetMapService implements IOpenStreetMapService {
@@ -47,9 +46,9 @@ public class OpenStreetMapService implements IOpenStreetMapService {
 	}
 
 	@Override
-	public GpsCoordinate getCoordinates(String location) throws ParseException, IOException {
+	public GPS getCoordinates(String location) throws ParseException, IOException {
 		StringBuffer query = new StringBuffer();
-		query.append("https://nominatim.openstreetmap.org/search?q=");
+		query.append(Constants.OpenStreetMapURLPrePart);
 
 		String[] split = location.split(" ");
 		String queryResult = null;
@@ -64,7 +63,7 @@ public class OpenStreetMapService implements IOpenStreetMapService {
 				query.append("+");
 			}
 		}
-		query.append("&format=json&amp;addressdetails=1");
+		query.append(Constants.OpenStreetMapURLPostPart);
 
 		queryResult = getRequest(query.toString());
 
@@ -77,6 +76,6 @@ public class OpenStreetMapService implements IOpenStreetMapService {
 		String latitude = String.valueOf(jsonObject.get(Constants.LATITUDE));
 		String longitude = String.valueOf(jsonObject.get(Constants.LONGITUDE));
 
-		return new GpsCoordinate(Double.valueOf(latitude), Double.valueOf(longitude));
+		return new GPS(Double.valueOf(latitude), Double.valueOf(longitude));
 	}
 }

@@ -23,7 +23,7 @@ import Routenplaner.ImagePanel;
 import animationService.AnimatePlane;
 import animationService.AnimateTarget;
 import client.FlightPlaner;
-import gps_coordinates.GpsCoordinate;
+import routePlanningService.Impl.GPS;
 import routePlanningService.Impl.RoutePlanningHelper;
 
 @SuppressWarnings("serial")
@@ -43,7 +43,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 	private Plane plane;
 	private Point pt;
 	private Target labeltarget;
-	private static ArrayList<Point> targetList;
+	private static ArrayList<Point> myTargets;
 	private ArrayList<Target> labellist = new ArrayList<Target>();
 	private FlightPlaner myFlightPlaner;
 
@@ -51,11 +51,11 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		return imagepanel;
 	}
 
-	private FrameMap(List<GpsCoordinate> computedRoute) {
+	private FrameMap(List<GPS> computedRoute) {
 		myFlightPlaner = FlightPlaner.getInstance();
 
-		targetList = new ArrayList<Point>();
-		computedRoute.forEach(gps -> targetList.add(RoutePlanningHelper.gpsToMiller(gps)));
+		myTargets = new ArrayList<Point>();
+		computedRoute.forEach(gps -> myTargets.add(RoutePlanningHelper.gpsToMiller(gps)));
 		initComponent();
 		showFrame();
 	}
@@ -88,13 +88,9 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		this.add(scrollmap, BorderLayout.CENTER);
 		scrollmap.getViewport().addChangeListener(this);
 
-		// F�ge Flieger hinzu
 		plane = new Plane(new Point(40, 50));
 		imagepanel.add(plane);
 
-		/*
-		 * F�ge Labels f�r Targets hinzu: und Threads der threadlist:
-		 */
 		toolbar = new JToolBar();
 		toolbar.setPreferredSize(new Dimension(xwidthPanelMap, 20));
 
@@ -129,8 +125,8 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 			btn_showRoute.setEnabled(false);
 			if (counter1 % 2 == 0) {
 				btnShowTargets.setText("Hide");
-				for (int i = 0; i < targetList.size(); i++) {
-					pt = targetList.get(i);
+				for (int i = 0; i < myTargets.size(); i++) {
+					pt = myTargets.get(i);
 					labeltarget = new Target(pt);
 					labellist.add(labeltarget);
 					imagepanel.add(labeltarget);
@@ -162,7 +158,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 
 			if (counter2 % 2 == 0) {
 				btnShowTargets.setEnabled(false);
-				RoutePlanningHelper.drawRoute(targetList, imagepanel);
+				RoutePlanningHelper.drawRoute(myTargets, imagepanel);
 				btn_showRoute.setText("Hide Route");
 
 			}
@@ -175,7 +171,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		}
 
 		if (o.equals(btnStartFlight)) {
-			Thread flight = new Thread(new AnimatePlane(plane, targetList));
+			Thread flight = new Thread(new AnimatePlane(plane, myTargets));
 			flight.start();
 		}
 	}
@@ -206,8 +202,8 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 				e1.printStackTrace();
 			}
 
-			for (int i = 0; i < targetList.size(); i++) {
-				pt = targetList.get(i);
+			for (int i = 0; i < myTargets.size(); i++) {
+				pt = myTargets.get(i);
 				labeltarget = new Target(pt);
 				labellist.add(labeltarget);
 				imagepanel.add(labeltarget);
@@ -219,12 +215,12 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		}
 
 		else if (btn_showRoute.getText().equals("Hide Route")) {
-			RoutePlanningHelper.drawRoute(targetList, imagepanel);
+			RoutePlanningHelper.drawRoute(myTargets, imagepanel);
 		}
 
 	}
 
-	public static FrameMap getInstance(List<GpsCoordinate> computedRoute) {
+	public static FrameMap getInstance(List<GPS> computedRoute) {
 		if (FrameMap.frameMap == null) {
 			frameMap = new FrameMap(computedRoute);
 			return frameMap;

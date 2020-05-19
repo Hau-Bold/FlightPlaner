@@ -1,6 +1,6 @@
-package gps_coordinates;
+package routePlanningService.Impl;
 
-public class GpsCoordinate {
+public class GPS {
 
 	private int myId;
 	private double myLatitude;
@@ -10,13 +10,13 @@ public class GpsCoordinate {
 	private String myCountry;
 
 	// ctor
-	public GpsCoordinate(double latitude, double longitude) {
+	public GPS(double latitude, double longitude) {
 		myLatitude = latitude;
 		myLongitude = longitude;
 	}
 
 	// ctor
-	public GpsCoordinate(int id, String street, String city, String country, double longitude, double latitude) {
+	public GPS(int id, String street, String city, String country, double longitude, double latitude) {
 		this(latitude, longitude);
 		myId = id;
 		myStreet = street;
@@ -65,16 +65,9 @@ public class GpsCoordinate {
 	}
 
 	@Override
-	public String toString() {
-		return "GpsCoordinate [id=" + myId + ", myLatitude=" + myLatitude + ", myLongitude=" + myLongitude
-				+ ", myStreet=" + myStreet + ", myCity=" + myCity + ", myCountry=" + myCountry + "]";
-	}
-
-	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof GpsCoordinate) {
-			if (((GpsCoordinate) obj).getLongitude() == this.getLongitude()
-					&& ((GpsCoordinate) obj).getLatitude() == this.getLatitude()) {
+		if (obj instanceof GPS) {
+			if (((GPS) obj).getLongitude() == this.getLongitude() && ((GPS) obj).getLatitude() == this.getLatitude()) {
 				return true;
 			}
 		}

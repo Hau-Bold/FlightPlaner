@@ -11,11 +11,11 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 
 import Routenplaner.AddressVector;
-import Routenplaner.Constants;
 import client.FlightPlaner;
 import database.DatabaseLogic;
 import database.QueryHelper;
-import gps_coordinates.GpsCoordinate;
+import routePlanningService.Constants.Constants;
+import routePlanningService.Impl.GPS;
 import routePlanningService.Impl.RoutePlanningHelper;
 import spring.DomainLayerSpringContext;
 import tablemodel.CommonModel;
@@ -65,7 +65,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 			int row = table.getSelectedRow();
 			if (row != -1) {
 				String flightNumber = (String) table.getValueAt(row, 1);
-				ArrayList<GpsCoordinate> flight = null;
+				ArrayList<GPS> flight = null;
 				try {
 					flight = myFlightPlaner.getDatabase().getFlightAsList(flightNumber);
 					/** setting start */

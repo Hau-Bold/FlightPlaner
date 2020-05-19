@@ -5,27 +5,26 @@ import java.util.List;
 import java.util.Random;
 
 import Routenplaner.SpecialPoint;
-import gps_coordinates.GpsCoordinate;
 import routePlanningService.Contract.IOptimizationService;
 
 public class OptimizationService {
 
-	private ArrayList<GpsCoordinate> response;
+	private ArrayList<GPS> response;
 	private ArrayList<Double> distanceList;
 
 	public class FindFarest implements IOptimizationService {
 
 		@Override
-		public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
+		public List<GPS> compute(GPS startGps, List<GPS> receiving) {
 
-			List<GpsCoordinate> tmpReceiving = new ArrayList<GpsCoordinate>(receiving);
-			GpsCoordinate startGpsTmp = startGps;
+			List<GPS> tmpReceiving = new ArrayList<GPS>(receiving);
+			GPS startGpsTmp = startGps;
 			if (startGps != null) {
 				if (tmpReceiving.size() == 1) {
-					response = new ArrayList<GpsCoordinate>(tmpReceiving);
+					response = new ArrayList<GPS>(tmpReceiving);
 					response.add(0, startGps);
 				} else {
-					response = new ArrayList<GpsCoordinate>();
+					response = new ArrayList<GPS>();
 					distanceList = new ArrayList<Double>();
 					response.add(0, startGps);
 					while (tmpReceiving.size() > 1) {
@@ -51,17 +50,17 @@ public class OptimizationService {
 	public class FindFarestThenNearest implements IOptimizationService {
 
 		@Override
-		public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
+		public List<GPS> compute(GPS startGps, List<GPS> receiving) {
 
-			List<GpsCoordinate> tmpReceiving = new ArrayList<GpsCoordinate>(receiving);
-			GpsCoordinate startGpsTmp = startGps;
+			List<GPS> tmpReceiving = new ArrayList<GPS>(receiving);
+			GPS startGpsTmp = startGps;
 
 			if (startGps != null) {
 				if (tmpReceiving.size() == 1) {
-					response = new ArrayList<GpsCoordinate>(tmpReceiving);
+					response = new ArrayList<GPS>(tmpReceiving);
 					response.add(0, startGps);
 				} else {
-					response = new ArrayList<GpsCoordinate>();
+					response = new ArrayList<GPS>();
 					distanceList = new ArrayList<Double>();
 					response.add(0, startGps);
 					while (tmpReceiving.size() > 1) {
@@ -101,18 +100,18 @@ public class OptimizationService {
 	public class FindNearestThenFarest implements IOptimizationService {
 
 		@Override
-		public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
+		public List<GPS> compute(GPS startGps, List<GPS> receiving) {
 
-			List<GpsCoordinate> tmpReceiving = new ArrayList<GpsCoordinate>(receiving);
-			GpsCoordinate startGpsTmp = startGps;
+			List<GPS> tmpReceiving = new ArrayList<GPS>(receiving);
+			GPS startGpsTmp = startGps;
 
 			if (startGps != null) {
-				response = new ArrayList<GpsCoordinate>();
+				response = new ArrayList<GPS>();
 				if (tmpReceiving.size() == 1) {
-					response = new ArrayList<GpsCoordinate>(tmpReceiving);
+					response = new ArrayList<GPS>(tmpReceiving);
 					response.add(0, startGps);
 				} else {
-					response = new ArrayList<GpsCoordinate>();
+					response = new ArrayList<GPS>();
 					List<Double> distances = new ArrayList<Double>();
 					response.add(0, startGps);
 					while (tmpReceiving.size() > 1) {
@@ -148,15 +147,15 @@ public class OptimizationService {
 	public class FindNext implements IOptimizationService {
 
 		@Override
-		public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> receiving) {
-			GpsCoordinate gpstmps = startGps;
-			List<GpsCoordinate> tmpReceiving = new ArrayList<GpsCoordinate>(receiving);
+		public List<GPS> compute(GPS startGps, List<GPS> receiving) {
+			GPS gpstmps = startGps;
+			List<GPS> tmpReceiving = new ArrayList<GPS>(receiving);
 			if (startGps != null) {
 				if (tmpReceiving.size() == 1) {
-					response = new ArrayList<GpsCoordinate>(tmpReceiving);
+					response = new ArrayList<GPS>(tmpReceiving);
 					response.add(0, startGps);
 				} else {
-					response = new ArrayList<GpsCoordinate>();
+					response = new ArrayList<GPS>();
 					List<Double> distances = new ArrayList<Double>();
 					response.add(0, startGps);
 					while (tmpReceiving.size() > 1) {
@@ -178,14 +177,14 @@ public class OptimizationService {
 	public class FindOptimized implements IOptimizationService {
 
 		@Override
-		public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> targets) {
+		public List<GPS> compute(GPS startGps, List<GPS> targets) {
 			if (startGps != null) {
 				if (targets.size() == 1) {
-					response = new ArrayList<GpsCoordinate>(targets);
+					response = new ArrayList<GPS>(targets);
 					response.add(0, startGps);
 				} else {
 
-					List<ArrayList<GpsCoordinate>> input = getPermutations(targets);
+					List<ArrayList<GPS>> input = getPermutations(targets);
 					List<Double> distances = new ArrayList<Double>();
 
 					input.forEach(list -> {
@@ -194,7 +193,7 @@ public class OptimizationService {
 					});
 
 					SpecialPoint point = getMinimumAndIndexOfMinimum(distances);
-					response = new ArrayList<GpsCoordinate>(input.get(point.getIndex()));
+					response = new ArrayList<GPS>(input.get(point.getIndex()));
 				}
 			}
 			return response;
@@ -204,13 +203,13 @@ public class OptimizationService {
 	public class FindRandom implements IOptimizationService {
 
 		@Override
-		public List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> targets) {
+		public List<GPS> compute(GPS startGps, List<GPS> targets) {
 			if (startGps != null) {
 				if (targets.size() == 1) {
-					response = new ArrayList<GpsCoordinate>(targets);
+					response = new ArrayList<GPS>(targets);
 					response.add(0, startGps);
 				} else {
-					response = new ArrayList<GpsCoordinate>();
+					response = new ArrayList<GPS>();
 					int[] anzahlGpsKoordinate = new int[targets.size()];
 					RoutePlanningHelper.generate(anzahlGpsKoordinate, 0, new Random());
 					for (int i = 0; i < anzahlGpsKoordinate.length; i++) {
@@ -252,11 +251,11 @@ public class OptimizationService {
 		return pt;
 	}
 
-	private List<ArrayList<GpsCoordinate>> getPermutations(List<GpsCoordinate> targets) {
-		List<ArrayList<GpsCoordinate>> permutations = new ArrayList<ArrayList<GpsCoordinate>>();
+	private List<ArrayList<GPS>> getPermutations(List<GPS> targets) {
+		List<ArrayList<GPS>> permutations = new ArrayList<ArrayList<GPS>>();
 		if (targets.size() == 2) {
-			ArrayList<GpsCoordinate> values1 = new ArrayList<GpsCoordinate>();
-			ArrayList<GpsCoordinate> values2 = new ArrayList<GpsCoordinate>();
+			ArrayList<GPS> values1 = new ArrayList<GPS>();
+			ArrayList<GPS> values2 = new ArrayList<GPS>();
 			values1.add(targets.get(0));
 			values1.add(targets.get(1));
 			values2.add(targets.get(1));
@@ -264,12 +263,12 @@ public class OptimizationService {
 			permutations.add(values1);
 			permutations.add(values2);
 		} else {
-			for (GpsCoordinate item : targets) {
-				ArrayList<GpsCoordinate> copy = new ArrayList<GpsCoordinate>(targets);
+			for (GPS item : targets) {
+				ArrayList<GPS> copy = new ArrayList<GPS>(targets);
 				copy.remove(item);
-				List<ArrayList<GpsCoordinate>> perm = getPermutations(copy);
-				for (ArrayList<GpsCoordinate> p : perm) {
-					copy = new ArrayList<GpsCoordinate>();
+				List<ArrayList<GPS>> perm = getPermutations(copy);
+				for (ArrayList<GPS> p : perm) {
+					copy = new ArrayList<GPS>();
 					copy.add(item);
 					copy.addAll(p);
 					permutations.add(copy);

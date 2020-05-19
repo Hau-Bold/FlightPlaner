@@ -2,8 +2,8 @@ package routePlanningService.Contract;
 
 import java.util.List;
 
-import gps_coordinates.GpsCoordinate;
+import routePlanningService.Impl.GPS;
 
 public interface IOptimizationService {
-	List<GpsCoordinate> compute(GpsCoordinate startGps, List<GpsCoordinate> receiving);
+	List<GPS> compute(GPS startGps, List<GPS> receiving);
 }

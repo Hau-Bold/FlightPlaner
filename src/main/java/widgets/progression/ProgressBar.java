@@ -6,7 +6,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-import Routenplaner.Constants;
+import routePlanningService.Constants.Constants;
 
 @SuppressWarnings("serial")
 public class ProgressBar extends JDialog {

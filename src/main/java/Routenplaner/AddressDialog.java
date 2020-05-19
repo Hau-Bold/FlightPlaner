@@ -20,8 +20,9 @@ import org.json.simple.parser.ParseException;
 
 import client.FlightPlaner;
 import database.DatabaseLogic;
-import gps_coordinates.GpsCoordinate;
 import listeners.ListenerForEmptyFields;
+import routePlanningService.Constants.Constants;
+import routePlanningService.Impl.GPS;
 import routePlanningService.Impl.RoutePlanningHelper;
 import spring.DomainLayerSpringContext;
 
@@ -140,7 +141,7 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 			builder.append(txtClientCountry.getText());
 
 			start = myRoutePlanningHelper.replaceUnusableChars(builder.toString());
-			GpsCoordinate gpsOfStart = null;
+			GPS gpsOfStart = null;
 			try {
 				gpsOfStart = myRoutePlanningHelper.getGpsCoordinateToLocation(start, 0);
 				myFlightPlaner.setStartGps(gpsOfStart);

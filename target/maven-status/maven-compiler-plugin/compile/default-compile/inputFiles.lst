@@ -19,7 +19,6 @@ C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\client\ClientFli
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\routePlanningService\Constants\Constants.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\routePlanningService\Impl\OpenStreetMapService.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\widgets\contextMenu\OverViewContextMenu.java
-C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\gps_coordinates\GpsCoordinate.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\listeners\completeMouseListener.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\listeners\RoutePlanerMouseListener.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\database\DBConnection.java
@@ -30,9 +29,9 @@ C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\Routenplaner\Ima
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\Routenplaner\IconButton.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\widgets\control\AbstractMenuItemMouseListener.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\widgets\progression\ProgressBar.java
+C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\routePlanningService\Impl\GPS.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\listeners\TableOverViewMouseListener.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\widgets\IconMenuItem.java
-C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\Routenplaner\Constants.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\render\TargetRenderer.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\client\FlightPlaner.java
 C:\Users\Haubold\workspace\workspace\FlightPlaner\src\main\java\routePlanningService\Contract\IOpenStreetMapService.java

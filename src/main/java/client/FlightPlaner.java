@@ -33,22 +33,25 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
 import Routenplaner.AddressDialog;
 import Routenplaner.AddressVector;
-import Routenplaner.Constants;
 import Routenplaner.Fonts;
 import Routenplaner.IconButton;
 import database.DatabaseLogic;
 import database.QueryHelper;
-import gps_coordinates.GpsCoordinate;
 import listeners.ListenerForEmptyFields;
 import listeners.RoutePlanerMouseListener;
 import listeners.TableTargetsMouseListener;
 import render.CityRenderer;
 import render.ComboBoxRenderer;
 import render.TargetRenderer;
+import routePlanningService.Constants.Constants;
 import routePlanningService.Contract.IOpenStreetMapService;
 import routePlanningService.Contract.IOptimizationService;
+import routePlanningService.Impl.GPS;
 import routePlanningService.Impl.RoutePlanningHelper;
 import routePlanningService.overview.Flight;
 import spring.DomainLayerSpringContext;
@@ -67,6 +70,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	private IOptimizationService myOptimizationService;
 	private IOpenStreetMapService myOpenStreetMapService;
 	private RoutePlanningHelper myRoutePlanningHelper;
+
+	// private static WebDriver driver;
 
 	private final int X = 10;
 	private final int Y = 10;
@@ -100,7 +105,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	/**
 	 * to save the requested GpsCoordinates
 	 */
-	private ArrayList<GpsCoordinate> master = new ArrayList<GpsCoordinate>();
+	private ArrayList<GPS> master = new ArrayList<GPS>();
 
 	/**
 	 * panel,model and table for addresses
@@ -139,7 +144,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	/**
 	 * Liste, in der die berechnete Route gespeichert wird
 	 */
-	private List<GpsCoordinate> computedRoute;
+	private List<GPS> computedRoute;
 
 	private IconButton btnSubmitFlightNumber, btnSubmitFlightToSelect, btnSave, btnAccessData, btnSubmitFlightToDrop,
 			confirmAddress;
@@ -150,7 +155,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	// to set the view
 	private String currentView;
 
-	private GpsCoordinate startGps = null;
+	private GPS startGps = null;
 	private CityRenderer cityRender;
 	private TargetsContextMenu targetContextMenu = null;
 
@@ -198,7 +203,28 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			e2.printStackTrace();
 		}
 
-		initComponent();
+		initWebdriver();
+
+		// initComponent();
+	}
+
+	private void initWebdriver() {
+
+		System.setProperty("webdriver.gecko.driver",
+				myDirectory + File.separator + Constants.BIN + File.separator + Constants.GECKODRIVER);
+		// type name = new type();neC:\\Utility\\BrowserDrivers\\geckodriver.exe");
+		WebDriver webdriver = new FirefoxDriver();
+		webdriver.navigate().to("http://www.google.com");
+
+		// driver = new FirefoxDriver();
+		//
+		// if (isWindows) {
+		// driver.manage().window().maximize();
+		// driver.manage().window().fullscreen();
+		// }
+		//
+		// driver.get("file:///" + pathOfHtmlPage);
+
 	}
 
 	public void initComponent() {
@@ -608,7 +634,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					flightNumber = flightToSelect;
 					statusBar.setText(statusBar.getText() + File.separator + flightNumber);
 					btnSubmitFlightToSelect.setVisible(false);
-					List<GpsCoordinate> response = database.getFlightAsList(flightToSelect);
+					List<GPS> response = database.getFlightAsList(flightToSelect);
 					if (!myCommonModelForTargets.isEmpty()) {
 						myCommonModelForTargets.clear();
 					}
@@ -806,7 +832,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		if (txtCity.getText() != "")
 			try {
 				{
-					GpsCoordinate gps = null;
+					GPS gps = null;
 
 					StringBuilder builder = new StringBuilder();
 					builder.append(txtStreet.getText());
@@ -868,7 +894,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		computedRoute = myOptimizationService.compute(startGps, master);
 		RoutePlanningHelper.fillModel(computedRoute, modelRoute, true);
 		cityRender.setData(computedRoute);
-		GpsCoordinate targetGps = computedRoute.get(computedRoute.size() - 1);
+		GPS targetGps = computedRoute.get(computedRoute.size() - 1);
 		if (isConnected) {
 			try {
 				DatabaseLogic.insertTargetLocation(flightNumber, targetGps.getCity(), database.getConnection());
@@ -896,11 +922,11 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		this.statusBar = statusBar;
 	}
 
-	public ArrayList<GpsCoordinate> getMaster() {
+	public ArrayList<GPS> getMaster() {
 		return master;
 	}
 
-	public void setMaster(ArrayList<GpsCoordinate> master) {
+	public void setMaster(ArrayList<GPS> master) {
 		this.master = master;
 	}
 
@@ -948,11 +974,11 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		this.currentView = currentView;
 	}
 
-	public GpsCoordinate getStartGps() {
+	public GPS getStartGps() {
 		return startGps;
 	}
 
-	public void setStartGps(GpsCoordinate startGps) {
+	public void setStartGps(GPS startGps) {
 		this.startGps = startGps;
 	}
 

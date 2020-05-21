@@ -5,9 +5,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
 import client.FlightPlaner;
-import routePlanningService.Constants.Constants;
-import routePlanningService.Contract.IOptimizationService;
-import routePlanningService.Impl.OptimizationService;
+import routePlanning.Constants.Constants;
+import routePlanning.Contract.IOptimizationService;
+import routePlanning.Impl.OptimizationService;
 import spring.DomainLayerSpringContext;
 import widgets.IconMenuItem;
 

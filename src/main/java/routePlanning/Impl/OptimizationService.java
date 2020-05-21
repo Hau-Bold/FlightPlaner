@@ -1,11 +1,11 @@
-package routePlanningService.Impl;
+package routePlanning.Impl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import Routenplaner.SpecialPoint;
-import routePlanningService.Contract.IOptimizationService;
+import routePlanning.Contract.IOptimizationService;
 
 public class OptimizationService {
 

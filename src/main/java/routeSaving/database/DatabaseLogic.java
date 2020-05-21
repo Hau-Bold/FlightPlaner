@@ -1,47 +1,53 @@
-package database;
+package routeSaving.database;
 
+import java.io.File;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import routePlanningService.Constants.Constants;
-import routePlanningService.Impl.GPS;
-import routePlanningService.overview.Flight;
+import routePlanning.Constants.Constants;
+import routePlanning.Impl.GPS;
+import routePlanning.overview.Flight;
 
 public class DatabaseLogic {
-	private static DBConnection connection;
-	private final String WORKING_DIRECTORY = System.getProperty("user.home.workspace");
-	private static String DbName = "WWF";
+	private static DataBaseConnection connection;
+	private String myDirectory;
 
-	public static String getDbName() {
-		return DbName;
+	// ctor
+	public DatabaseLogic(String directory) {
+		myDirectory = directory;
 	}
 
-	public DBConnection getConnection() {
+	public DataBaseConnection getConnection() {
 		return connection;
 	}
 
-	public void connect() {
+	public void connect() throws SQLException {
 
-		// TODO move to bin folder.....
-		connection = new DBConnection(WORKING_DIRECTORY + DbName);
+		if (connection != null) {
+			connection.getConnection().close();
+			connection = null;
+		}
+		connection = new DataBaseConnection(
+				myDirectory + File.separator + Constants.BIN + File.separator + Constants.DataBaseName);
+		connection.getConnection().setAutoCommit(Boolean.FALSE);
 	}
 
-	/**
-	 * to disconnect
-	 */
-	public void disconnect() {
+	public static void disconnect() {
+
 		try {
 			if (connection != null) {
 				connection.getConnection().close();
 			}
 		} catch (SQLException e) {
-			System.err.println("DATABASE: not able to disconnect");
+			System.out.println("Database: Status: Not able to disconnect");
 			e.printStackTrace();
 		}
 	}
@@ -59,26 +65,26 @@ public class DatabaseLogic {
 		HashMap<String, String> map = new HashMap<String, String>();
 		StringBuilder columnConstraint = new StringBuilder();
 
-		columnConstraint.append(QueryHelper.INTEGER + " ");
-		columnConstraint.append(QueryHelper.PRIMARYKEY + " ");
-		columnConstraint.append(QueryHelper.AUTOINCREMENT);
+		columnConstraint.append(Constants.INTEGER + " ");
+		columnConstraint.append(Constants.PRIMARYKEY + " ");
+		columnConstraint.append(Constants.AUTOINCREMENT);
 
 		map.put(Constants.ID, columnConstraint.toString());
 		columnConstraint.setLength(0);
 
-		columnConstraint.append(QueryHelper.STRINGDEFAULTEMPTYSTRING + " ");
+		columnConstraint.append(Constants.STRINGDEFAULTEMPTYSTRING + " ");
 
 		map.put(Constants.STREET, columnConstraint.toString());
 		map.put(Constants.CITY, columnConstraint.toString());
 		map.put(Constants.COUNTRY, columnConstraint.toString());
 		columnConstraint.setLength(0);
 
-		columnConstraint.append(QueryHelper.DOUBLEDEFAULTNULL + " ");
+		columnConstraint.append(Constants.DOUBLEDEFAULTNULL + " ");
 
 		map.put(Constants.LONGITUDE, columnConstraint.toString());
 		map.put(Constants.LATITUDE, columnConstraint.toString());
 
-		QueryHelper.createTable(flightNumber, map, true, connection.getConnection());
+		createTable(flightNumber, map, true, connection.getConnection());
 	}
 
 	public void deleteTarget(String name_Table, int row) {
@@ -166,31 +172,31 @@ public class DatabaseLogic {
 		}
 	}
 
-	public static void createTableFlights(DBConnection connection) throws SQLException {
+	public static void createTableFlights(DataBaseConnection connection) throws SQLException {
 
 		Map<String, String> queryMap = new HashMap<String, String>();
 
 		StringBuilder columnConstraints = new StringBuilder();
-		columnConstraints.append(QueryHelper.INTEGER + " ");
-		columnConstraints.append(QueryHelper.PRIMARYKEY + " ");
-		columnConstraints.append(QueryHelper.AUTOINCREMENT);
+		columnConstraints.append(Constants.INTEGER + " ");
+		columnConstraints.append(Constants.PRIMARYKEY + " ");
+		columnConstraints.append(Constants.AUTOINCREMENT);
 
 		queryMap.put(Constants.ID, columnConstraints.toString());
 
 		columnConstraints.setLength(0);
-		columnConstraints.append(QueryHelper.STRINGDEFAULTEMPTYSTRING);
+		columnConstraints.append(Constants.STRINGDEFAULTEMPTYSTRING);
 
 		queryMap.put(Constants.FLIGHTNUMBER, columnConstraints.toString());
 		queryMap.put(Constants.START, columnConstraints.toString());
 		queryMap.put(Constants.TARGET, columnConstraints.toString());
 
 		columnConstraints.setLength(0);
-		columnConstraints.append(QueryHelper.DOUBLEDEFAULTNULL);
+		columnConstraints.append(Constants.DOUBLEDEFAULTNULL);
 
 		queryMap.put(Constants.LATITUDE, columnConstraints.toString());
 		queryMap.put(Constants.LONGITUDE, columnConstraints.toString());
 
-		QueryHelper.createTable(Constants.FLIGHTNUMBER, queryMap, true, connection.getConnection());
+		createTable(Constants.FLIGHTNUMBER, queryMap, true, connection.getConnection());
 
 	}
 
@@ -202,7 +208,7 @@ public class DatabaseLogic {
 	 * @param connection
 	 *            - the Connection
 	 */
-	public static void insertFlightNumber(String flightNumber, DBConnection connection) {
+	public static void insertFlightNumber(String flightNumber, DataBaseConnection connection) {
 		PreparedStatement preparedStatement = null;
 		try {
 			preparedStatement = connection.getConnection()
@@ -228,7 +234,7 @@ public class DatabaseLogic {
 	 * @throws SQLException
 	 *             - in case of technical error
 	 */
-	public static void insertStartLocation(String flightNumber, GPS startGps, DBConnection connection)
+	public static void insertStartLocation(String flightNumber, GPS startGps, DataBaseConnection connection)
 			throws SQLException {
 		String sql = "UPDATE " + Constants.FLIGHTS + " SET START=" + "'" + startGps.getCity() + "',"
 				+ Constants.LONGITUDE + "=" + "'" + startGps.getLongitude() + "'," + Constants.LATITUDE + "=" + "'"
@@ -257,7 +263,7 @@ public class DatabaseLogic {
 	 * @throws SQLException
 	 *             - in case of technical error
 	 */
-	public static void insertTargetLocation(String flightNumber, String targetLocation, DBConnection connection)
+	public static void insertTargetLocation(String flightNumber, String targetLocation, DataBaseConnection connection)
 			throws SQLException {
 		String sql = "UPDATE " + Constants.FLIGHTS + " SET TARGET= '" + targetLocation + "' WHERE FLIGHTNUMBER='"
 				+ flightNumber + "';";
@@ -284,7 +290,7 @@ public class DatabaseLogic {
 	 * @throws SQLException
 	 *             - in case of technical error
 	 */
-	public static List<Flight> getTableAsList(DBConnection connection) throws SQLException {
+	public static List<Flight> getTableAsList(DataBaseConnection connection) throws SQLException {
 
 		Statement statement = null;
 		ResultSet resultSet = null;
@@ -353,7 +359,7 @@ public class DatabaseLogic {
 	 * @throws SQLException
 	 *             - in case of technical error
 	 */
-	public static GPS getStartGps(String flightNumber, DBConnection connection) throws SQLException {
+	public static GPS getStartGps(String flightNumber, DataBaseConnection connection) throws SQLException {
 		String query = "SELECT * FROM " + Constants.FLIGHTS + " WHERE FLIGHTNUMBER = '" + flightNumber + "';";
 		Statement statement = null;
 		ResultSet resultSet = null;
@@ -383,6 +389,119 @@ public class DatabaseLogic {
 			statement.close();
 		}
 		return response;
+	}
+
+	/**
+	 * to create a new table
+	 * 
+	 * @param flightNumber
+	 *            - the flightNumber
+	 * @throws SQLException
+	 *             - in case of technical error
+	 */
+	public static void createTable(String nameOfTable, Map<String, String> queryMap, boolean ifNotExists,
+			Connection connection) throws SQLException {
+
+		StringBuilder sqlBuilder = new StringBuilder();
+
+		sqlBuilder.append(Constants.CREATE);
+		sqlBuilder.append(" ");
+		sqlBuilder.append(Constants.TABLE);
+		sqlBuilder.append(" ");
+		if (ifNotExists) {
+			sqlBuilder.append(Constants.IFNOTEXISTS);
+			sqlBuilder.append(" ");
+		}
+		sqlBuilder.append(nameOfTable);
+		sqlBuilder.append(" ");
+		sqlBuilder.append("(");
+
+		Iterator<String> iter = queryMap.keySet().iterator();
+		while (iter.hasNext()) {
+			String key = iter.next();
+			sqlBuilder.append(key + " ");
+			sqlBuilder.append(queryMap.get(key));
+			boolean isLastEntry = queryMap.keySet().size() == 1;
+			if (!isLastEntry) {
+				sqlBuilder.append(",");
+			}
+			iter.remove();
+		}
+		sqlBuilder.append(");");
+
+		Statement statement = null;
+
+		try {
+			statement = connection.createStatement();
+			statement.executeUpdate(sqlBuilder.toString());
+			System.err.println(String.format("Table %s was created with query %s", nameOfTable, sqlBuilder.toString()));
+			statement.close();
+
+		} catch (Exception ex) {
+			System.err.println(
+					String.format("Was not able to create Table %s with query %s", nameOfTable, sqlBuilder.toString()));
+			statement.close();
+			ex.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * to drop a table
+	 * 
+	 * @param nameOfTable
+	 *            - the name of the table
+	 * @throws SQLException
+	 *             - in case of technical error
+	 */
+	public static void dropTable(String nameOfTable, Connection connection) throws SQLException {
+		String sql = "DROP TABLE IF EXISTS " + nameOfTable;
+		Statement statement = null;
+		try {
+			statement = connection.createStatement();
+			statement.executeUpdate(sql);
+		} catch (SQLException e) {
+			System.err.println(String.format("dropping table %s was impossible", nameOfTable));
+			e.printStackTrace();
+			statement.close();
+		} finally {
+
+		}
+
+	}
+
+	/**
+	 * to check if a table exists
+	 * 
+	 * @param nameOfTable
+	 *            - the name of the table
+	 * @param connection
+	 *            - the connection
+	 * @return true or false
+	 * @throws SQLException
+	 *             - in case of technical error
+	 */
+	public static boolean checkIfTableExists(String nameOfTable, Connection connection) throws SQLException {
+		String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name= '" + nameOfTable + "';";
+		Statement statement = null;
+		ResultSet resultset = null;
+		boolean check = false;
+		try {
+			statement = connection.createStatement();
+			resultset = statement.executeQuery(sql);
+			check = resultset.next();
+			resultset.close();
+			statement.close();
+		} catch (SQLException e) {
+			System.err.println(String.format("not able to execute query: %s", sql));
+			e.printStackTrace();
+			resultset.close();
+			statement.close();
+		} finally {
+			resultset.close();
+			statement.close();
+		}
+		return check;
 	}
 
 }

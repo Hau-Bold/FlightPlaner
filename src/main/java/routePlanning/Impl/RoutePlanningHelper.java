@@ -1,4 +1,4 @@
-package routePlanningService.Impl;
+package routePlanning.Impl;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
@@ -18,9 +18,9 @@ import org.json.JSONException;
 import org.json.simple.parser.ParseException;
 
 import Routenplaner.ImagePanel;
-import routePlanningService.Constants.Constants;
-import routePlanningService.Contract.IOpenStreetMapService;
-import routePlanningService.overview.Flight;
+import routePlanning.Constants.Constants;
+import routePlanning.Contract.IOpenStreetMapService;
+import routePlanning.overview.Flight;
 import tablemodel.CommonModel;
 
 public class RoutePlanningHelper {

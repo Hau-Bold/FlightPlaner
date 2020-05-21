@@ -8,8 +8,8 @@ import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 
-import routePlanningService.Impl.GPS;
-import routePlanningService.Impl.RoutePlanningHelper;
+import routePlanning.Impl.GPS;
+import routePlanning.Impl.RoutePlanningHelper;
 import widgets.animation.FrameMap;
 import widgets.animation.Plane;
 

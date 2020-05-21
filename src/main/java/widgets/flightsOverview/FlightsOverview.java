@@ -14,12 +14,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import Routenplaner.Colors;
-import database.DatabaseLogic;
 import listeners.TableOverViewMouseListener;
 import render.TargetRenderer;
-import routePlanningService.Constants.Constants;
-import routePlanningService.Impl.RoutePlanningHelper;
-import routePlanningService.overview.Flight;
+import routePlanning.Constants.Constants;
+import routePlanning.Impl.RoutePlanningHelper;
+import routePlanning.overview.Flight;
 import tablemodel.CommonModel;
 import widgets.contextMenu.OverViewContextMenu;
 
@@ -37,7 +36,7 @@ public class FlightsOverview extends JFrame {
 	public void initComponent(List<Flight> flightEntries) {
 		// the main frame
 		setBounds(50, 50, 500, 500);
-		setTitle("FLIGHTS: " + " " + DatabaseLogic.getDbName());
+		setTitle("FLIGHTS: " + " " + Constants.DataBaseName);
 		setResizable(true);
 		getContentPane().setBackground(Color.WHITE);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

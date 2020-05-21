@@ -23,8 +23,8 @@ import Routenplaner.ImagePanel;
 import animationService.AnimatePlane;
 import animationService.AnimateTarget;
 import client.FlightPlaner;
-import routePlanningService.Impl.GPS;
-import routePlanningService.Impl.RoutePlanningHelper;
+import routePlanning.Impl.GPS;
+import routePlanning.Impl.RoutePlanningHelper;
 
 @SuppressWarnings("serial")
 public class FrameMap extends JFrame implements ActionListener, ChangeListener {

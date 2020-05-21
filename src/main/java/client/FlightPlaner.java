@@ -40,20 +40,19 @@ import Routenplaner.AddressDialog;
 import Routenplaner.AddressVector;
 import Routenplaner.Fonts;
 import Routenplaner.IconButton;
-import database.DatabaseLogic;
-import database.QueryHelper;
 import listeners.ListenerForEmptyFields;
 import listeners.RoutePlanerMouseListener;
 import listeners.TableTargetsMouseListener;
 import render.CityRenderer;
 import render.ComboBoxRenderer;
 import render.TargetRenderer;
-import routePlanningService.Constants.Constants;
-import routePlanningService.Contract.IOpenStreetMapService;
-import routePlanningService.Contract.IOptimizationService;
-import routePlanningService.Impl.GPS;
-import routePlanningService.Impl.RoutePlanningHelper;
-import routePlanningService.overview.Flight;
+import routePlanning.Constants.Constants;
+import routePlanning.Contract.IOpenStreetMapService;
+import routePlanning.Contract.IOptimizationService;
+import routePlanning.Impl.GPS;
+import routePlanning.Impl.RoutePlanningHelper;
+import routePlanning.overview.Flight;
+import routeSaving.database.DatabaseLogic;
 import spring.DomainLayerSpringContext;
 import tablemodel.CommonModel;
 import widgets.animation.FrameMap;
@@ -71,12 +70,12 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	private IOpenStreetMapService myOpenStreetMapService;
 	private RoutePlanningHelper myRoutePlanningHelper;
 
-	// private static WebDriver driver;
+	private static WebDriver webdriver;
 
 	private final int X = 10;
 	private final int Y = 10;
-	private final int WIDTH = 500;// TODO move
-	private final int HEIGHT = 500;// TODO move
+	private final int WIDTH = 500;// TODO remove
+	private final int HEIGHT = 500;// TODO remove
 
 	private JTabbedPane tabbedPane;
 
@@ -212,8 +211,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 		System.setProperty("webdriver.gecko.driver",
 				myDirectory + File.separator + Constants.BIN + File.separator + Constants.GECKODRIVER);
-		// type name = new type();neC:\\Utility\\BrowserDrivers\\geckodriver.exe");
-		WebDriver webdriver = new FirefoxDriver();
+		webdriver = new FirefoxDriver();
 		webdriver.navigate().to("http://www.google.com");
 
 		// driver = new FirefoxDriver();
@@ -229,7 +227,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 	public void initComponent() {
 
-		myPathToImageFolder = myDirectory + File.separator + Constants.IMAGE;
+		myPathToImageFolder = myDirectory + File.separator + Constants.ASSETS + File.separator + Constants.IMAGE;
 
 		if (!new File(myPathToImageFolder).exists()) {
 			throw new IllegalArgumentException(String.format("path %s does not exists", myPathToImageFolder));
@@ -522,15 +520,16 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			// Connect
 			case 0:
 				if (database == null) {
-					database = new DatabaseLogic();
-					database.connect();
+					database = new DatabaseLogic(myDirectory);
+
 					try {
+						database.connect();
 						DatabaseLogic.createTableFlights(database.getConnection());
 					} catch (SQLException e1) {
 						System.err.println("was not able to create table " + Constants.OVERVIEW);
 						e1.printStackTrace();
 					}
-					statusBar.setText(new StringBuilder("Connected: " + database.getDbName()).toString());
+					statusBar.setText(new StringBuilder("Connected: " + Constants.DataBaseName).toString());
 					statusBar.setVisible(true);
 					btnAccessData.setVisible(true);
 					setConnected(true);
@@ -538,9 +537,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 						btnSave.setVisible(true);
 					}
 
-					optionsForDatabase.removeActionListener(optionsForDatabase.getActionListeners()[0]);
 					optionsForDatabase.setRenderer(new DefaultListCellRenderer());
-
 				}
 				break;
 			// disconnect
@@ -555,7 +552,6 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					btnSave.setVisible(false);
 					setView(Constants.STANDART);
 
-					optionsForDatabase.removeActionListener(optionsForDatabase.getActionListeners()[0]);
 					optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
 				}
 				break;
@@ -570,7 +566,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					database.createFlight(flightNumber);
 					DatabaseLogic.insertFlightNumber(flightNumber, database.getConnection());
 					btnSave.setVisible(false);
-					statusBar.setText(database.getDbName() + File.separator + flightNumber);
+					statusBar.setText(Constants.DataBaseName + File.separator + flightNumber);
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
@@ -602,16 +598,16 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			String flightToDrop = txtDropFlight.getText();
 			if (flightToDrop != "") {
 				try {
-					if (QueryHelper.checkIfTableExists(flightToDrop, database.getConnection().getConnection())) {
+					if (DatabaseLogic.checkIfTableExists(flightToDrop, database.getConnection().getConnection())) {
 
 						String userChoice = JOptionPane.showInputDialog(myInstance, "Drop table " + flightToDrop + "?",
 								JOptionPane.YES_NO_CANCEL_OPTION);
 						if (userChoice != null) {
 							try {
-								QueryHelper.dropTable(flightToDrop, database.getConnection().getConnection());
+								DatabaseLogic.dropTable(flightToDrop, database.getConnection().getConnection());
 								if (flightToDrop == flightNumber) {
 									flightNumber = null;
-									statusBar.setText(database.getDbName());
+									statusBar.setText(Constants.DataBaseName);
 								}
 							} catch (SQLException e1) {
 								e1.printStackTrace();
@@ -630,7 +626,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		else if (o.equals(btnSubmitFlightToSelect)) {
 			String flightToSelect = txtSelectFlight.getText().trim();
 			try {
-				if (QueryHelper.checkIfTableExists(flightToSelect, database.getConnection().getConnection())) {
+				if (DatabaseLogic.checkIfTableExists(flightToSelect, database.getConnection().getConnection())) {
 					flightNumber = flightToSelect;
 					statusBar.setText(statusBar.getText() + File.separator + flightNumber);
 					btnSubmitFlightToSelect.setVisible(false);

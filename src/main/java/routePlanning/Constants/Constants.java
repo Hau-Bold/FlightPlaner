@@ -1,14 +1,19 @@
-package routePlanningService.Constants;
+package routePlanning.Constants;
 
 public class Constants {
 	public final static Double CORRECTION = 0.11029411764705882352941176470588;
 	public final static String GECKODRIVER = "geckodriver-v0.26.0-win64\\geckodriver.exe";
+	public final static String DataBaseName = "WWF";
+
+	/** to wrap directory's folders */
+	public static final String ASSETS = "Assets";
+	public static final String BIN = "Bin";
+	public static final String CONFIG = "Config";
 
 	public static final String CITY = "CITY";
 	public static final String CONNECT = "Connect";
 	public static final String COUNTRY = "COUNTRY";
 	public static final String CREATEFLIGHT = "Create Flight";
-	public static final String DELETE = "Delete";
 	public static final String DISCONNECT = "Disconnect";
 	public static final String DISTANCE = "DISTANCE";
 	public static final String DROPFLIGHT = "Drop Flight";
@@ -36,12 +41,36 @@ public class Constants {
 	public static final String SELECTFLIGHT = "Select Flight";
 	public static final String TARGET = "Target";
 	public static final String TARGETS = "Targets";
-	public static final String UPDATE = "Update";
 	public static final String STANDART = "STANDART";
 	public static final String PRINTPREVIEW = "Print preview";
 	public static final String PROCESSING = "Processing Data";
 	public static final String IMAGE = "Images";
 	public static final Object OpenStreetMapURLPrePart = "https://nominatim.openstreetmap.org/search?q=";
 	public static final Object OpenStreetMapURLPostPart = "&format=json&amp;addressdetails=1";
-	public static final String BIN = "Bin";
+
+	/** SQL **/
+	public final static String CREATE = "CREATE";
+	public final static String DROP = "DROP";
+	public final static String INSERT = "INSERT";
+	public final static String DELETE = "DELETE";
+	public final static String UPDATE = "UPDATE";
+	public final static String IFNOTEXISTS = "IF NOT EXISTS";
+
+	public final static String TABLE = "TABLE";
+
+	/** DDL */
+	public final static String DOUBLE = "DOUBLE";
+	public final static String STRING = "STRING";
+	public final static String INTEGER = "INTEGER";
+
+	/** constrainst */
+	public final static String DEFAULTNULL = "DEFAULT NULL";
+	public final static String DEFAULTEMPTYSTRING = "DEFAULT ('')";
+	public final static String PRIMARYKEY = "PRIMARY KEY";
+	public final static String AUTOINCREMENT = "AUTOINCREMENT";
+
+	/** Combined Constraints */
+	public final static String STRINGDEFAULTEMPTYSTRING = "String DEFAULT (' ')";
+	public final static String DOUBLEDEFAULTNULL = " DOUBLE DEFAULT NULL";
+
 }

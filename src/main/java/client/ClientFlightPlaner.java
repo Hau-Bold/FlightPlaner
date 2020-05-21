@@ -6,9 +6,6 @@ public class ClientFlightPlaner {
 
 	public static void main(String[] args) {
 
-		// DomainLayerSpringContext springContext =
-		// DomainLayerSpringContext.GetContext(args[0]);
-
 		SwingUtilities.invokeLater(new Runnable() {
 
 			@Override

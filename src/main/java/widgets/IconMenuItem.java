@@ -8,7 +8,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 
 import client.FlightPlaner;
-import routePlanningService.Impl.RoutePlanningHelper;
+import routePlanning.Impl.RoutePlanningHelper;
 import widgets.control.MenuItemMouseListener;
 
 @SuppressWarnings("serial")

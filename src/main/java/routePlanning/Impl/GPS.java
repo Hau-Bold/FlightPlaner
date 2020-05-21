@@ -1,4 +1,4 @@
-package routePlanningService.Impl;
+package routePlanning.Impl;
 
 public class GPS {
 

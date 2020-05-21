@@ -12,11 +12,10 @@ import javax.swing.JTable;
 
 import Routenplaner.AddressVector;
 import client.FlightPlaner;
-import database.DatabaseLogic;
-import database.QueryHelper;
-import routePlanningService.Constants.Constants;
-import routePlanningService.Impl.GPS;
-import routePlanningService.Impl.RoutePlanningHelper;
+import routePlanning.Constants.Constants;
+import routePlanning.Impl.GPS;
+import routePlanning.Impl.RoutePlanningHelper;
+import routeSaving.database.DatabaseLogic;
 import spring.DomainLayerSpringContext;
 import tablemodel.CommonModel;
 import widgets.IconMenuItem;
@@ -85,7 +84,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 							String.valueOf(gps.getLatitude()))));
 					modelTargets.revalidate();
 					JLabel statusBar = myFlightPlaner.getStatusBar();
-					statusBar.setText(DatabaseLogic.getDbName() + File.separator + flightNumber);
+					statusBar.setText(Constants.DataBaseName + File.separator + flightNumber);
 					myFlightPlaner.setStatusBar(statusBar);
 					myFlightPlaner.flightNumber = flightNumber;
 					myFlightsOverView.dispose();
@@ -108,7 +107,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 					nameOfFlight = (String) table.getValueAt(arrayOfSelectedRows[row], 1);
 					try {
 						DatabaseLogic.removeFlight(nameOfFlight, databaseLogic);
-						QueryHelper.dropTable(nameOfFlight,
+						DatabaseLogic.dropTable(nameOfFlight,
 								myFlightPlaner.getDatabase().getConnection().getConnection());
 					} catch (SQLException e) {
 						e.printStackTrace();

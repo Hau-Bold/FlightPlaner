@@ -7,7 +7,7 @@ import java.util.List;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import routePlanningService.Impl.GPS;
+import routePlanning.Impl.GPS;
 
 @SuppressWarnings("serial")
 public class CityRenderer extends DefaultTableCellRenderer {

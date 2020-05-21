@@ -1,10 +1,10 @@
-package routePlanningService.Contract;
+package routePlanning.Contract;
 
 import java.io.IOException;
 
 import org.json.simple.parser.ParseException;
 
-import routePlanningService.Impl.GPS;
+import routePlanning.Impl.GPS;
 
 public interface IOpenStreetMapService {
 

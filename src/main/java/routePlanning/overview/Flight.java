@@ -1,4 +1,4 @@
-package routePlanningService.overview;
+package routePlanning.overview;
 
 public class Flight {
 

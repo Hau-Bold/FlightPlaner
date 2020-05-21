@@ -6,8 +6,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import routePlanningService.Contract.IOpenStreetMapService;
-import routePlanningService.Contract.IOptimizationService;
+import routePlanning.Constants.Constants;
+import routePlanning.Contract.IOpenStreetMapService;
+import routePlanning.Contract.IOptimizationService;
 import widgets.flightsOverview.FlightsOverview;
 
 @Configuration
@@ -20,7 +21,7 @@ public class DomainLayerSpringContext {
 
 	private DomainLayerSpringContext(String directory) {
 
-		String configLocation = directory + File.separator + "Config" + File.separator + "Beans.xml";
+		String configLocation = directory + File.separator + Constants.CONFIG + File.separator + "Beans.xml";
 		myApplicationContext = new FileSystemXmlApplicationContext(configLocation);
 	}
 

@@ -19,11 +19,11 @@ import org.json.JSONException;
 import org.json.simple.parser.ParseException;
 
 import client.FlightPlaner;
-import database.DatabaseLogic;
 import listeners.ListenerForEmptyFields;
-import routePlanningService.Constants.Constants;
-import routePlanningService.Impl.GPS;
-import routePlanningService.Impl.RoutePlanningHelper;
+import routePlanning.Constants.Constants;
+import routePlanning.Impl.GPS;
+import routePlanning.Impl.RoutePlanningHelper;
+import routeSaving.database.DatabaseLogic;
 import spring.DomainLayerSpringContext;
 
 /**

@@ -1,4 +1,4 @@
-package routePlanningService.Impl;
+package routePlanning.Impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,8 +11,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import routePlanningService.Constants.Constants;
-import routePlanningService.Contract.IOpenStreetMapService;
+import routePlanning.Constants.Constants;
+import routePlanning.Contract.IOpenStreetMapService;
 
 public class OpenStreetMapService implements IOpenStreetMapService {
 
@@ -47,8 +47,8 @@ public class OpenStreetMapService implements IOpenStreetMapService {
 
 	@Override
 	public GPS getCoordinates(String location) throws ParseException, IOException {
-		StringBuffer query = new StringBuffer();
-		query.append(Constants.OpenStreetMapURLPrePart);
+		StringBuffer stringBuffer = new StringBuffer();
+		stringBuffer.append(Constants.OpenStreetMapURLPrePart);
 
 		String[] split = location.split(" ");
 		String queryResult = null;
@@ -58,14 +58,14 @@ public class OpenStreetMapService implements IOpenStreetMapService {
 		}
 
 		for (int i = 0; i < split.length; i++) {
-			query.append(split[i]);
+			stringBuffer.append(split[i]);
 			if (i < (split.length - 1)) {
-				query.append("+");
+				stringBuffer.append("+");
 			}
 		}
-		query.append(Constants.OpenStreetMapURLPostPart);
+		stringBuffer.append(Constants.OpenStreetMapURLPostPart);
 
-		queryResult = getRequest(query.toString());
+		queryResult = getRequest(stringBuffer.toString());
 
 		if (queryResult == null) {
 			return null;

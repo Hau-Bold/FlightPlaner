@@ -9,6 +9,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import routePlanning.Constants.Constants;
 import routePlanning.Contract.IOpenStreetMapService;
 import routePlanning.Contract.IOptimizationService;
+import routeSaving.database.RoutePlanningDataStorageService;
 import widgets.flightsOverview.FlightsOverview;
 
 @Configuration
@@ -58,5 +59,9 @@ public class DomainLayerSpringContext {
 
 	public IOpenStreetMapService GetOpenStreetMapService() {
 		return (IOpenStreetMapService) myApplicationContext.getBean("OpenStreetMapService");
+	}
+
+	public RoutePlanningDataStorageService GetRoutePlanningDataStorageService() {
+		return (RoutePlanningDataStorageService) myApplicationContext.getBean("RoutePlanningDataStorageService");
 	}
 }

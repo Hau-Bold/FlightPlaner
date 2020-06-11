@@ -15,7 +15,7 @@ import client.FlightPlaner;
 import routePlanning.Constants.Constants;
 import routePlanning.Impl.GPS;
 import routePlanning.Impl.RoutePlanningHelper;
-import routeSaving.database.DatabaseLogic;
+import routeSaving.database.RoutePlanningDataStorageService;
 import spring.DomainLayerSpringContext;
 import tablemodel.CommonModel;
 import widgets.IconMenuItem;
@@ -66,10 +66,10 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 				String flightNumber = (String) table.getValueAt(row, 1);
 				ArrayList<GPS> flight = null;
 				try {
-					flight = myFlightPlaner.getDatabase().getFlightAsList(flightNumber);
+					flight = myFlightPlaner.getRoutePlanningDataStorageService().getFlightAsList(flightNumber);
 					/** setting start */
 					myFlightPlaner.setStartGps(
-							DatabaseLogic.getStartGps(flightNumber, myFlightPlaner.getDatabase().getConnection()));
+							RoutePlanningDataStorageService.getStartGps(flightNumber, myFlightPlaner.getRoutePlanningDataStorageService().getConnection()));
 					myFlightPlaner.setMaster(flight);
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -97,7 +97,7 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 		else if (o.equals(removeFlight)) {
 			JTable table = myFlightsOverView.getTable();
 			CommonModel model = myFlightsOverView.getMyModel();
-			DatabaseLogic databaseLogic = myFlightPlaner.getDatabase();
+			RoutePlanningDataStorageService databaseLogic = myFlightPlaner.getRoutePlanningDataStorageService();
 			String nameOfFlight = null;
 
 			int[] arrayOfSelectedRows = table.getSelectedRows();
@@ -106,9 +106,9 @@ public class OverViewContextMenu extends widgets.contextMenu.CommonContextMenu i
 				for (int row = 0; row < arrayOfSelectedRows.length; row++) {
 					nameOfFlight = (String) table.getValueAt(arrayOfSelectedRows[row], 1);
 					try {
-						DatabaseLogic.removeFlight(nameOfFlight, databaseLogic);
-						DatabaseLogic.dropTable(nameOfFlight,
-								myFlightPlaner.getDatabase().getConnection().getConnection());
+						RoutePlanningDataStorageService.removeFlight(nameOfFlight, databaseLogic);
+						RoutePlanningDataStorageService.dropTable(nameOfFlight,
+								myFlightPlaner.getRoutePlanningDataStorageService().getConnection().getConnection());
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}

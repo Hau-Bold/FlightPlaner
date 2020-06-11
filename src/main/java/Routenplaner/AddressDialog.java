@@ -23,7 +23,7 @@ import listeners.ListenerForEmptyFields;
 import routePlanning.Constants.Constants;
 import routePlanning.Impl.GPS;
 import routePlanning.Impl.RoutePlanningHelper;
-import routeSaving.database.DatabaseLogic;
+import routeSaving.database.RoutePlanningDataStorageService;
 import spring.DomainLayerSpringContext;
 
 /**
@@ -158,8 +158,8 @@ public class AddressDialog extends JFrame implements DocumentListener, ActionLis
 			if (isConnected) {
 				/** the flightnumber is valid */
 				try {
-					DatabaseLogic.insertStartLocation(myFlightNumber, gpsOfStart,
-							myFlightPlaner.getDatabase().getConnection());
+					RoutePlanningDataStorageService.insertStartLocation(myFlightNumber, gpsOfStart,
+							myFlightPlaner.getRoutePlanningDataStorageService().getConnection());
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}

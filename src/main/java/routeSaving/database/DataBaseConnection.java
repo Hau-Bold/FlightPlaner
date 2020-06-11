@@ -8,15 +8,11 @@ import java.sql.SQLException;
 import org.sqlite.SQLiteConfig;
 
 public class DataBaseConnection {
-	private Connection dataBaseConnection;
 
-	/**
-	 * Constructor. to establish a connection
-	 * 
-	 * @return
-	 */
+	private Connection myConnection;
+
 	public Connection getConnection() {
-		return dataBaseConnection;
+		return myConnection;
 	}
 
 	public DataBaseConnection(String databaseConnectionPath) {
@@ -42,10 +38,10 @@ public class DataBaseConnection {
 			SQLiteConfig config = new SQLiteConfig();
 
 			/** to enable usage of foreign keys */
+			// could be removed?
 			config.enforceForeignKeys(true);
 
-			dataBaseConnection = DriverManager.getConnection("jdbc:sqlite:" + databaseConnectionPath,
-					config.toProperties());
+			myConnection = DriverManager.getConnection("jdbc:sqlite:" + databaseConnectionPath, config.toProperties());
 		} catch (SQLException e) {
 			System.out.println("connection" + e.getMessage());
 		}
@@ -55,9 +51,9 @@ public class DataBaseConnection {
 			@Override
 			public void run() {
 				try {
-					if (dataBaseConnection != null && !dataBaseConnection.isClosed()) {
-						dataBaseConnection.close();
-						if (dataBaseConnection.isClosed())
+					if (myConnection != null && !myConnection.isClosed()) {
+						myConnection.close();
+						if (myConnection.isClosed())
 							System.out.println("Status(database): disconnected");
 					}
 				} catch (Exception ex) {

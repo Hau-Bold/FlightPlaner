@@ -9,6 +9,7 @@ public class Constants {
 	public static final String ASSETS = "Assets";
 	public static final String BIN = "Bin";
 	public static final String CONFIG = "Config";
+	public static final String FONTS = "Fonts";
 
 	public static final String CITY = "CITY";
 	public static final String CONNECT = "Connect";
@@ -72,5 +73,18 @@ public class Constants {
 	/** Combined Constraints */
 	public final static String STRINGDEFAULTEMPTYSTRING = "String DEFAULT (' ')";
 	public final static String DOUBLEDEFAULTNULL = " DOUBLE DEFAULT NULL";
+	public static final String ROBOTOFONT = "fonts.css";
+	public static final String BackgroundImage = "background.png";
+
+	/** Intersport color */
+	public static final String WHITE = "#FFFFFF";
+	public static final String GRAY = "#F0F0F0";
+	public static final String GREEN = "#00CA84";
+	public static final String CORAL = "#F86A6A";
+	public static final String TURQUOISE = "#00B2CA";
+	public static final String FlightPlanerHtml = "flightplaner.html";
+	public static final String Slash = "/";
+
+	public static String HEADER_OF_PAGE = "%s, %s. %s %s";
 
 }

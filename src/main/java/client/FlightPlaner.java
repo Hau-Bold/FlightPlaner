@@ -9,9 +9,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -52,9 +54,11 @@ import routePlanning.Contract.IOptimizationService;
 import routePlanning.Impl.GPS;
 import routePlanning.Impl.RoutePlanningHelper;
 import routePlanning.overview.Flight;
-import routeSaving.database.DatabaseLogic;
+import routeSaving.database.RoutePlanningDataStorageService;
 import spring.DomainLayerSpringContext;
 import tablemodel.CommonModel;
+import view.Contract.HtmlExecutor;
+import view.Impl.IHtmlExecutor;
 import widgets.animation.FrameMap;
 import widgets.contextMenu.TargetsContextMenu;
 import widgets.flightsOverview.FlightsOverview;
@@ -69,6 +73,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	private IOptimizationService myOptimizationService;
 	private IOpenStreetMapService myOpenStreetMapService;
 	private RoutePlanningHelper myRoutePlanningHelper;
+	private RoutePlanningDataStorageService routePlanningDataStorageService;
 
 	private static WebDriver webdriver;
 
@@ -84,7 +89,6 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	private JLabel lblFlight, lblstreet, lblcity, lblcountry;
 	private JTextField txtNewFlight, txtStreet, txtCity, txtCountry;
 
-	private static DatabaseLogic database;
 	private JLabel statusBar;
 
 	/**
@@ -95,7 +99,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	private boolean isdropped = false;
 
 	/*
-	 * to save the name of the table in the database
+	 * to save the name of the table in the routePlanningDataStorageService
 	 */
 	private JTextField txtdatabase;
 	private JLabel lblTABLE;
@@ -187,6 +191,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		myFlightsOverview = springContext.GetFlightsOverview();
 		myOpenStreetMapService = springContext.GetOpenStreetMapService();
 		myRoutePlanningHelper = new RoutePlanningHelper(myOpenStreetMapService);
+		routePlanningDataStorageService = springContext.GetRoutePlanningDataStorageService();
 
 		// Setting the Layout
 		try {
@@ -202,32 +207,38 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			e2.printStackTrace();
 		}
 
-		initWebdriver();
-
 		// initComponent();
 	}
 
-	private void initWebdriver() {
+	private static void initWebdriver() {
 
 		System.setProperty("webdriver.gecko.driver",
 				myDirectory + File.separator + Constants.BIN + File.separator + Constants.GECKODRIVER);
 		webdriver = new FirefoxDriver();
-		webdriver.navigate().to("http://www.google.com");
 
-		// driver = new FirefoxDriver();
-		//
-		// if (isWindows) {
-		// driver.manage().window().maximize();
-		// driver.manage().window().fullscreen();
-		// }
-		//
-		// driver.get("file:///" + pathOfHtmlPage);
+		String pathOfHtmlPage = myDirectory + File.separator + Constants.ASSETS + File.separator
+				+ Constants.FlightPlanerHtml;
 
+		webdriver.get("file:///" + pathOfHtmlPage);
+		// webdriver.manage().window().maximize();
+		webdriver.manage().window().fullscreen();
 	}
 
 	public void initComponent() {
 
 		myPathToImageFolder = myDirectory + File.separator + Constants.ASSETS + File.separator + Constants.IMAGE;
+
+		Calendar calendar = Calendar.getInstance();
+
+		IHtmlExecutor executor = new HtmlExecutor(myDirectory, Constants.FLIGHTPLANER, Constants.HEADER_OF_PAGE,
+				calendar.getTime());
+		try {
+			executor.write();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		initWebdriver();
 
 		if (!new File(myPathToImageFolder).exists()) {
 			throw new IllegalArgumentException(String.format("path %s does not exists", myPathToImageFolder));
@@ -242,13 +253,13 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		tabbedPane = new JTabbedPane();
 		this.getContentPane().add(tabbedPane);
 
-		// panel for address and database
+		// panel for address and routePlanningDataStorageService
 		panelAdresse = new JPanel();
 		panelAdresse.setLayout(null);
 		tabbedPane.addTab("Datenbank", panelAdresse);
 		tabbedPane.setMnemonicAt(0, KeyEvent.VK_0);
 
-		// optiones for database:
+		// optiones for routePlanningDataStorageService:
 		optionsForDatabase = new JComboBox<String>(new String[] { Constants.CREATEFLIGHT, Constants.INSERTTARGET,
 				Constants.DROPFLIGHT, Constants.SELECTFLIGHT });
 		optionsForDatabase.setBounds(0, 0, 100, 20);
@@ -259,7 +270,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		listSelectionModel.addSelectionInterval(2, 3);
 		optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
 
-		// the combobox for the database:
+		// the combobox for the routePlanningDataStorageService:
 		String optionsForDataBase[] = { Constants.CONNECT, Constants.DISCONNECT };
 		databaseBox = new JComboBox<String>(optionsForDataBase);
 		databaseBox.setBounds(100, 0, 80, 20);
@@ -514,37 +525,35 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
-		/* database */
+		/* routePlanningDataStorageService */
 		if (o.equals(databaseBox)) {
 			switch (databaseBox.getSelectedIndex()) {
 			// Connect
 			case 0:
-				if (database == null) {
-					database = new DatabaseLogic(myDirectory);
+				routePlanningDataStorageService.setDirectory(myDirectory);
 
-					try {
-						database.connect();
-						DatabaseLogic.createTableFlights(database.getConnection());
-					} catch (SQLException e1) {
-						System.err.println("was not able to create table " + Constants.OVERVIEW);
-						e1.printStackTrace();
-					}
-					statusBar.setText(new StringBuilder("Connected: " + Constants.DataBaseName).toString());
-					statusBar.setVisible(true);
-					btnAccessData.setVisible(true);
-					setConnected(true);
-					if (currentView == Constants.CREATEFLIGHT) {
-						btnSave.setVisible(true);
-					}
-
-					optionsForDatabase.setRenderer(new DefaultListCellRenderer());
+				try {
+					routePlanningDataStorageService.connect();
+					RoutePlanningDataStorageService.createTableFlights(routePlanningDataStorageService.getConnection());
+				} catch (SQLException e1) {
+					System.err.println("was not able to create table " + Constants.OVERVIEW);
+					e1.printStackTrace();
 				}
+				statusBar.setText(new StringBuilder("Connected: " + Constants.DataBaseName).toString());
+				statusBar.setVisible(true);
+				btnAccessData.setVisible(true);
+				setConnected(true);
+				if (currentView == Constants.CREATEFLIGHT) {
+					btnSave.setVisible(true);
+				}
+
+				optionsForDatabase.setRenderer(new DefaultListCellRenderer());
 				break;
 			// disconnect
 			case 1:
-				if (database != null) {
-					database.disconnect();
-					database = null;
+				if (routePlanningDataStorageService != null) {
+					routePlanningDataStorageService.disconnect();
+					routePlanningDataStorageService = null;
 					statusBar.setText(null);
 					statusBar.setVisible(false);
 					setConnected(false);
@@ -563,8 +572,9 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		else if (o.equals(btnSave)) {
 			if (!RoutePlanningHelper.nullOrEmpty(flightNumber)) {
 				try {
-					database.createFlight(flightNumber);
-					DatabaseLogic.insertFlightNumber(flightNumber, database.getConnection());
+					routePlanningDataStorageService.createNewFlight(flightNumber);
+					RoutePlanningDataStorageService.insertFlightNumber(flightNumber,
+							routePlanningDataStorageService.getConnection());
 					btnSave.setVisible(false);
 					statusBar.setText(Constants.DataBaseName + File.separator + flightNumber);
 				} catch (SQLException e1) {
@@ -579,7 +589,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			List<Flight> overViewEntries = null;
 
 			try {
-				overViewEntries = DatabaseLogic.getTableAsList(database.getConnection());
+				overViewEntries = RoutePlanningDataStorageService
+						.getTableAsList(routePlanningDataStorageService.getConnection());
 			} catch (SQLException e1) {
 				System.err.println("was not able to get OVERVIEW as list");
 				e1.printStackTrace();
@@ -598,13 +609,15 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			String flightToDrop = txtDropFlight.getText();
 			if (flightToDrop != "") {
 				try {
-					if (DatabaseLogic.checkIfTableExists(flightToDrop, database.getConnection().getConnection())) {
+					if (RoutePlanningDataStorageService.checkIfTableExists(flightToDrop,
+							routePlanningDataStorageService.getConnection().getConnection())) {
 
 						String userChoice = JOptionPane.showInputDialog(myInstance, "Drop table " + flightToDrop + "?",
 								JOptionPane.YES_NO_CANCEL_OPTION);
 						if (userChoice != null) {
 							try {
-								DatabaseLogic.dropTable(flightToDrop, database.getConnection().getConnection());
+								RoutePlanningDataStorageService.dropTable(flightToDrop,
+										routePlanningDataStorageService.getConnection().getConnection());
 								if (flightToDrop == flightNumber) {
 									flightNumber = null;
 									statusBar.setText(Constants.DataBaseName);
@@ -626,11 +639,12 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		else if (o.equals(btnSubmitFlightToSelect)) {
 			String flightToSelect = txtSelectFlight.getText().trim();
 			try {
-				if (DatabaseLogic.checkIfTableExists(flightToSelect, database.getConnection().getConnection())) {
+				if (RoutePlanningDataStorageService.checkIfTableExists(flightToSelect,
+						routePlanningDataStorageService.getConnection().getConnection())) {
 					flightNumber = flightToSelect;
 					statusBar.setText(statusBar.getText() + File.separator + flightNumber);
 					btnSubmitFlightToSelect.setVisible(false);
-					List<GPS> response = database.getFlightAsList(flightToSelect);
+					List<GPS> response = routePlanningDataStorageService.getFlightAsList(flightToSelect);
 					if (!myCommonModelForTargets.isEmpty()) {
 						myCommonModelForTargets.clear();
 					}
@@ -653,13 +667,13 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		else if (o.equals(btnDeleteRow)) {
 			int[] arrayOfSelectedRows = tableTargets.getSelectedRows();
 
-			/* remove from database */
+			/* remove from routePlanningDataStorageService */
 			if (isConnected() == true) {
 				for (int row = 0; row < arrayOfSelectedRows.length; row++) {
 					Object object = myCommonModelForTargets.getValueAt(arrayOfSelectedRows[row], 0);
 					if (object != null) {
 						int id = Integer.valueOf(String.valueOf(object).trim());
-						database.deleteTarget(flightNumber, id);
+						routePlanningDataStorageService.deleteTarget(flightNumber, id);
 					}
 				}
 			}
@@ -862,7 +876,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 							if (isConnected() && (flightNumber != null)) {
 								try {
-									database.insertIntoFlight(flightNumber, gps);
+									routePlanningDataStorageService.insertIntoFlight(flightNumber, gps);
 								} catch (SQLException e1) {
 									e1.printStackTrace();
 								}
@@ -893,7 +907,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		GPS targetGps = computedRoute.get(computedRoute.size() - 1);
 		if (isConnected) {
 			try {
-				DatabaseLogic.insertTargetLocation(flightNumber, targetGps.getCity(), database.getConnection());
+				RoutePlanningDataStorageService.insertTargetLocation(flightNumber, targetGps.getCity(),
+						routePlanningDataStorageService.getConnection());
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -906,8 +921,8 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		return flightNumber;
 	}
 
-	public DatabaseLogic getDatabase() {
-		return database;
+	public RoutePlanningDataStorageService getRoutePlanningDataStorageService() {
+		return routePlanningDataStorageService;
 	}
 
 	public JLabel getStatusBar() {

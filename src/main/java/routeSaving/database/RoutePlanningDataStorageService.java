@@ -16,24 +16,19 @@ import routePlanning.Constants.Constants;
 import routePlanning.Impl.GPS;
 import routePlanning.overview.Flight;
 
-public class DatabaseLogic {
+public class RoutePlanningDataStorageService {
 	private static DataBaseConnection connection;
 	private String myDirectory;
 
 	// ctor
-	public DatabaseLogic(String directory) {
-		myDirectory = directory;
-	}
-
-	public DataBaseConnection getConnection() {
-		return connection;
-	}
+	private RoutePlanningDataStorageService() {
+	};
 
 	public void connect() throws SQLException {
 
 		if (connection != null) {
 			connection.getConnection().close();
-			connection = null;
+			// connection = null;
 		}
 		connection = new DataBaseConnection(
 				myDirectory + File.separator + Constants.BIN + File.separator + Constants.DataBaseName);
@@ -52,15 +47,7 @@ public class DatabaseLogic {
 		}
 	}
 
-	/**
-	 * to create a new flight
-	 * 
-	 * @param flightNumber
-	 *            - the flightNumber
-	 * @throws SQLException
-	 *             - in case of technical error
-	 */
-	public void createFlight(String flightNumber) throws SQLException {
+	public void createNewFlight(String flightNumber) throws SQLException {
 
 		HashMap<String, String> map = new HashMap<String, String>();
 		StringBuilder columnConstraint = new StringBuilder();
@@ -331,7 +318,8 @@ public class DatabaseLogic {
 	 * @throws SQLException
 	 *             - in case of technical error
 	 */
-	public static void removeFlight(String flightNumber, DatabaseLogic databaseLogic) throws SQLException {
+	public static void removeFlight(String flightNumber, RoutePlanningDataStorageService databaseLogic)
+			throws SQLException {
 		PreparedStatement preparedstatement = null;
 		String query = "DELETE FROM " + Constants.FLIGHTS + " WHERE FLIGHTNUMBER = ?;";
 		try {
@@ -504,4 +492,11 @@ public class DatabaseLogic {
 		return check;
 	}
 
+	public DataBaseConnection getConnection() {
+		return connection;
+	}
+
+	public void setDirectory(String directory) {
+		myDirectory = directory;
+	}
 }

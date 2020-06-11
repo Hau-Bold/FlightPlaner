@@ -19,7 +19,7 @@ public class OpenStreetMapService implements IOpenStreetMapService {
 	private JSONParser jsonParser;
 
 	private OpenStreetMapService() {
-		jsonParser = new JSONParser();// TODO call from spring
+		jsonParser = new JSONParser();// TODO inject from spring
 	}
 
 	private String getRequest(String url) throws IOException {

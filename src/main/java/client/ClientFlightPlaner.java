@@ -11,11 +11,9 @@ public class ClientFlightPlaner {
 			@Override
 			public void run() {
 				FlightPlaner flightPlaner = FlightPlaner.getInstance(args[0]);
-				flightPlaner.initComponent();// TODO make later private
 				flightPlaner.setVisible(true);
 			}
 		});
 
 	}
-
 }

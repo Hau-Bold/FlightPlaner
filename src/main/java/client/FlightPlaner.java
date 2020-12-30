@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -17,10 +18,9 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -38,54 +38,46 @@ import javax.swing.event.DocumentListener;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
-import Routenplaner.AddressDialog;
-import Routenplaner.AddressVector;
 import Routenplaner.Fonts;
 import Routenplaner.IconButton;
 import listeners.ListenerForEmptyFields;
 import listeners.RoutePlanerMouseListener;
-import listeners.TableTargetsMouseListener;
 import render.CityRenderer;
-import render.ComboBoxRenderer;
-import render.TargetRenderer;
 import routePlanning.Constants.Constants;
 import routePlanning.Contract.IOpenStreetMapService;
 import routePlanning.Contract.IOptimizationService;
-import routePlanning.Impl.GPS;
+import routePlanning.Impl.GPSCoordinate;
 import routePlanning.Impl.RoutePlanningHelper;
 import routePlanning.overview.Flight;
 import routeSaving.database.RoutePlanningDataStorageService;
 import spring.DomainLayerSpringContext;
 import tablemodel.CommonModel;
-import view.Contract.HtmlExecutor;
-import view.Impl.IHtmlExecutor;
+import view.Impl.HtmlExecutor;
 import widgets.animation.FrameMap;
 import widgets.contextMenu.TargetsContextMenu;
 import widgets.flightsOverview.FlightsOverview;
 import widgets.progression.InfiniteProgress;
 
 @SuppressWarnings("serial")
-public class FlightPlaner extends JFrame implements ActionListener, DocumentListener {
+public class FlightPlaner extends JDialog implements ActionListener, DocumentListener {
 
 	private static String myDirectory;
 	private static FlightPlaner myInstance = null;
 
 	private IOptimizationService myOptimizationService;
 	private IOpenStreetMapService myOpenStreetMapService;
-	private RoutePlanningHelper myRoutePlanningHelper;
 	private RoutePlanningDataStorageService routePlanningDataStorageService;
 
 	private static WebDriver webdriver;
 
-	private final int X = 10;
-	private final int Y = 10;
-	private final int WIDTH = 500;// TODO remove
-	private final int HEIGHT = 500;// TODO remove
+	private final int WIDTH = 600;// TODO remove
+	private final int HEIGHT = 300;// TODO remove
 
 	private JTabbedPane tabbedPane;
 
-	private JPanel panelAdresse, panelTargets;
-	private JComboBox<String> databaseBox, optionsForDatabase;
+	private JPanel panelAdresse;
+	private JComboBox<String> databaseBox;
+	// TOO continue
 	private JLabel lblFlight, lblstreet, lblcity, lblcountry;
 	private JTextField txtNewFlight, txtStreet, txtCity, txtCountry;
 
@@ -105,18 +97,13 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	private JLabel lblTABLE;
 	private JButton btnCreateTable, btnDropTable;
 
-	/**
-	 * to save the requested GpsCoordinates
-	 */
-	private ArrayList<GPS> master = new ArrayList<GPS>();
+	private ArrayList<GPSCoordinate> gpsCoordinates = new ArrayList<GPSCoordinate>();
 
 	/**
 	 * panel,model and table for addresses
 	 */
-	private CommonModel myCommonModelForTargets;
 	private CommonModel modelRoute;
 	private JTable tableTargets, tableRoute;
-	private JPanel panelTargetsNorth;
 
 	// /**
 	// * to count addresses
@@ -147,10 +134,10 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	/**
 	 * Liste, in der die berechnete Route gespeichert wird
 	 */
-	private List<GPS> computedRoute;
+	private List<GPSCoordinate> computedRoute;
 
 	private IconButton btnSubmitFlightNumber, btnSubmitFlightToSelect, btnSave, btnAccessData, btnSubmitFlightToDrop,
-			confirmAddress;
+			myButtonToRequestGPS;
 	public static String flightNumber;
 
 	private JTextField txtDropFlight, txtSelectFlight;
@@ -158,14 +145,16 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	// to set the view
 	private String currentView;
 
-	private GPS startGps = null;
+	private GPSCoordinate startGps = null;
 	private CityRenderer cityRender;
 	private TargetsContextMenu targetContextMenu = null;
 
 	public FlightsOverview myFlightsOverview = null;
-	private DefaultListSelectionModel listSelectionModel;
-
 	private String myPathToImageFolder;
+	private String myStreet;
+	private String myCity;
+	private String myCountry;
+	private HtmlExecutor myHtmlExecutor;
 
 	public static FlightPlaner getInstance(String directory) {
 		if (myInstance == null) {
@@ -177,6 +166,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	}
 
 	public static FlightPlaner getInstance() {
+
 		if (myInstance == null) {
 			throw new IllegalAccessError();
 		}
@@ -187,13 +177,21 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	// ctor
 	private FlightPlaner() {
 
+		initSpringAndServices();
+
+		initWebdriver();
+		initLookAndFeel();
+		initComponents();
+	}
+
+	private void initSpringAndServices() {
 		DomainLayerSpringContext springContext = DomainLayerSpringContext.GetContext(myDirectory);
 		myFlightsOverview = springContext.GetFlightsOverview();
 		myOpenStreetMapService = springContext.GetOpenStreetMapService();
-		myRoutePlanningHelper = new RoutePlanningHelper(myOpenStreetMapService);
 		routePlanningDataStorageService = springContext.GetRoutePlanningDataStorageService();
+	}
 
-		// Setting the Layout
+	private static void initLookAndFeel() {
 		try {
 			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 			UIManager.setLookAndFeel((UIManager.getSystemLookAndFeelClassName()));
@@ -206,14 +204,13 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		} catch (UnsupportedLookAndFeelException e2) {
 			e2.printStackTrace();
 		}
-
-		// initComponent();
 	}
 
 	private static void initWebdriver() {
 
 		System.setProperty("webdriver.gecko.driver",
 				myDirectory + File.separator + Constants.BIN + File.separator + Constants.GECKODRIVER);
+
 		webdriver = new FirefoxDriver();
 
 		String pathOfHtmlPage = myDirectory + File.separator + Constants.ASSETS + File.separator
@@ -224,34 +221,23 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		webdriver.manage().window().fullscreen();
 	}
 
-	public void initComponent() {
+	private void initComponents() {
 
 		myPathToImageFolder = myDirectory + File.separator + Constants.ASSETS + File.separator + Constants.IMAGE;
-
-		Calendar calendar = Calendar.getInstance();
-
-		IHtmlExecutor executor = new HtmlExecutor(myDirectory, Constants.FLIGHTPLANER, Constants.HEADER_OF_PAGE,
-				calendar.getTime());
-		try {
-			executor.write();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		initWebdriver();
 
 		if (!new File(myPathToImageFolder).exists()) {
 			throw new IllegalArgumentException(String.format("path %s does not exists", myPathToImageFolder));
 		}
 
-		this.setTitle(Constants.FLIGHTPLANER);
-		this.setBounds(X + 100, Y, WIDTH, HEIGHT);
-		this.setResizable(false);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setTitle(Constants.FLIGHTPLANER);
+		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+		setBounds(dimension.width / 2, dimension.height / 2 - HEIGHT, WIDTH, HEIGHT);
+		setResizable(false);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		// adding tabbedPane
 		tabbedPane = new JTabbedPane();
-		this.getContentPane().add(tabbedPane);
+		getContentPane().add(tabbedPane);
 
 		// panel for address and routePlanningDataStorageService
 		panelAdresse = new JPanel();
@@ -259,21 +245,10 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		tabbedPane.addTab("Datenbank", panelAdresse);
 		tabbedPane.setMnemonicAt(0, KeyEvent.VK_0);
 
-		// optiones for routePlanningDataStorageService:
-		optionsForDatabase = new JComboBox<String>(new String[] { Constants.CREATEFLIGHT, Constants.INSERTTARGET,
-				Constants.DROPFLIGHT, Constants.SELECTFLIGHT });
-		optionsForDatabase.setBounds(0, 0, 100, 20);
-		optionsForDatabase.setBorder(BorderFactory.createRaisedBevelBorder());
-		optionsForDatabase.setFont(Fonts.MainFont);
-		listSelectionModel = new DefaultListSelectionModel();
-		listSelectionModel.addSelectionInterval(0, 0);
-		listSelectionModel.addSelectionInterval(2, 3);
-		optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
-
 		// the combobox for the routePlanningDataStorageService:
 		String optionsForDataBase[] = { Constants.CONNECT, Constants.DISCONNECT };
 		databaseBox = new JComboBox<String>(optionsForDataBase);
-		databaseBox.setBounds(100, 0, 80, 20);
+		databaseBox.setBounds(0, 0, 80, 20);
 		databaseBox.setBorder(BorderFactory.createRaisedBevelBorder());
 		databaseBox.setFont(Fonts.MainFont);
 		databaseBox.addActionListener(this);
@@ -285,14 +260,9 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		btnAccessData = new IconButton(myPathToImageFolder, "accessDataIcon.jpg", 200, 0);
 		btnAccessData.addActionListener(this);
 
-		confirmAddress = new IconButton(myPathToImageFolder, "Confirm.png", 220, 0);
-		confirmAddress.addActionListener(this);
-
-		panelAdresse.add(optionsForDatabase);
 		panelAdresse.add(databaseBox);
 		panelAdresse.add(btnSave);
 		panelAdresse.add(btnAccessData);
-		panelAdresse.add(confirmAddress);
 
 		// Anlegen der Flugnummer:
 		lblFlight = new JLabel(Constants.FLIGHTNUMBER + ":");
@@ -346,46 +316,45 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		lblstreet.setOpaque(true);
 		lblstreet.setBounds(20, 50, 50, 20);
 		lblstreet.setFont(Fonts.MainFont);
-		lblstreet.setVisible(false);
 		panelAdresse.add(lblstreet);
 
 		txtStreet = new JTextField();
 		txtStreet.setBounds(80, 50, 100, 20);
 		txtStreet.setFocusable(true);
 		txtStreet.setBackground(Color.GREEN);
-		txtStreet.setVisible(false);
 		panelAdresse.add(txtStreet);
 
 		// city
 		lblcity = new JLabel("City:");
 		lblcity.setOpaque(true);
-		lblcity.setBounds(20, 80, 50, 20);
+		lblcity.setBounds(200, 50, 50, 20);
 		lblcity.setFont(Fonts.MainFont);
-		lblcity.setVisible(false);
 		panelAdresse.add(lblcity);
 
 		txtCity = new JTextField();
-		txtCity.setBounds(80, 80, 100, 20);
+		txtCity.setBounds(250, 50, 100, 20);
 		txtCity.setFocusable(true);
 		txtCity.setBackground(Color.GREEN);
-		txtCity.getDocument().addDocumentListener(new ListenerForEmptyFields(txtCity, confirmAddress));
-		txtCity.setVisible(false);
+		txtCity.getDocument().addDocumentListener(new ListenerForEmptyFields(txtCity, myButtonToRequestGPS));
 		panelAdresse.add(txtCity);
 
 		// country:
 		lblcountry = new JLabel("Country:");
 		lblcountry.setOpaque(true);
-		lblcountry.setBounds(20, 110, 50, 20);
+		lblcountry.setBounds(370, 50, 50, 20);
 		lblcountry.setFont(Fonts.MainFont);
-		lblcountry.setVisible(false);
 		panelAdresse.add(lblcountry);
 
 		txtCountry = new JTextField();
-		txtCountry.setBounds(80, 110, 100, 20);
+		txtCountry.setBounds(430, 50, 100, 20);
 		txtCountry.setFocusable(true);
 		txtCountry.setBackground(Color.GREEN);
-		txtCountry.setVisible(false);
 		panelAdresse.add(txtCountry);
+
+		myButtonToRequestGPS = new IconButton(myPathToImageFolder, "Confirm.png", 540, 50);
+		myButtonToRequestGPS.setVisible(true);
+		myButtonToRequestGPS.addActionListener(this);
+		panelAdresse.add(myButtonToRequestGPS);
 
 		// adjust statusbar
 		statusBar = new JLabel();
@@ -409,7 +378,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		panelAdresse.add(lblTABLE);
 
 		/*
-		 * Initialisierung des Buttons f�r Erstellung der TABLE
+		 * Initialisierung des Buttons für TABLE
 		 */
 		btnCreateTable = new JButton();
 		btnCreateTable.setBounds(430, 20, 25, 25);
@@ -424,29 +393,6 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		panelAdresse.add(btnDropTable);
 
 		// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-		panelTargets = new JPanel(new BorderLayout());
-		tabbedPane.add(Constants.TARGETS, panelTargets);
-		tabbedPane.setMnemonicAt(1, KeyEvent.VK_1);
-
-		panelTargetsNorth = new JPanel(new GridLayout(1, 1));
-		panelTargetsNorth.setPreferredSize(new Dimension(200, 380));
-		panelTargetsNorth.setBackground(Color.BLUE);
-		panelTargets.add(panelTargetsNorth, BorderLayout.NORTH);
-
-		String[] columns = { Constants.ID, Constants.STREET, Constants.CITY, Constants.COUNTRY, Constants.LONGITUDE,
-				Constants.LATITUDE };
-		myCommonModelForTargets = new CommonModel(columns);
-		tableTargets = new JTable(myCommonModelForTargets);
-		tableTargets.setPreferredScrollableViewportSize(new Dimension(200, 100));
-		tableTargets.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		tableTargets.getTableHeader().setReorderingAllowed(false);
-		tableTargets.setFillsViewportHeight(true);
-		tableTargets.setFont(new Font("Helvetica", Font.BOLD, 11));
-		tableTargets.getColumnModel().getColumn(5).setCellRenderer(new TargetRenderer());
-		tableTargets.addMouseListener(new TableTargetsMouseListener(targetContextMenu));
-
-		panelTargetsNorth.add(new JScrollPane(tableTargets));
 
 		toolBarForTableActions = new JToolBar();
 		toolBarForTableActions.setPreferredSize(new Dimension(100, 30));
@@ -464,8 +410,6 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		toolBarForTableActions.add(btnUpdate);
 		toolBarForTableActions.add(btnDeleteRow);
 
-		panelTargets.add(toolBarForTableActions, BorderLayout.PAGE_END);
-
 		toolBarAlgorithms = new JToolBar();
 		toolBarAlgorithms.setBounds(0, 500, 100, 30);
 
@@ -479,13 +423,11 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 		toolBarAlgorithms.add(btnMyLocation);
 
-		panelTargets.add(toolBarAlgorithms);
-
 		// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		panelComputedRoute = new JPanel(new BorderLayout());
 
 		tabbedPane.add(Constants.Route, panelComputedRoute);
-		tabbedPane.setMnemonicAt(2, KeyEvent.VK_2);
+		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
 		// Ein panel f�r die Tabelle
 		panelComputedRouteNorth = new JPanel(new GridLayout(1, 1));
@@ -519,9 +461,16 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		btnShowMap.addActionListener(this);
 		toolbarMap.add(btnShowMap);
 
+		myHtmlExecutor = new HtmlExecutor(myDirectory, Constants.FLIGHTPLANER, Constants.HEADER_OF_PAGE,
+				Calendar.getInstance().getTime());
+		try {
+			myHtmlExecutor.write(gpsCoordinates);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// initWebdriver();
 	}
 
-	@SuppressWarnings("static-access")
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object o = e.getSource();
@@ -547,7 +496,6 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					btnSave.setVisible(true);
 				}
 
-				optionsForDatabase.setRenderer(new DefaultListCellRenderer());
 				break;
 			// disconnect
 			case 1:
@@ -559,9 +507,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					setConnected(false);
 					btnAccessData.setVisible(false);
 					btnSave.setVisible(false);
-					setView(Constants.STANDART);
 
-					optionsForDatabase.setRenderer(new ComboBoxRenderer(listSelectionModel));
 				}
 				break;
 			default:
@@ -601,8 +547,13 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			myFlightsOverview.showFrame();
 		}
 
-		else if (o.equals(confirmAddress)) {
-			confirmAdress();
+		else if (o.equals(myButtonToRequestGPS)) {
+			myStreet = txtStreet.getText();
+			myCity = txtCity.getText();
+			myCountry = txtCountry.getText();
+			requestGPS();
+			writeHtmlPage();
+			webdriver.navigate().refresh();
 		}
 
 		else if (o.equals(btnSubmitFlightToDrop)) {
@@ -644,13 +595,10 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 					flightNumber = flightToSelect;
 					statusBar.setText(statusBar.getText() + File.separator + flightNumber);
 					btnSubmitFlightToSelect.setVisible(false);
-					List<GPS> response = routePlanningDataStorageService.getFlightAsList(flightToSelect);
-					if (!myCommonModelForTargets.isEmpty()) {
-						myCommonModelForTargets.clear();
-					}
-					RoutePlanningHelper.fillModel(response, myCommonModelForTargets, false);
+					List<GPSCoordinate> response = routePlanningDataStorageService.getFlightAsList(flightToSelect);
+				}
 
-				} else {
+				else {
 					JOptionPane.showInputDialog(FlightPlaner.this, "Flight " + flightToSelect + " does not exist",
 							JOptionPane.CLOSED_OPTION);
 				}
@@ -659,39 +607,18 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 			}
 		}
 
-		else if (o.equals(btnSubmitFlightNumber)) {
+		else if (o.equals(btnSubmitFlightNumber))
+
+		{
 			flightNumber = txtNewFlight.getText();
 			btnSubmitFlightNumber.setVisible(false);
 		}
 
-		else if (o.equals(btnDeleteRow)) {
-			int[] arrayOfSelectedRows = tableTargets.getSelectedRows();
-
-			/* remove from routePlanningDataStorageService */
-			if (isConnected() == true) {
-				for (int row = 0; row < arrayOfSelectedRows.length; row++) {
-					Object object = myCommonModelForTargets.getValueAt(arrayOfSelectedRows[row], 0);
-					if (object != null) {
-						int id = Integer.valueOf(String.valueOf(object).trim());
-						routePlanningDataStorageService.deleteTarget(flightNumber, id);
-					}
-				}
-			}
-
-			/* remove from master */
-			if (arrayOfSelectedRows[0] < master.size()) {
-				for (int i = 0; i < arrayOfSelectedRows.length; i++) {
-					master.remove(arrayOfSelectedRows[0]);
-				}
-			}
-
-			/* remove from model */
-			myCommonModelForTargets.deleteRow(arrayOfSelectedRows);
-			myCommonModelForTargets.revalidate();
-		}
-
 		else if (o.equals(btnMyLocation)) {
-			AddressDialog.getInstance(flightNumber, isConnected());
+
+			// TODO should by your adress by default, nothing more
+
+			// AddressDialog.getInstance(flightNumber, isConnected());
 		}
 
 		else if (o.equals(btnShowMap)) {
@@ -732,179 +659,71 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 
 	}
 
-	/**
-	 * To set the view:
-	 * 
-	 * @param inserttarget
-	 */
-	public void setView(String view) {
-		if (view != null) {
-			switch (view) {
-			case Constants.CREATEFLIGHT:
-				/** management of view "CREATEFLIGHT:" */
-				lblFlight.setVisible(true);
-				txtNewFlight.setVisible(true);
-				txtNewFlight.requestFocus();
-				if (isConnected()) {
-					btnSave.setVisible(true);
-				}
+	private void requestGPS() {
+		int counter = gpsCoordinates.size();
+		counter++;
 
-				/** management of view "INSERTTARGET:" */
-				RoutePlanningHelper.setVisibilityOfLabels(false, lblstreet, lblcity, lblcountry);
-				RoutePlanningHelper.setVisibilityOfJTextFields(false, txtStreet, txtCity, txtCountry);
+		if (myCity.isEmpty()) {
+			return;
+		}
 
-				/** management of view "DROPFLIGHT" */
-				txtDropFlight.setVisible(false);
-				btnSubmitFlightToDrop.setVisible(false);
+		try {
+			GPSCoordinate gps = null;
 
-				/** management of view "SELECTFLIGHT" */
-				txtSelectFlight.setVisible(false);
-				btnSubmitFlightToSelect.setVisible(false);
-				break;
-			case Constants.INSERTTARGET:
-				/** management of view "CREATEFLIGHT:" */
-				lblFlight.setVisible(false);
-				txtNewFlight.setVisible(false);
-				btnSubmitFlightNumber.setVisible(false);
-				btnSave.setVisible(false);
-
-				/** management of view "INSERTTARGET:" */
-				RoutePlanningHelper.setVisibilityOfLabels(true, lblstreet, lblcity, lblcountry);
-				RoutePlanningHelper.setVisibilityOfJTextFields(true, txtStreet, txtCity, txtCountry);
-				txtCity.requestFocus();
-
-				/** management of view "DROPFLIGHT" */
-				txtDropFlight.setVisible(false);
-				btnSubmitFlightToDrop.setVisible(false);
-
-				/** management of view "SELECTFLIGHT" */
-				txtSelectFlight.setVisible(false);
-				btnSubmitFlightToSelect.setVisible(false);
-
-				confirmAddress.setVisible(true);
-
-				break;
-
-			case Constants.DROPFLIGHT:
-				if (isConnected()) {
-					/** management of view "CREATEFLIGHT:" */
-					txtNewFlight.setVisible(false);
-					btnSubmitFlightNumber.setVisible(false);
-					btnSave.setVisible(false);
-					/** management of view "INSERTTARGET:" */
-					RoutePlanningHelper.setVisibilityOfLabels(false, lblstreet, lblcity, lblcountry);
-					RoutePlanningHelper.setVisibilityOfJTextFields(false, txtStreet, txtCity, txtCountry);
-					/** management of view "DROPFLIGHT" */
-					lblFlight.setVisible(true);
-					txtDropFlight.setVisible(true);
-					txtDropFlight.requestFocus();
-					/** management of view "SELECTFLIGHT" */
-					txtSelectFlight.setVisible(false);
-					btnSubmitFlightToSelect.setVisible(false);
-					break;
-				}
-			case Constants.SELECTFLIGHT:
-				if (isConnected()) {
-					/** management of view "CREATEFLIGHT:" */
-					txtNewFlight.setVisible(false);
-					btnSubmitFlightNumber.setVisible(false);
-					btnSave.setVisible(false);
-
-					/** management of view "INSERTTARGET:" */
-					RoutePlanningHelper.setVisibilityOfLabels(false, lblstreet, lblcity, lblcountry);
-					RoutePlanningHelper.setVisibilityOfJTextFields(false, txtStreet, txtCity, txtCountry);
-
-					/** management of view "DROPFLIGHT" */
-					txtDropFlight.setVisible(false);
-					btnSubmitFlightToDrop.setVisible(false);
-
-					/** management of view "SELECTFLIGHT" */
-					lblFlight.setVisible(true);
-					txtSelectFlight.setVisible(true);
-					txtSelectFlight.requestFocus();
-				}
-				break;
-
-			case Constants.STANDART:
-				flightNumber = null;
-				break;
-
-			default:
-				// do nothing;
+			try {
+				gps = myOpenStreetMapService.getCoordinates(myStreet, myCity, myCountry);
+				// TODO when is null reference recieved?
+			} catch (MalformedURLException e2) {
+				e2.printStackTrace();
 			}
+
+			if (gps != null && !gpsCoordinates.contains(gps)) {
+
+				gps.setId(counter);
+
+				gpsCoordinates.add(gps);
+
+				if (isConnected() && (flightNumber != null)) {
+					try {
+						routePlanningDataStorageService.insertIntoFlight(flightNumber, gps);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+			RoutePlanningHelper.clearTextFields(txtStreet, txtCity, txtCountry);
+			txtCity.requestFocus();
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
-	private void confirmAdress() {
-		int counter = master.size();
-		counter++;
-
-		if (txtCity.getText() != "")
-			try {
-				{
-					GPS gps = null;
-
-					StringBuilder builder = new StringBuilder();
-					builder.append(txtStreet.getText());
-					builder.append(txtCity.getText());
-					builder.append(txtCountry.getText());
-
-					/** to request the coordinates */
-					try {
-
-						gps = myOpenStreetMapService
-								.getCoordinates(myRoutePlanningHelper.replaceUnusableChars(builder.toString()));
-
-					} catch (MalformedURLException e2) {
-						e2.printStackTrace();
-					}
-
-					if (gps != null) {
-						/** saving the address */
-						gps.setId(counter);
-						gps.setStreet(txtStreet.getText());
-						gps.setCity(txtCity.getText());
-						gps.setCountry(txtCountry.getText());
-
-						if (!master.contains(gps)) {
-
-							master.add(gps);
-							myCommonModelForTargets.addDataRow(new AddressVector(String.valueOf(counter),
-									txtStreet.getText(), txtCity.getText(), txtCountry.getText(),
-									String.valueOf(gps.getLongitude()), String.valueOf(gps.getLatitude())));
-							myCommonModelForTargets.revalidate();
-
-							if (isConnected() && (flightNumber != null)) {
-								try {
-									routePlanningDataStorageService.insertIntoFlight(flightNumber, gps);
-								} catch (SQLException e1) {
-									e1.printStackTrace();
-								}
-							}
-
-						}
-					}
-					RoutePlanningHelper.clearTextFields(txtStreet, txtCity, txtCountry);
-					txtCity.requestFocus();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+	private void writeHtmlPage() {
+		try {
+			myHtmlExecutor.write(gpsCoordinates);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void executeOptimization(int locX, int locY) {
 		if (startGps != null) {
 			new InfiniteProgress(locX, locY).execute();
+		} else {
+			throw new IllegalArgumentException("start is not set up!");
 		}
 	}
 
 	public void check() {
 
 		modelRoute.clear();
-		computedRoute = myOptimizationService.compute(startGps, master);
+
+		computedRoute = myOptimizationService.compute(startGps, gpsCoordinates);
 		RoutePlanningHelper.fillModel(computedRoute, modelRoute, true);
 		cityRender.setData(computedRoute);
-		GPS targetGps = computedRoute.get(computedRoute.size() - 1);
+		GPSCoordinate targetGps = computedRoute.get(computedRoute.size() - 1);
+
 		if (isConnected) {
 			try {
 				RoutePlanningDataStorageService.insertTargetLocation(flightNumber, targetGps.getCity(),
@@ -916,6 +735,7 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 	}
 
 	// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 	/** getters&setters */
 	public String getFlightNumber() {
 		return flightNumber;
@@ -933,20 +753,12 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		this.statusBar = statusBar;
 	}
 
-	public ArrayList<GPS> getMaster() {
-		return master;
+	public ArrayList<GPSCoordinate> getGpsCoordinates() {
+		return gpsCoordinates;
 	}
 
-	public void setMaster(ArrayList<GPS> master) {
-		this.master = master;
-	}
-
-	public CommonModel getMyCommonModelForTargets() {
-		return myCommonModelForTargets;
-	}
-
-	public void setMyCommonModelForTargets(CommonModel modelTargets) {
-		this.myCommonModelForTargets = modelTargets;
+	public void setGpsCoordinates(ArrayList<GPSCoordinate> master) {
+		this.gpsCoordinates = master;
 	}
 
 	public JTable getTableTargets() {
@@ -985,11 +797,11 @@ public class FlightPlaner extends JFrame implements ActionListener, DocumentList
 		this.currentView = currentView;
 	}
 
-	public GPS getStartGps() {
+	public GPSCoordinate getStartGps() {
 		return startGps;
 	}
 
-	public void setStartGps(GPS startGps) {
+	public void setStartGps(GPSCoordinate startGps) {
 		this.startGps = startGps;
 	}
 

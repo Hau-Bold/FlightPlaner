@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 
-import routePlanning.Impl.GPS;
+import routePlanning.Impl.GPSCoordinate;
 import routePlanning.Impl.RoutePlanningHelper;
 import widgets.animation.FrameMap;
 import widgets.animation.Plane;
@@ -44,7 +44,7 @@ public class AnimatePlane implements Runnable {
 
 			while ((xCoorPlane != xCoorTo) || (yCoorPlane != yCoorTo)) {
 
-				GPS gpsTo = RoutePlanningHelper.millerToGps(new Point(xCoorTo, yCoorTo));
+				GPSCoordinate gpsTo = RoutePlanningHelper.millerToGps(new Point(xCoorTo, yCoorTo));
 
 				/** to save the old location */
 				Point oldLocation = new Point(xCoorPlane, yCoorPlane);

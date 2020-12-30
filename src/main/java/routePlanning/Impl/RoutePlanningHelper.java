@@ -4,34 +4,22 @@ import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Stroke;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import org.json.JSONException;
-import org.json.simple.parser.ParseException;
-
 import Routenplaner.ImagePanel;
 import routePlanning.Constants.Constants;
-import routePlanning.Contract.IOpenStreetMapService;
 import routePlanning.overview.Flight;
 import tablemodel.CommonModel;
 
 public class RoutePlanningHelper {
 
-	public IOpenStreetMapService myOpenStreetMapService;
-
-	public RoutePlanningHelper(IOpenStreetMapService openStreetMapService) {
-		myOpenStreetMapService = openStreetMapService;
-	}
-
-	public String replaceUnusableChars(String receiving) {
+	public static String replaceUnusableChars(String receiving) {
 		if (receiving != null) {
 			receiving = receiving.replaceAll("ä", "ae");
 			receiving = receiving.replaceAll("ü", "ue");
@@ -42,44 +30,7 @@ public class RoutePlanningHelper {
 		return receiving;
 	}
 
-	public GPS getGpsCoordinateToLocation(String location, int id) throws JSONException, ParseException, IOException {
-		String[] locationSplitted = location.split(",");
-		GPS gps = myOpenStreetMapService.getCoordinates(location);
-
-		gps.setId(id);
-
-		// case:complete address
-		if (locationSplitted.length == 3) {
-			gps.setStreet(locationSplitted[0]);
-			gps.setCity(locationSplitted[1]);
-			gps.setCountry(locationSplitted[2]);
-		}
-
-		// case: only city
-		if (locationSplitted.length == 1) {
-			gps.setCity(locationSplitted[0]);
-		}
-		return gps;
-	}
-
-	public static void generate(int[] array, int x, Random random) {
-		array[x] = random.nextInt(array.length);
-		for (int i = 0; i < x; i++) {
-			if (array[i] == array[x]) {
-				generate(array, x, random);
-
-				return;
-			}
-		}
-
-		if (x < array.length - 1) {
-			// generate next index
-			generate(array, x + 1, random);
-		}
-
-	}
-
-	public static Point gpsToMiller(GPS gps) {
+	public static Point gpsToMiller(GPSCoordinate gps) {
 		double xMiller = (gps.getLongitude() + 168.2) / Constants.CORRECTION;
 		final double H = 2136.0;
 		double yMiller = Math.toRadians(gps.getLatitude());
@@ -88,7 +39,7 @@ public class RoutePlanningHelper {
 		return new Point((int) xMiller, (int) yMiller);
 	}
 
-	public static GPS millerToGps(Point point) {
+	public static GPSCoordinate millerToGps(Point point) {
 
 		double longitude = Constants.CORRECTION * point.getX() - 168.2;
 
@@ -97,7 +48,7 @@ public class RoutePlanningHelper {
 		double exponent = 0.8 * ((H / 2 - point.getY()) / (H / 4.1));
 
 		double latitude = (Math.exp(exponent) - Math.tan(Math.PI / 4)) * (180.0) / (0.4 * Math.PI);
-		return new GPS(latitude, longitude);
+		return new GPSCoordinate(latitude, longitude);
 	}
 
 	// TODO move to other Helper
@@ -123,7 +74,7 @@ public class RoutePlanningHelper {
 		}
 	}
 
-	public static double getTotalDistance(List<GPS> receiving) {
+	public static double getTotalDistance(List<GPSCoordinate> receiving) {
 		double response = .0;
 		for (int i = 0; i < receiving.size() - 1; i++) {
 			response += distanceBetween(receiving.get(i), receiving.get(i + 1));
@@ -131,7 +82,7 @@ public class RoutePlanningHelper {
 		return response;
 	}
 
-	public static double distanceBetween(GPS from, GPS to) {
+	public static double distanceBetween(GPSCoordinate from, GPSCoordinate to) {
 		final double radius = 6371.0;
 		double distance = Math.sin(Math.toRadians(from.getLatitude())) * Math.sin(Math.toRadians(to.getLatitude()));
 		distance += Math.cos(Math.toRadians(from.getLatitude())) * Math.cos(Math.toRadians(to.getLatitude()))
@@ -146,10 +97,10 @@ public class RoutePlanningHelper {
 		return (string == null) || (string == "");
 	}
 
-	public static void fillModel(List<GPS> receiving, CommonModel model, boolean isComputedModel) {
+	public static void fillModel(List<GPSCoordinate> receiving, CommonModel model, boolean isComputedModel) {
 		Vector<String> datarow;
 		if (!isComputedModel) {
-			for (GPS entry : receiving) {
+			for (GPSCoordinate entry : receiving) {
 				datarow = new Vector<String>();
 				datarow.add(String.valueOf(entry.getId()));
 				datarow.add(entry.getStreet());
@@ -166,7 +117,7 @@ public class RoutePlanningHelper {
 
 			model.clear();
 			if (receiving.size() > 0) {
-				GPS gps = null;
+				GPSCoordinate gps = null;
 				gps = receiving.get(0);
 				datarow = new Vector<String>();
 				datarow.add(String.valueOf(gps.getId()));

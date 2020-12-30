@@ -1,6 +1,6 @@
 package routePlanning.Impl;
 
-public class GPS {
+public class GPSCoordinate {
 
 	private int myId;
 	private double myLatitude;
@@ -9,16 +9,13 @@ public class GPS {
 	private String myCity;
 	private String myCountry;
 
-	// ctor
-	public GPS(double latitude, double longitude) {
+	public GPSCoordinate(double latitude, double longitude) {
 		myLatitude = latitude;
 		myLongitude = longitude;
 	}
 
-	// ctor
-	public GPS(int id, String street, String city, String country, double longitude, double latitude) {
+	public GPSCoordinate(String street, String city, String country, double longitude, double latitude) {
 		this(latitude, longitude);
-		myId = id;
 		myStreet = street;
 		myCity = city;
 		myCountry = country;
@@ -37,7 +34,7 @@ public class GPS {
 	}
 
 	public void setStreet(String street) {
-		this.myStreet = street;
+		myStreet = street;
 	}
 
 	public String getCity() {
@@ -53,7 +50,7 @@ public class GPS {
 	}
 
 	public void setCountry(String country) {
-		this.myCountry = country;
+		myCountry = country;
 	}
 
 	public double getLatitude() {
@@ -66,8 +63,10 @@ public class GPS {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof GPS) {
-			if (((GPS) obj).getLongitude() == this.getLongitude() && ((GPS) obj).getLatitude() == this.getLatitude()) {
+		if (obj instanceof GPSCoordinate) {
+			// TODO check xml from openstreetmap and use Double.compare(d1, d2)
+			if (((GPSCoordinate) obj).getLongitude() == myLongitude
+					&& ((GPSCoordinate) obj).getLatitude() == myLatitude) {
 				return true;
 			}
 		}

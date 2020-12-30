@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import routePlanning.Constants.Constants;
-import routePlanning.Impl.GPS;
+import routePlanning.Impl.GPSCoordinate;
 import routePlanning.overview.Flight;
 
 public class RoutePlanningDataStorageService {
@@ -98,10 +98,10 @@ public class RoutePlanningDataStorageService {
 	 * @throws SQLException
 	 *             - in case of technical error
 	 */
-	public ArrayList<GPS> getFlightAsList(String flightToSelect) throws SQLException {
+	public ArrayList<GPSCoordinate> getFlightAsList(String flightToSelect) throws SQLException {
 		Statement statement = null;
 		ResultSet resultSet = null;
-		ArrayList<GPS> response = new ArrayList<GPS>();
+		ArrayList<GPSCoordinate> response = new ArrayList<GPSCoordinate>();
 		String sql = "SELECT * FROM " + flightToSelect + ";";
 		try {
 			statement = connection.getConnection().createStatement();
@@ -117,8 +117,9 @@ public class RoutePlanningDataStorageService {
 			String country = resultSet.getString(4);
 			double longitude = resultSet.getDouble(5);
 			double latitude = resultSet.getDouble(6);
-
-			response.add(new GPS(id, street, city, country, longitude, latitude));
+			GPSCoordinate gps = new GPSCoordinate(street, city, country, longitude, latitude);
+			gps.setId(id);
+			response.add(gps);
 		}
 		resultSet.close();
 		statement.close();
@@ -136,7 +137,7 @@ public class RoutePlanningDataStorageService {
 	 * @throws SQLException
 	 *             - in case of technical error
 	 */
-	public void insertIntoFlight(String flightNumber, GPS gps) throws SQLException {
+	public void insertIntoFlight(String flightNumber, GPSCoordinate gps) throws SQLException {
 		PreparedStatement preparedStatement = null;
 		String street = gps.getStreet();
 		String city = gps.getCity();
@@ -221,7 +222,7 @@ public class RoutePlanningDataStorageService {
 	 * @throws SQLException
 	 *             - in case of technical error
 	 */
-	public static void insertStartLocation(String flightNumber, GPS startGps, DataBaseConnection connection)
+	public static void insertStartLocation(String flightNumber, GPSCoordinate startGps, DataBaseConnection connection)
 			throws SQLException {
 		String sql = "UPDATE " + Constants.FLIGHTS + " SET START=" + "'" + startGps.getCity() + "',"
 				+ Constants.LONGITUDE + "=" + "'" + startGps.getLongitude() + "'," + Constants.LATITUDE + "=" + "'"
@@ -347,11 +348,11 @@ public class RoutePlanningDataStorageService {
 	 * @throws SQLException
 	 *             - in case of technical error
 	 */
-	public static GPS getStartGps(String flightNumber, DataBaseConnection connection) throws SQLException {
+	public static GPSCoordinate getStartGps(String flightNumber, DataBaseConnection connection) throws SQLException {
 		String query = "SELECT * FROM " + Constants.FLIGHTS + " WHERE FLIGHTNUMBER = '" + flightNumber + "';";
 		Statement statement = null;
 		ResultSet resultSet = null;
-		GPS response = null;
+		GPSCoordinate response = null;
 
 		try {
 			statement = connection.getConnection().createStatement();
@@ -361,11 +362,13 @@ public class RoutePlanningDataStorageService {
 				if (start != null) {
 					String[] startSplitted = start.split(",");
 					if (startSplitted.length == 3) {
-						response = new GPS(0, startSplitted[0], startSplitted[1], startSplitted[2],
-								resultSet.getDouble(4), resultSet.getDouble(5));
+						response = new GPSCoordinate(startSplitted[0], startSplitted[1], startSplitted[2], resultSet.getDouble(4),
+								resultSet.getDouble(5));
+
 					} else if (startSplitted.length == 1) {
-						response = new GPS(0, "", startSplitted[0], "", resultSet.getDouble(4), resultSet.getDouble(5));
+						response = new GPSCoordinate("", startSplitted[0], "", resultSet.getDouble(4), resultSet.getDouble(5));
 					}
+					response.setId(0);
 				}
 			}
 		} catch (SQLException e) {

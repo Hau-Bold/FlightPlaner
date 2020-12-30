@@ -46,8 +46,6 @@ public class Constants {
 	public static final String PRINTPREVIEW = "Print preview";
 	public static final String PROCESSING = "Processing Data";
 	public static final String IMAGE = "Images";
-	public static final Object OpenStreetMapURLPrePart = "https://nominatim.openstreetmap.org/search?q=";
-	public static final Object OpenStreetMapURLPostPart = "&format=json&amp;addressdetails=1";
 
 	/** SQL **/
 	public final static String CREATE = "CREATE";
@@ -84,6 +82,8 @@ public class Constants {
 	public static final String TURQUOISE = "#00B2CA";
 	public static final String FlightPlanerHtml = "flightplaner.html";
 	public static final String Slash = "/";
+	public static final String MalformedUrl = "malformed url %s";
+	public static final String ConnectionError = "Connection Error: %s";
 
 	public static String HEADER_OF_PAGE = "%s, %s. %s %s";
 

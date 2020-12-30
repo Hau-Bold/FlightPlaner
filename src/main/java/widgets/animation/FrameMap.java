@@ -23,7 +23,7 @@ import Routenplaner.ImagePanel;
 import animationService.AnimatePlane;
 import animationService.AnimateTarget;
 import client.FlightPlaner;
-import routePlanning.Impl.GPS;
+import routePlanning.Impl.GPSCoordinate;
 import routePlanning.Impl.RoutePlanningHelper;
 
 @SuppressWarnings("serial")
@@ -51,7 +51,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 		return imagepanel;
 	}
 
-	private FrameMap(List<GPS> computedRoute) {
+	private FrameMap(List<GPSCoordinate> computedRoute) {
 		myFlightPlaner = FlightPlaner.getInstance();
 
 		myTargets = new ArrayList<Point>();
@@ -220,7 +220,7 @@ public class FrameMap extends JFrame implements ActionListener, ChangeListener {
 
 	}
 
-	public static FrameMap getInstance(List<GPS> computedRoute) {
+	public static FrameMap getInstance(List<GPSCoordinate> computedRoute) {
 		if (FrameMap.frameMap == null) {
 			frameMap = new FrameMap(computedRoute);
 			return frameMap;

@@ -8,16 +8,19 @@ public class GPSCoordinate {
 	private String myStreet;
 	private String myCity;
 	private String myCountry;
+	private String myPostalCode;
 
 	public GPSCoordinate(double latitude, double longitude) {
 		myLatitude = latitude;
 		myLongitude = longitude;
 	}
 
-	public GPSCoordinate(String street, String city, String country, double longitude, double latitude) {
+	public GPSCoordinate(String street, String city, String postalCode, String country, double longitude,
+			double latitude) {
 		this(latitude, longitude);
 		myStreet = street;
 		myCity = city;
+		myPostalCode = postalCode;
 		myCountry = country;
 	}
 
@@ -39,6 +42,10 @@ public class GPSCoordinate {
 
 	public String getCity() {
 		return myCity;
+	}
+
+	public String getPostalCode() {
+		return myPostalCode;
 	}
 
 	public void setCity(String city) {
@@ -71,5 +78,12 @@ public class GPSCoordinate {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "GPSCoordinate{" + "myStreet='" + myStreet + '\'' + ", myCity='" + myCity + '\'' + ", myCountry='"
+				+ myCountry + '\'' + ", myLatitude='" + myLatitude + '\'' + ", myLongtitude='" + myLongitude + '\''
+				+ '}';
 	}
 }

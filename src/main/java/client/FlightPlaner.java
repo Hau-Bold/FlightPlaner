@@ -153,6 +153,7 @@ public class FlightPlaner extends JDialog implements ActionListener, DocumentLis
 	private String myPathToImageFolder;
 	private String myStreet;
 	private String myCity;
+	private String myPostalCode;
 	private String myCountry;
 	private HtmlExecutor myHtmlExecutor;
 
@@ -671,7 +672,8 @@ public class FlightPlaner extends JDialog implements ActionListener, DocumentLis
 			GPSCoordinate gps = null;
 
 			try {
-				gps = myOpenStreetMapService.getCoordinates(myStreet, myCity, myCountry);
+
+				gps = myOpenStreetMapService.getCoordinates(myStreet, myCity, myPostalCode, myCountry);
 				// TODO when is null reference recieved?
 			} catch (MalformedURLException e2) {
 				e2.printStackTrace();

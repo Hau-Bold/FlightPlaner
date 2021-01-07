@@ -16,6 +16,7 @@ import routePlanning.Constants.Constants;
 import routePlanning.Impl.GPSCoordinate;
 import routePlanning.overview.Flight;
 
+//TODO extend Table => there must a column (string) for postalcode 
 public class RoutePlanningDataStorageService {
 	private static DataBaseConnection connection;
 	private String myDirectory;
@@ -28,7 +29,6 @@ public class RoutePlanningDataStorageService {
 
 		if (connection != null) {
 			connection.getConnection().close();
-			// connection = null;
 		}
 		connection = new DataBaseConnection(
 				myDirectory + File.separator + Constants.BIN + File.separator + Constants.DataBaseName);
@@ -89,15 +89,6 @@ public class RoutePlanningDataStorageService {
 		}
 	}
 
-	/**
-	 * yields a flight from the database as lis
-	 * 
-	 * @param flightToSelect
-	 *            - the flight to select
-	 * @return list of targets belonging to the specific flight
-	 * @throws SQLException
-	 *             - in case of technical error
-	 */
 	public ArrayList<GPSCoordinate> getFlightAsList(String flightToSelect) throws SQLException {
 		Statement statement = null;
 		ResultSet resultSet = null;
@@ -117,7 +108,7 @@ public class RoutePlanningDataStorageService {
 			String country = resultSet.getString(4);
 			double longitude = resultSet.getDouble(5);
 			double latitude = resultSet.getDouble(6);
-			GPSCoordinate gps = new GPSCoordinate(street, city, country, longitude, latitude);
+			GPSCoordinate gps = new GPSCoordinate(street, city, "", country, longitude, latitude);
 			gps.setId(id);
 			response.add(gps);
 		}
@@ -337,17 +328,6 @@ public class RoutePlanningDataStorageService {
 
 	}
 
-	/**
-	 * yields the gps of the start
-	 * 
-	 * @param flightNumber
-	 *            - the flightnumber
-	 * @param connection
-	 *            - the connection
-	 * @return
-	 * @throws SQLException
-	 *             - in case of technical error
-	 */
 	public static GPSCoordinate getStartGps(String flightNumber, DataBaseConnection connection) throws SQLException {
 		String query = "SELECT * FROM " + Constants.FLIGHTS + " WHERE FLIGHTNUMBER = '" + flightNumber + "';";
 		Statement statement = null;
@@ -362,11 +342,12 @@ public class RoutePlanningDataStorageService {
 				if (start != null) {
 					String[] startSplitted = start.split(",");
 					if (startSplitted.length == 3) {
-						response = new GPSCoordinate(startSplitted[0], startSplitted[1], startSplitted[2], resultSet.getDouble(4),
-								resultSet.getDouble(5));
+						response = new GPSCoordinate(startSplitted[0], startSplitted[1], "", startSplitted[2],
+								resultSet.getDouble(4), resultSet.getDouble(5));
 
 					} else if (startSplitted.length == 1) {
-						response = new GPSCoordinate("", startSplitted[0], "", resultSet.getDouble(4), resultSet.getDouble(5));
+						response = new GPSCoordinate("", startSplitted[0], "", "", resultSet.getDouble(4),
+								resultSet.getDouble(5));
 					}
 					response.setId(0);
 				}

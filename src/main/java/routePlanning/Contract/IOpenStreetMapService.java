@@ -8,5 +8,6 @@ import routePlanning.Impl.GPSCoordinate;
 
 public interface IOpenStreetMapService {
 
-	GPSCoordinate getCoordinates(String street, String city, String country) throws ParseException, IOException;
+	GPSCoordinate getCoordinates(String street, String city, String postalCode, String country)
+			throws ParseException, IOException;
 }

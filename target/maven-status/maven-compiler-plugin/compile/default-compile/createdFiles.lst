@@ -6,6 +6,7 @@ routePlanning\Impl\OptimizationService$FindOptimized.class
 routePlanning\Impl\OptimizationService.class
 routePlanning\Impl\OptimizationService$FindFarestThenNearest.class
 widgets\IconMenuItem.class
+controller\FlightPlanerController.class
 Routenplaner\AddressVector.class
 view\Impl\HtmlExecutor.class
 routePlanning\Impl\OptimizationService$FindRandom.class
@@ -21,6 +22,7 @@ Routenplaner\ImagePanel.class
 tablemodel\CommonModel.class
 render\CityRenderer.class
 animationService\AnimateTarget.class
+controller\MainAppClass.class
 widgets\progression\InfiniteProgress.class
 render\TargetRenderer.class
 widgets\control\MenuItemMouseListener.class
